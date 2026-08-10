@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/adaptive-scale/katana/internal/discover"
 	"github.com/adaptive-scale/katana/internal/generator"
 	"github.com/adaptive-scale/katana/internal/harness"
 	"github.com/adaptive-scale/katana/internal/testindex"
@@ -32,6 +34,51 @@ func describeRequest(w io.Writer, root string, r *harness.Runner, it item, sourc
 		strings.TrimSpace(spec.Command+" "+strings.Join(spec.Args, " ")), spec.Prompt)
 	if it.Instructions != "" {
 		fmt.Fprintf(w, "  extra    %s\n", firstLine(it.Instructions))
+	}
+}
+
+// describeUnit narrates one discovery before the harness starts: which files it
+// is about to read, and what it will write.
+func describeUnit(w io.Writer, root string, r *harness.Runner, u discover.Unit, language string) {
+	spec := r.Spec()
+	target := "new file"
+	if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(u.Output))); err == nil {
+		target = "updating " + byteSize(info.Size())
+	}
+
+	fmt.Fprintf(w, "  source   %s (%d %s file(s), %s)\n", u.Name, len(u.Files), language, byteSize(u.Bytes))
+	for _, f := range u.Files {
+		fmt.Fprintf(w, "    • %s\n", f)
+	}
+	fmt.Fprintf(w, "  target   %s (%s)\n", u.Output, target)
+	fmt.Fprintf(w, "  harness  %s (prompt via %s)\n",
+		strings.TrimSpace(spec.Command+" "+strings.Join(spec.Args, " ")), spec.Prompt)
+}
+
+// describeSpec reports the behavior file a discovery produced, counted the way
+// a reader would read it: sections, and the statements under them that each
+// become a test case.
+func describeSpec(w io.Writer, root, name string, out *discover.Outcome) {
+	body, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(name)))
+	if err != nil {
+		fmt.Fprintf(w, "  wrote    %s (%d bytes)\n", name, out.Bytes)
+		return
+	}
+	sections, statements := 0, 0
+	for _, line := range strings.Split(string(body), "\n") {
+		t := strings.TrimSpace(line)
+		switch {
+		case strings.HasPrefix(t, "#"):
+			sections++
+		case strings.HasPrefix(t, "- "), strings.HasPrefix(t, "* "):
+			statements++
+		}
+	}
+	fmt.Fprintf(w, "  wrote    %s (%s, %d section(s), %d statement(s))\n",
+		name, byteSize(int64(len(body))), sections, statements)
+	fmt.Fprint(w, indent(preview(string(body), previewLines), "  │ "))
+	if out.HarnessOutput != "" {
+		fmt.Fprintf(w, "  harness said: %s\n", firstLine(out.HarnessOutput))
 	}
 }
 

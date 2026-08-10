@@ -125,6 +125,34 @@ func Describe() []Spec {
 	return out
 }
 
+// PermissionHint spots the most common reason a harness produced nothing — it
+// was denied file-write access — and names the fix.
+//
+// A non-interactive agent has nobody to answer a permission prompt, so the
+// denial is silent from katana's side and the raw error reads as if the agent
+// simply refused the work.
+func PermissionHint(harnessName, stdout, stderr string) string {
+	// Match on the denial itself, never on the bare word "permission" — katana
+	// puts a permission flag on the command line, and harnesses echo their
+	// arguments back.
+	hay := strings.ToLower(stdout + "\n" + stderr)
+	denied := false
+	for _, m := range []string{"denied", "not allowed", "no write access", "read-only", "grant write", "without permission"} {
+		if strings.Contains(hay, m) {
+			denied = true
+			break
+		}
+	}
+	if !denied {
+		return ""
+	}
+	fix := "grant it write access to the output path, e.g. via harness.args in katana.yaml"
+	if harnessName == "claude" {
+		fix = `run it with write access, e.g. harness.args: ["-p", "--permission-mode", "auto"] in katana.yaml`
+	}
+	return "hint: the harness looks like it was denied file-write permission; " + fix
+}
+
 // Options configure a Runner beyond the harness spec itself.
 type Options struct {
 	// Dir is the working directory for the harness process, normally the

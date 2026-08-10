@@ -225,6 +225,29 @@ func (c *Config) HarnessJobs() int {
 	return DefaultJobs
 }
 
+// BehaviorDir returns the directory behavior files live in, which is where
+// `katana discover` writes what it finds.
+//
+// It is the fixed part of the first configured behavior path — the directory a
+// glob is rooted at, or the parent of a single named file — so a project that
+// moved its behaviors elsewhere is discovered into the same place it already
+// keeps them.
+func (c *Config) BehaviorDir() string {
+	for _, b := range c.Behaviors {
+		base := c.patternBase(b.Path)
+		// patternBase can only tell a file from a directory by looking, so a
+		// path naming a behavior file that does not exist yet still reads as a
+		// directory. Its extension gives it away.
+		if isMarkdown(base) {
+			base = path.Dir(base)
+		}
+		if base != "" && base != "." && base != "/" {
+			return base
+		}
+	}
+	return "behaviors"
+}
+
 // Resolve expands globs and applies defaults, returning one entry per behavior
 // file sorted by source path. Two behaviors writing the same output file is an
 // error — it would make regeneration order-dependent.

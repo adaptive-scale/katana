@@ -394,3 +394,31 @@ func TestHarnessJobs(t *testing.T) {
 		}
 	})
 }
+
+func TestBehaviorDirFollowsTheConfiguredPath(t *testing.T) {
+	cases := []struct {
+		name string
+		path string
+		want string
+	}{
+		{"a directory", "behaviors", "behaviors"},
+		{"a glob", "specs/**/*.md", "specs"},
+		{"a single file that does not exist yet", "docs/specs/checkout.md", "docs/specs"},
+		{"the project root", ".", "behaviors"},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			root := writeProject(t, map[string]string{
+				"katana.yaml": "version: 1\nbehaviors:\n  - path: " + c.path + "\n",
+			})
+			cfg, err := Load(filepath.Join(root, "katana.yaml"))
+			if err != nil {
+				t.Fatalf("Load: %v", err)
+			}
+			if got := cfg.BehaviorDir(); got != c.want {
+				t.Errorf("BehaviorDir() = %q, want %q", got, c.want)
+			}
+		})
+	}
+}

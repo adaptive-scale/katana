@@ -3,6 +3,8 @@ package generator
 import (
 	"fmt"
 	"strings"
+
+	"github.com/adaptive-scale/katana/internal/fence"
 )
 
 // Request is everything the prompt builder needs for one behavior.
@@ -42,13 +44,13 @@ func BuildPrompt(r Request) string {
 		b.WriteString("Update it to match the specification as it now reads: change the cases the specification changed, ")
 		b.WriteString("add cases it added, and remove cases it no longer describes. ")
 		b.WriteString("Preserve unrelated hand-written helpers, fixtures and imports rather than rewriting the file from scratch.\n\n")
-		b.WriteString(fence(r.ExistingTests))
+		b.WriteString(fence.Wrap(r.ExistingTests))
 		b.WriteString("\n\n")
 	}
 
 	b.WriteString("## Behavior specification\n\n")
 	fmt.Fprintf(&b, "Source file: %s\n\n", r.BehaviorPath)
-	b.WriteString(fence(r.BehaviorContent))
+	b.WriteString(fence.Wrap(r.BehaviorContent))
 	b.WriteString("\n\n")
 
 	b.WriteString("## Requirements\n\n")
@@ -72,14 +74,4 @@ func BuildPrompt(r Request) string {
 	b.WriteString("If you could not write it, reply with the fenced file contents as described above.\n")
 
 	return b.String()
-}
-
-// fence wraps content in a code fence long enough not to be terminated early by
-// fences inside the content itself.
-func fence(content string) string {
-	ticks := "```"
-	for strings.Contains(content, ticks) {
-		ticks += "`"
-	}
-	return ticks + "\n" + strings.TrimRight(content, "\n") + "\n" + ticks
 }

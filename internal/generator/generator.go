@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/adaptive-scale/katana/internal/fence"
 	"github.com/adaptive-scale/katana/internal/harness"
 )
 
@@ -104,38 +105,10 @@ func (g *Generator) Generate(ctx context.Context, req Request) (*Outcome, error)
 
 	err = fmt.Errorf("harness %q did not write %s and printed no test code; harness said: %s",
 		g.runner.Spec().Name, req.OutputPath, summarize(res.Stdout, res.Stderr))
-	if hint := permissionHint(g.runner.Spec().Name, res.Stdout, res.Stderr); hint != "" {
+	if hint := harness.PermissionHint(g.runner.Spec().Name, res.Stdout, res.Stderr); hint != "" {
 		err = fmt.Errorf("%w\n  %s", err, hint)
 	}
 	return nil, err
-}
-
-// permissionHint spots the most common cause of an empty generation — the
-// harness was denied file-write access — and names the fix.
-//
-// A non-interactive agent has nobody to answer a permission prompt, so the
-// denial is silent from katana's side and the raw error reads as if the agent
-// simply refused the work.
-func permissionHint(harnessName, stdout, stderr string) string {
-	// Match on the denial itself, never on the bare word "permission" — katana
-	// puts a permission flag on the command line, and harnesses echo their
-	// arguments back.
-	hay := strings.ToLower(stdout + "\n" + stderr)
-	denied := false
-	for _, m := range []string{"denied", "not allowed", "no write access", "read-only", "grant write", "without permission"} {
-		if strings.Contains(hay, m) {
-			denied = true
-			break
-		}
-	}
-	if !denied {
-		return ""
-	}
-	fix := "grant it write access to the output path, e.g. via harness.args in katana.yaml"
-	if harnessName == "claude" {
-		fix = `run it with write access, e.g. harness.args: ["-p", "--permission-mode", "auto"] in katana.yaml`
-	}
-	return "hint: the harness looks like it was denied file-write permission; " + fix
 }
 
 // extractCode pulls a file body out of harness stdout.
@@ -144,14 +117,7 @@ func permissionHint(harnessName, stdout, stderr string) string {
 // surround it with prose. With no fence, stdout is used verbatim only when it
 // does not look like conversational prose.
 func extractCode(stdout string) string {
-	blocks := fencedBlocks(stdout)
-	if len(blocks) > 0 {
-		best := blocks[0]
-		for _, b := range blocks[1:] {
-			if len(b) > len(best) {
-				best = b
-			}
-		}
+	if best := fence.Largest(stdout); best != "" {
 		return strings.TrimSpace(best) + "\n"
 	}
 
@@ -160,47 +126,6 @@ func extractCode(stdout string) string {
 		return ""
 	}
 	return trimmed + "\n"
-}
-
-// fencedBlocks returns the contents of every ``` fenced block in s.
-func fencedBlocks(s string) []string {
-	var blocks []string
-	lines := strings.Split(s, "\n")
-	var cur []string
-	var fence string
-
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if fence == "" {
-			if strings.HasPrefix(trimmed, "```") {
-				fence = strings.Repeat("`", countLeading(trimmed, '`'))
-				cur = nil
-			}
-			continue
-		}
-		// Inside a block: a line that is only backticks of at least the opening
-		// length closes it.
-		if strings.HasPrefix(trimmed, fence) && strings.Trim(trimmed, "`") == "" {
-			blocks = append(blocks, strings.Join(cur, "\n"))
-			fence = ""
-			cur = nil
-			continue
-		}
-		cur = append(cur, line)
-	}
-	// An unterminated block still holds usable content.
-	if fence != "" && len(cur) > 0 {
-		blocks = append(blocks, strings.Join(cur, "\n"))
-	}
-	return blocks
-}
-
-func countLeading(s string, c byte) int {
-	n := 0
-	for n < len(s) && s[n] == c {
-		n++
-	}
-	return n
 }
 
 // codeMarkers are line prefixes that only appear in source, never in an agent's

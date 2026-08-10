@@ -131,7 +131,11 @@ Flags:
 	// it is worth finding out about before spending minutes of agent time rather
 	// than after — and once, rather than once per behavior.
 	runners := newRunnerCache(cfg, *verbose)
-	if err := runners.warm(todo); err != nil {
+	harnesses := make([]string, 0, len(todo))
+	for _, it := range todo {
+		harnesses = append(harnesses, it.Harness)
+	}
+	if err := runners.warm(harnesses); err != nil {
 		return err
 	}
 
@@ -146,62 +150,33 @@ Flags:
 
 	prog := newProgress(os.Stdout, os.Stderr, len(todo), workers == 1)
 
-	queue := make(chan item)
-	// Buffered for every behavior, so a worker is never blocked on the collector
-	// and an interrupt is never delayed by an unread result.
-	results := make(chan generation, len(todo))
-
-	var wg sync.WaitGroup
-	for i := 0; i < workers; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for it := range queue {
-				if ctx.Err() != nil {
-					continue // the run is stopping; drain the queue
-				}
-				results <- generateOne(ctx, cfg, runners, prog, it, *verbose)
-			}
-		}()
-	}
-	go func() {
-		defer close(queue)
-		for _, it := range todo {
-			select {
-			case queue <- it:
-			case <-ctx.Done():
+	var generated, failures int
+	runPool(ctx, workers, todo,
+		func(ctx context.Context, it item) generation {
+			return generateOne(ctx, cfg, runners, prog, it, *verbose)
+		},
+		func(res generation) {
+			if res.err != nil {
+				failures++
 				return
 			}
-		}
-	}()
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
-
-	var generated, failures int
-	for res := range results {
-		if res.err != nil {
-			failures++
-			continue
-		}
-		generated++
-		t.Record(tracker.Entry{
-			Source:        res.item.Source,
-			SourceHash:    res.item.SourceHash,
-			Output:        res.item.Output,
-			OutputHash:    res.outHash,
-			Tests:         res.tests,
-			Language:      res.item.Language,
-			Framework:     res.item.Framework,
-			Harness:       res.item.Harness,
-			GeneratedAt:   time.Now().UTC(),
-			KatanaVersion: Version,
+			generated++
+			t.Record(tracker.Entry{
+				Source:        res.item.Source,
+				SourceHash:    res.item.SourceHash,
+				Output:        res.item.Output,
+				OutputHash:    res.outHash,
+				Tests:         res.tests,
+				Language:      res.item.Language,
+				Framework:     res.item.Framework,
+				Harness:       res.item.Harness,
+				GeneratedAt:   time.Now().UTC(),
+				KatanaVersion: Version,
+			})
+			// Persist after each success so an interrupted run does not lose the
+			// work already done.
+			saveTracker(t)
 		})
-		// Persist after each success so an interrupted run does not lose the
-		// work already done.
-		saveTracker(t)
-	}
 
 	if ctx.Err() != nil {
 		fmt.Println("  interrupted; stopping")
@@ -268,7 +243,7 @@ type generation struct {
 
 // generateOne generates a single behavior and reports it as one block.
 func generateOne(ctx context.Context, cfg *config.Config, runners *runnerCache, prog *progress, it item, verbose bool) generation {
-	lg := prog.begin(it)
+	lg := prog.begin(it.task())
 	res := runBehavior(ctx, cfg, runners, lg, it, verbose)
 
 	if res.err != nil {
@@ -288,7 +263,7 @@ func generateOne(ctx context.Context, cfg *config.Config, runners *runnerCache, 
 		fmt.Fprintf(lg.out, "  ok: %d bytes, %s%s, %s\n",
 			res.outcome.Bytes, cases, via, res.elapsed.Round(time.Millisecond))
 	}
-	prog.finish(it, lg)
+	prog.finish(it.task(), lg)
 	return res
 }
 
@@ -397,27 +372,39 @@ func newProgress(out, errOut io.Writer, total int, live bool) *progress {
 	return &progress{out: out, errOut: errOut, total: total, live: live}
 }
 
-// begin announces that a behavior has been picked up and returns the log its
-// own output belongs on.
-func (p *progress) begin(it item) genLog {
+// task is the one-line identity of a unit of work: what it was read from, what
+// it writes, and why it is being done.
+type task struct {
+	source string
+	output string
+	status string
+}
+
+func (i item) task() task {
+	return task{source: i.Source, output: i.Output, status: i.Status.String()}
+}
+
+// begin announces that a piece of work has been picked up and returns the log
+// its own output belongs on.
+func (p *progress) begin(t task) genLog {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
 	if p.live {
 		p.done++
-		fmt.Fprintf(p.out, "[%d/%d] %s → %s (%s)\n", p.done, p.total, it.Source, it.Output, it.Status)
+		fmt.Fprintf(p.out, "[%d/%d] %s → %s (%s)\n", p.done, p.total, t.source, t.output, t.status)
 		return genLog{out: p.out, errOut: p.errOut}
 	}
 	// One line, so the user can see what is in flight without waiting for the
 	// first agent to finish.
-	fmt.Fprintf(p.out, "  start %s → %s (%s)\n", it.Source, it.Output, it.Status)
+	fmt.Fprintf(p.out, "  start %s → %s (%s)\n", t.source, t.output, t.status)
 	buf := &bytes.Buffer{}
 	return genLog{out: buf, errOut: buf, buf: buf}
 }
 
-// finish prints everything the behavior had to say as a single block. The
-// counter follows completion order, which is the only order a parallel run has.
-func (p *progress) finish(it item, lg genLog) {
+// finish prints everything the work had to say as a single block. The counter
+// follows completion order, which is the only order a parallel run has.
+func (p *progress) finish(t task, lg genLog) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -425,7 +412,7 @@ func (p *progress) finish(it item, lg genLog) {
 		return // already on screen, in the order it happened
 	}
 	p.done++
-	fmt.Fprintf(p.out, "[%d/%d] %s → %s (%s)\n", p.done, p.total, it.Source, it.Output, it.Status)
+	fmt.Fprintf(p.out, "[%d/%d] %s → %s (%s)\n", p.done, p.total, t.source, t.output, t.status)
 	p.out.Write(lg.buf.Bytes())
 }
 
@@ -452,14 +439,14 @@ func newRunnerCache(cfg *config.Config, verbose bool) *runnerCache {
 
 // warm builds the runner for every harness the planned work needs, so a harness
 // that cannot run at all is reported before any behavior is started.
-func (c *runnerCache) warm(todo []item) error {
+func (c *runnerCache) warm(names []string) error {
 	seen := map[string]bool{}
-	for _, it := range todo {
-		if seen[it.Harness] {
+	for _, n := range names {
+		if seen[n] {
 			continue
 		}
-		seen[it.Harness] = true
-		if _, err := c.get(it.Harness); err != nil {
+		seen[n] = true
+		if _, err := c.get(n); err != nil {
 			return err
 		}
 	}

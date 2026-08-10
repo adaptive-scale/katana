@@ -102,16 +102,3 @@ func TestBuildPromptAsksForAnUpdateWhenTestsExist(t *testing.T) {
 		t.Error("existing test body should be included so edits are preserved")
 	}
 }
-
-func TestFenceEscapesNestedFences(t *testing.T) {
-	// A behavior spec containing a code fence must not terminate the wrapper
-	// early, or the harness sees a truncated specification.
-	content := "Example:\n```go\nfoo()\n```\nEnd."
-	wrapped := fence(content)
-	if !strings.HasPrefix(wrapped, "````") {
-		t.Errorf("wrapper should outgrow the nested fence, got:\n%s", wrapped)
-	}
-	if !strings.Contains(wrapped, "End.") {
-		t.Error("content truncated")
-	}
-}

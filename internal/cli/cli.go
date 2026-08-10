@@ -35,6 +35,8 @@ func Run(args []string) error {
 	switch args[0] {
 	case "init":
 		return runInit(args[1:])
+	case "discover":
+		return runDiscover(args[1:])
 	case "generate", "gen":
 		return runGenerate(args[1:])
 	case "run", "test":
@@ -65,6 +67,7 @@ Usage:
 
 Commands:
   init        Create %s and the %s tracker directory
+  discover    Write behavior files for the code this project already has
   generate    Generate tests for behaviors that changed since the last run
   run         Run the generated test suite
   status      Show which behaviors are out of date
@@ -79,6 +82,11 @@ Typical use:
   $EDITOR behaviors/checkout.md
   katana generate
   katana run
+
+On a codebase that has no behaviors written down yet:
+  katana init --language go --harness claude
+  katana discover --dry-run
+  katana discover
 
 Harnesses: %s
 `, config.FileName, config.Dir, strings.Join(harness.Names(), ", "))
