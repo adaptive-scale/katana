@@ -18,6 +18,11 @@ import (
 type Generator struct {
 	runner *harness.Runner
 	root   string
+
+	// OnPrompt, when set, is called with the finished prompt just before the
+	// harness is invoked. `katana generate --verbose` uses it to show what is
+	// being asked for while the harness is still working on it.
+	OnPrompt func(prompt string)
 }
 
 // New returns a Generator that runs runner with root as the working directory.
@@ -54,7 +59,12 @@ func (g *Generator) Generate(ctx context.Context, req Request) (*Outcome, error)
 	}
 	req.ExistingTests = before
 
-	res, runErr := g.runner.Run(ctx, BuildPrompt(req))
+	prompt := BuildPrompt(req)
+	if g.OnPrompt != nil {
+		g.OnPrompt(prompt)
+	}
+
+	res, runErr := g.runner.Run(ctx, prompt)
 	if runErr != nil {
 		return nil, runErr
 	}
@@ -92,8 +102,40 @@ func (g *Generator) Generate(ctx context.Context, req Request) (*Outcome, error)
 		}, nil
 	}
 
-	return nil, fmt.Errorf("harness %q did not write %s and printed no test code; harness said: %s",
+	err = fmt.Errorf("harness %q did not write %s and printed no test code; harness said: %s",
 		g.runner.Spec().Name, req.OutputPath, summarize(res.Stdout, res.Stderr))
+	if hint := permissionHint(g.runner.Spec().Name, res.Stdout, res.Stderr); hint != "" {
+		err = fmt.Errorf("%w\n  %s", err, hint)
+	}
+	return nil, err
+}
+
+// permissionHint spots the most common cause of an empty generation — the
+// harness was denied file-write access — and names the fix.
+//
+// A non-interactive agent has nobody to answer a permission prompt, so the
+// denial is silent from katana's side and the raw error reads as if the agent
+// simply refused the work.
+func permissionHint(harnessName, stdout, stderr string) string {
+	// Match on the denial itself, never on the bare word "permission" — katana
+	// puts a permission flag on the command line, and harnesses echo their
+	// arguments back.
+	hay := strings.ToLower(stdout + "\n" + stderr)
+	denied := false
+	for _, m := range []string{"denied", "not allowed", "no write access", "read-only", "grant write", "without permission"} {
+		if strings.Contains(hay, m) {
+			denied = true
+			break
+		}
+	}
+	if !denied {
+		return ""
+	}
+	fix := "grant it write access to the output path, e.g. via harness.args in katana.yaml"
+	if harnessName == "claude" {
+		fix = `run it with write access, e.g. harness.args: ["-p", "--permission-mode", "auto"] in katana.yaml`
+	}
+	return "hint: the harness looks like it was denied file-write permission; " + fix
 }
 
 // extractCode pulls a file body out of harness stdout.

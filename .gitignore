@@ -1,0 +1,36 @@
+# Build artifacts (see Makefile: BIN_DIR, DIST_DIR)
+/bin/
+/dist/
+
+# Compiled binaries
+katana
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test and coverage output
+*.test
+coverage.out
+coverage.html
+
+# HTML test reports from `katana run --save`
+/out/
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Editors and tooling
+.idea/
+.vscode/
+*.swp
+
+# macOS
+.DS_Store
+
+# Environment files
+.env
+.env.local
+
+# Note: .katana/tracker.json is intentionally NOT ignored — it should be committed.

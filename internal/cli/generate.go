@@ -21,7 +21,7 @@ func runGenerate(args []string) error {
 		dir     = fs.String("dir", "", "project directory (defaults to the current directory)")
 		force   = fs.Bool("force", false, "regenerate every behavior, including up-to-date and hand-edited ones")
 		dryRun  = fs.Bool("dry-run", false, "report what would be generated without running the harness")
-		verbose = fs.Bool("verbose", false, "stream harness output as it runs")
+		verbose = fs.Bool("verbose", false, "show what is being generated: spec, target, harness command, prompt and the harness output as it runs")
 	)
 	fs.Var(&only, "file", "limit to this behavior file (repeatable)")
 	fs.Usage = func() {
@@ -30,6 +30,10 @@ func runGenerate(args []string) error {
 Generates tests for behaviors that changed since the last run. A behavior whose
 generated file was edited by hand is reported and skipped unless --force is set,
 so katana never silently discards your edits.
+
+--verbose narrates each generation — the specification being read, the file being
+written, the harness command line, the prompt katana sends, the harness's own
+output as it runs, and a preview of the tests that came back.
 
 Flags:
 `)
@@ -134,8 +138,17 @@ Flags:
 			return err
 		}
 
+		gen := generator.New(runner, cfg.Root)
+		if *verbose {
+			describeRequest(os.Stdout, cfg.Root, runner, it, string(source))
+			gen.OnPrompt = func(prompt string) {
+				describePrompt(os.Stdout, prompt)
+				fmt.Println("  running harness…")
+			}
+		}
+
 		start := time.Now()
-		out, err := generator.New(runner, cfg.Root).Generate(ctx, generator.Request{
+		out, err := gen.Generate(ctx, generator.Request{
 			BehaviorPath:      it.Source,
 			BehaviorContent:   string(source),
 			OutputPath:        it.Output,
@@ -147,6 +160,9 @@ Flags:
 			failures++
 			fmt.Fprintf(os.Stderr, "  failed: %v\n", err)
 			continue
+		}
+		if *verbose {
+			describeOutcome(os.Stdout, it.Output, it.AbsOutput(cfg.Root), out)
 		}
 
 		outHash, err := tracker.HashFile(it.AbsOutput(cfg.Root))

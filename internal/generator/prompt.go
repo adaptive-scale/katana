@@ -33,6 +33,8 @@ func BuildPrompt(r Request) string {
 	fmt.Fprintf(&b, "Write the result to exactly this path, relative to the current working directory:\n\n    %s\n\n",
 		r.OutputPath)
 	b.WriteString("Create any parent directories the path needs. Write the file yourself using your file tools — do not print the test code as your reply.\n\n")
+	b.WriteString("If, and only if, writing that file fails — no file tool is available, or the write is denied by a permission check — do not stop and do not ask for access. ")
+	b.WriteString("Print the complete file contents as your entire reply, in a single fenced code block, with no prose before or after it. That output is saved to the path above verbatim.\n\n")
 
 	if r.ExistingTests != "" {
 		b.WriteString("## Existing tests at that path\n\n")
@@ -66,7 +68,8 @@ func BuildPrompt(r Request) string {
 		b.WriteString("\n")
 	}
 
-	b.WriteString("\nWhen the file is written, reply with one short line confirming the path. Nothing else.\n")
+	b.WriteString("\nWhen the file is written, reply with one short line confirming the path. Nothing else. ")
+	b.WriteString("If you could not write it, reply with the fenced file contents as described above.\n")
 
 	return b.String()
 }

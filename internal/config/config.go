@@ -3,7 +3,9 @@ package config
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -215,6 +217,7 @@ func (c *Config) Resolve() ([]Resolved, error) {
 		if len(matches) == 0 {
 			return nil, fmt.Errorf("behaviors[%d]: %q matched no files", i, b.Path)
 		}
+		base := c.patternBase(b.Path)
 		for _, src := range matches {
 			if seenSource[src] {
 				continue // a file caught by two globs is generated once
@@ -244,7 +247,9 @@ func (c *Config) Resolve() ([]Resolved, error) {
 				if r.Language != c.Defaults.Language {
 					tmpl = DefaultOutputTemplate(r.Language)
 				}
-				r.Output = filepath.ToSlash(filepath.Join(c.Defaults.OutputDir, renderTemplate(tmpl, src)))
+				// Behaviors in subfolders keep that structure under output_dir, so
+				// billing/limits.md and auth/limits.md stay distinct files.
+				r.Output = path.Join(c.Defaults.OutputDir, subDir(base, src), renderTemplate(tmpl, src))
 			}
 			if prev, ok := seenOutput[r.Output]; ok {
 				return nil, fmt.Errorf("behaviors %q and %q both generate %q; give one an explicit output", prev, src, r.Output)
@@ -257,23 +262,42 @@ func (c *Config) Resolve() ([]Resolved, error) {
 	return out, nil
 }
 
-// expand resolves a path or glob to project-relative slash paths.
+// expand resolves a path, directory or glob to project-relative slash paths.
+// A directory is searched recursively, so behaviors can be grouped into
+// subfolders. A glob may use "**" to match any number of path segments.
 func (c *Config) expand(pattern string) ([]string, error) {
 	full := filepath.Join(c.Root, filepath.FromSlash(pattern))
-	if !strings.ContainsAny(pattern, "*?[") {
+
+	var matches []string
+	switch {
+	case !strings.ContainsAny(pattern, "*?["):
 		info, err := os.Stat(full)
 		if err != nil {
 			return nil, fmt.Errorf("%q: %w", pattern, err)
 		}
-		if info.IsDir() {
-			return c.expand(filepath.ToSlash(filepath.Join(pattern, "*.md")))
+		if !info.IsDir() {
+			return []string{filepath.ToSlash(filepath.Clean(pattern))}, nil
 		}
-		return []string{filepath.ToSlash(filepath.Clean(pattern))}, nil
+		matches, err = walkMatch(full, func(rel string) (bool, error) {
+			return isMarkdown(rel), nil
+		})
+		if err != nil {
+			return nil, fmt.Errorf("%q: %w", pattern, err)
+		}
+	case strings.Contains(pattern, "**"):
+		var err error
+		matches, err = c.globStar(pattern)
+		if err != nil {
+			return nil, fmt.Errorf("%q: %w", pattern, err)
+		}
+	default:
+		var err error
+		matches, err = filepath.Glob(full)
+		if err != nil {
+			return nil, fmt.Errorf("%q: %w", pattern, err)
+		}
 	}
-	matches, err := filepath.Glob(full)
-	if err != nil {
-		return nil, fmt.Errorf("%q: %w", pattern, err)
-	}
+
 	var rel []string
 	for _, m := range matches {
 		info, err := os.Stat(m)
@@ -288,6 +312,127 @@ func (c *Config) expand(pattern string) ([]string, error) {
 	}
 	sort.Strings(rel)
 	return rel, nil
+}
+
+// patternBase returns the directory a behavior path is rooted at: everything
+// before the first wildcard, or the parent of a single named file. Matched
+// files keep their position relative to it when their output path is built.
+func (c *Config) patternBase(pattern string) string {
+	segments := strings.Split(path.Clean(filepath.ToSlash(pattern)), "/")
+	var fixed []string
+	for _, s := range segments {
+		if strings.ContainsAny(s, "*?[") {
+			break
+		}
+		fixed = append(fixed, s)
+	}
+	base := path.Join(fixed...)
+	if len(fixed) == len(segments) {
+		// No wildcard: a directory roots itself, a file is rooted at its parent.
+		if info, err := os.Stat(filepath.Join(c.Root, filepath.FromSlash(base))); err == nil && !info.IsDir() {
+			base = path.Dir(base)
+		}
+	}
+	return base
+}
+
+// subDir returns the part of src's directory that sits below base, or "" when
+// src lives directly in base.
+func subDir(base, src string) string {
+	dir := path.Dir(src)
+	switch {
+	case base == "" || base == ".":
+		if dir == "." {
+			return ""
+		}
+		return dir
+	case dir == base:
+		return ""
+	case strings.HasPrefix(dir, base+"/"):
+		return strings.TrimPrefix(dir, base+"/")
+	default:
+		return ""
+	}
+}
+
+// globStar expands a pattern containing "**" by walking the fixed prefix of the
+// pattern and matching every file beneath it.
+func (c *Config) globStar(pattern string) ([]string, error) {
+	segments := strings.Split(path.Clean(pattern), "/")
+	base := filepath.Join(c.Root, filepath.FromSlash(c.patternBase(pattern)))
+	if _, err := os.Stat(base); err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil // an absent directory is "no matches", as with Glob
+		}
+		return nil, err
+	}
+	return walkMatch(base, func(abs string) (bool, error) {
+		r, err := filepath.Rel(c.Root, abs)
+		if err != nil {
+			return false, err
+		}
+		return matchSegments(segments, strings.Split(filepath.ToSlash(r), "/"))
+	})
+}
+
+// walkMatch returns every file under dir that keep reports as a match, as
+// absolute paths. Hidden directories are skipped so tool state (.git, .katana)
+// never becomes a behavior.
+func walkMatch(dir string, keep func(abs string) (bool, error)) ([]string, error) {
+	var out []string
+	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			if p != dir && strings.HasPrefix(d.Name(), ".") {
+				return fs.SkipDir
+			}
+			return nil
+		}
+		ok, err := keep(p)
+		if err != nil {
+			return err
+		}
+		if ok {
+			out = append(out, p)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// matchSegments matches slash-separated path segments against pattern segments,
+// where "**" stands for zero or more segments. Every other segment is matched
+// with path.Match, so "*" stays confined to one segment.
+func matchSegments(pattern, name []string) (bool, error) {
+	for len(pattern) > 0 {
+		if pattern[0] == "**" {
+			for i := 0; i <= len(name); i++ {
+				ok, err := matchSegments(pattern[1:], name[i:])
+				if ok || err != nil {
+					return ok, err
+				}
+			}
+			return false, nil
+		}
+		if len(name) == 0 {
+			return false, nil
+		}
+		ok, err := path.Match(pattern[0], name[0])
+		if !ok || err != nil {
+			return false, err
+		}
+		pattern, name = pattern[1:], name[1:]
+	}
+	return len(name) == 0, nil
+}
+
+func isMarkdown(p string) bool {
+	return strings.EqualFold(filepath.Ext(p), ".md")
 }
 
 func firstNonEmpty(vals ...string) string {

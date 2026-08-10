@@ -85,24 +85,67 @@ katana generate                          # only what changed
 katana generate --dry-run                # report what would run, run nothing
 katana generate --file behaviors/cart.md # one behavior (repeatable)
 katana generate --force                  # regenerate everything
-katana generate --verbose                # stream harness output as it runs
+katana generate --verbose                # narrate each generation
 ```
 
 The tracker is saved after each behavior succeeds, so an interrupted run keeps
 the work already done. Behaviors deleted from the config have their tracker
 entries pruned on a full run.
 
+`--verbose` shows what is being generated rather than only that something is:
+
+```
+[1/1] behaviors/cart.md → tests/cart_test.go (new)
+  spec     behaviors/cart.md (1.4 KB, 38 lines)
+  target   tests/cart_test.go (new file)
+  stack    go / go-test
+  harness  claude -p --permission-mode auto (prompt via stdin)
+  prompt   4.1 KB, 96 lines
+  │ You are generating an automated test suite from a written product behavior…
+  running harness…
+  …harness output streams here…
+  wrote    tests/cart_test.go (3.2 KB, 118 lines, 7 test case(s))
+    • TestValidDiscountCodeReducesTotal
+    • TestExpiredDiscountCodeIsRejected
+```
+
 ### run
 
 ```sh
 katana run                         # run the suite
 katana run --check                 # fail if any behavior is out of date
+katana run --save                  # also write an HTML report to out/
 katana run -- -run TestCheckout    # arguments after -- are appended
 ```
 
 `run` warns when a behavior has changed since its tests were generated, so a
 green suite is never mistaken for one that covers the current specification.
 `--check` turns that warning into a failure — the useful form in CI.
+
+### Saving results as HTML
+
+`katana run --save` writes `out/report-<timestamp>.html` — one file per run, so
+the directory becomes a history rather than only the latest state. Use `--out`
+to write somewhere else.
+
+The page is self-contained (no network, no assets) and holds:
+
+- the verdict, the suite's exit code, and how long it took;
+- every test case with its outcome, timing and failure output, grouped by
+  package, file or class, filterable by status and name;
+- which behaviors were out of date when the suite ran, so a green report does
+  not read as coverage of a specification it never saw;
+- the full suite output.
+
+Per-case results are recovered by reading the runner's own output, so the table
+is as detailed as the runner is: go-test, pytest, jest, vitest, mocha,
+cargo-test, xunit and xctest are parsed. Any other runner still gets a report of
+the command, the exit code and the full output. Because `go test` and `pytest`
+only name individual cases in verbose mode, `--save` appends `-v` to those two
+commands and says so.
+
+The suite's exit code is still propagated after the report is written, so
+`--save` is safe to leave on in CI.
 
 ### status
 
@@ -155,7 +198,7 @@ version: 1
 harness:
   name: claude              # claude | codex | opencode | pi | hermes
   # command: claude         # executable to run
-  # args: ["-p"]            # arguments placed before the prompt
+  # args: ["-p", "--permission-mode", "auto"]  # placed before the prompt
   # prompt: stdin           # how the prompt is delivered: stdin | arg
   # model: ""               # passed through with model_flag when set
   # model_flag: --model
@@ -174,7 +217,7 @@ test:
   # dir: .                  # defaults to the project root
 
 behaviors:
-  - path: behaviors/*.md
+  - path: behaviors          # recursive: every .md under behaviors/
 
   - path: behaviors/billing.md
     output: tests/billing_contract_test.py
@@ -185,10 +228,21 @@ behaviors:
       Stub the payment gateway; never call it for real.
 ```
 
-A behavior `path` may be a single file, a directory (all `*.md` inside it), or a
-glob. A file matched by two globs is generated once; two behaviors that would
-write the same output file is an error, since it would make regeneration
+A behavior `path` may be a single file, a directory, or a glob. A directory is
+searched recursively for `.md` files, so behaviors can be grouped into
+subfolders; hidden directories are skipped. Globs may use `**` to span any
+number of directories (`behaviors/**/*.md`), while a plain `*` stays within one
+path segment. A file matched by two globs is generated once; two behaviors that
+would write the same output file is an error, since it would make regeneration
 order-dependent.
+
+Behaviors in subfolders keep that structure under `output_dir`: with `path:
+behaviors`, `behaviors/billing/limits.md` generates `tests/billing/limits_test.go`,
+so it never collides with `behaviors/auth/limits.md`. Nesting is measured from
+the part of the path before the first wildcard, so `behaviors/**/*.md` mirrors
+the same way. A behavior directly in that directory is not nested. In Go, each
+subfolder is its own package — set an explicit `output` if you want everything
+in one.
 
 `output_template` supports `{name}` (base name as written), `{snake}`, and
 `{Name}` (PascalCase).
@@ -210,13 +264,19 @@ katana harnesses
 ```
 
 ```
-NAME      INSTALLED                  INVOCATION    PROMPT VIA  DESCRIPTION
-claude    /Users/you/.local/bin/...  claude -p     stdin       Claude Code CLI, non-interactive print mode
-codex     no                         codex exec    arg         Codex CLI, non-interactive exec mode
-hermes    no                         hermes -p     stdin       hermes CLI, non-interactive prompt mode
-opencode  /Users/you/.opencode/...   opencode run  arg         opencode CLI, single-shot run mode
-pi        no                         pi -p         stdin       pi CLI, non-interactive prompt mode
+NAME      INSTALLED                  INVOCATION                        PROMPT VIA  DESCRIPTION
+claude    /Users/you/.local/bin/...  claude -p --permission-mode auto  stdin       Claude Code CLI, non-interactive print mode, auto permissions
+codex     no                         codex exec                        arg         Codex CLI, non-interactive exec mode
+hermes    no                         hermes -p                         stdin       hermes CLI, non-interactive prompt mode
+opencode  /Users/you/.opencode/...   opencode run                      arg         opencode CLI, single-shot run mode
+pi        no                         pi -p                             stdin       pi CLI, non-interactive prompt mode
 ```
+
+A harness with a permission mode is invoked in one that lets it write, because a
+non-interactive agent has nobody to answer a permission prompt: without this the
+write is denied and katana fails the behavior with nothing to save. Narrow or
+widen that through `harness.args` — `acceptEdits` in place of `auto` limits
+Claude Code to file edits and withholds command execution.
 
 These invocations are katana's best-known defaults, not a contract with the
 upstream tools. Agent CLIs change their flags, so every field is overridable per
@@ -236,12 +296,13 @@ never heard of.
 ## In CI
 
 ```sh
-katana status --strict   # behaviors and tests are in sync
-katana run --check       # and the suite passes
+katana status --strict          # behaviors and tests are in sync
+katana run --check --save       # the suite passes, and out/ has the report
 ```
 
 `katana run` propagates the test suite's own exit code, so CI sees the real
-result.
+result — including when `--save` wrote a report first. Publish `out/` as a build
+artifact to keep a readable record of each run.
 
 ## How generation works
 

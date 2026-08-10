@@ -1,0 +1,57 @@
+# katana — generate test code from written product behavior.
+#
+# Behavior files are the source of truth. When one changes, `katana generate`
+# regenerates the tests derived from it and nothing else.
+
+version: 1
+
+# The coding agent katana shells out to for generation. katana does not call a
+# model API itself: it drives the agent CLI you already have configured, so
+# authentication, model choice and tool permissions come from that agent.
+#
+# Built-in harnesses: claude, codex, hermes, opencode, pi
+harness:
+  name: claude
+
+  # Every field below is optional. Defaults come from katana's built-in spec for
+  # the harness above. Override them when your agent CLI's flags differ — that
+  # way a changed upstream flag is a config edit, not a katana upgrade.
+  #
+  # command: claude           # executable to run
+  # args: ["-p", "--permission-mode", "auto"]  # placed before the prompt
+  # prompt: stdin               # how the prompt is delivered: stdin | arg
+  # model: ""                   # passed through with model_flag when set
+  # model_flag: --model
+  # timeout: 10m                # bound on a single generation
+  # env:                        # added to the harness environment
+  #   KATANA: "1"
+
+# Applied to every behavior that does not override them.
+defaults:
+  language: go
+  framework: go-test
+  output_dir: tests
+  # Names generated files. {name} is the behavior file's base name;
+  # {snake} and {Name} are its snake_case and PascalCase forms.
+  output_template: "{snake}_test.go"
+
+# How `katana run` executes the suite.
+test:
+  command: go test ./...
+  # dir: .                      # defaults to the project root
+
+# Behavior sources. A path may be a single file, a directory (searched
+# recursively for .md files), or a glob — where ** spans any number of
+# directories.
+behaviors:
+  - path: behaviors
+
+  # Per-behavior overrides, for when one spec targets a different stack:
+  #
+  # - path: behaviors/billing.md
+  #   output: tests/billing_contract_test.py
+  #   language: python
+  #   framework: pytest
+  #   harness: codex            # use a different agent for this one
+  #   instructions: |
+  #     Stub the payment gateway; never call it for real.

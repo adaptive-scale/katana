@@ -50,14 +50,21 @@ type Spec struct {
 // change their flags; every field here is overridable per project under the
 // `harness:` key in katana.yaml, so a changed flag is a config edit rather than
 // a katana release.
+//
+// Where a harness has a file-write permission mode, the default args select the
+// narrowest one that lets generation succeed. Generation is exactly "write one
+// test file", and a non-interactive agent has nobody to answer a permission
+// prompt, so without this the write is denied and katana has nothing to save.
 var builtins = map[string]Spec{
 	"claude": {
-		Name:      "claude",
-		Command:   "claude",
-		Args:      []string{"-p"},
+		Name:    "claude",
+		Command: "claude",
+		// auto lets the agent approve its own file writes, and the reads and
+		// lookups it needs to write tests against the real API.
+		Args:      []string{"-p", "--permission-mode", "auto"},
 		Prompt:    PromptStdin,
 		ModelFlag: "--model",
-		Docs:      "Claude Code CLI, non-interactive print mode",
+		Docs:      "Claude Code CLI, non-interactive print mode, auto permissions",
 	},
 	"codex": {
 		Name:      "codex",

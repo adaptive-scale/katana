@@ -166,7 +166,7 @@ harness:
   # way a changed upstream flag is a config edit, not a katana upgrade.
   #
   # command: %s           # executable to run
-  # args: ["-p"]                # arguments placed before the prompt
+  # args: ["-p", "--permission-mode", "auto"]  # placed before the prompt
   # prompt: stdin               # how the prompt is delivered: stdin | arg
   # model: ""                   # passed through with model_flag when set
   # model_flag: --model
@@ -188,9 +188,11 @@ test:
   command: %s
   # dir: .                      # defaults to the project root
 
-# Behavior sources. A path may be a single file, a directory, or a glob.
+# Behavior sources. A path may be a single file, a directory (searched
+# recursively for .md files), or a glob — where ** spans any number of
+# directories.
 behaviors:
-  - path: %s/*.md
+  - path: %s
 
   # Per-behavior overrides, for when one spec targets a different stack:
   #

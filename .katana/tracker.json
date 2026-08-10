@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "updated_at": "2026-08-10T10:42:56.112179Z",
+  "entries": {
+    "behaviors/example.md": {
+      "source": "behaviors/example.md",
+      "source_hash": "b2a84443e2bcf1d074de8ca0d2137ebfe77c87c259a4025b92ff0102e9450acf",
+      "output": "tests/example_test.go",
+      "output_hash": "abc740f0972b80b916a35ee9bb225f2f3ce004d6b37b9f1a801423736b6d4f0a",
+      "language": "go",
+      "framework": "go-test",
+      "harness": "claude",
+      "generated_at": "2026-08-10T10:42:56.112162Z",
+      "katana_version": "344d083-dirty"
+    }
+  }
+}
