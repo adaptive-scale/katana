@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/adaptive-scale/katana/internal/generator"
 	"github.com/adaptive-scale/katana/internal/harness"
+	"github.com/adaptive-scale/katana/internal/testindex"
 )
 
 // previewLines bounds the prompt and generated-file previews `--verbose` prints.
@@ -43,51 +43,18 @@ func describePrompt(w io.Writer, prompt string) {
 }
 
 // describeOutcome reports what the harness produced: the size of the file, and
-// the test cases katana can see in it.
-func describeOutcome(w io.Writer, name, path string, out *generator.Outcome) {
-	body, err := os.ReadFile(path)
-	if err != nil {
-		return
-	}
-	names := testNames(string(body))
+// the test cases katana can see in it — the same index that goes into the
+// tracker, so what is narrated is what is recorded.
+func describeOutcome(w io.Writer, name, body, language string, out *generator.Outcome) {
+	names := testindex.Names(body, language)
 	fmt.Fprintf(w, "  wrote    %s (%s, %d lines, %d test case(s))\n",
-		name, byteSize(int64(len(body))), countLines(string(body)), len(names))
+		name, byteSize(int64(len(body))), countLines(body), len(names))
 	for _, n := range names {
 		fmt.Fprintf(w, "    • %s\n", n)
 	}
 	if out.HarnessOutput != "" {
 		fmt.Fprintf(w, "  harness said: %s\n", firstLine(out.HarnessOutput))
 	}
-}
-
-// testCasePatterns spot declared test cases across the languages katana
-// generates for. They are for display only — a missed case costs a slightly
-// shorter --verbose listing, nothing more.
-var testCasePatterns = []*regexp.Regexp{
-	regexp.MustCompile(`(?m)^func\s+(Test\w+)\s*\(`),                                     // go
-	regexp.MustCompile(`(?m)^\s*(?:async\s+)?def\s+(test_\w+)\s*\(`),                     // python
-	regexp.MustCompile(`(?m)^\s*(?:it|test)\s*\(\s*['"` + "`" + `](.+?)['"` + "`" + `]`), // jest, vitest, mocha, rspec
-	regexp.MustCompile(`(?m)^\s*fn\s+(\w+)\s*\(\s*\)`),                                   // rust, after #[test]
-	regexp.MustCompile(`(?m)^\s*(?:public\s+)?(?:void|fun)\s+(\w+)\s*\(`),                // junit, kotlin
-	regexp.MustCompile(`(?m)^\s*func\s+(test\w+)\s*\(`),                                  // xctest
-}
-
-// testNames lists the test cases declared in a generated file, de-duplicated
-// and in the order they appear.
-func testNames(body string) []string {
-	var out []string
-	seen := map[string]bool{}
-	for _, re := range testCasePatterns {
-		for _, m := range re.FindAllStringSubmatch(body, -1) {
-			name := strings.TrimSpace(m[1])
-			if name == "" || seen[name] {
-				continue
-			}
-			seen[name] = true
-			out = append(out, name)
-		}
-	}
-	return out
 }
 
 // preview returns the first n lines of s, noting how many were left out.

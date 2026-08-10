@@ -40,7 +40,7 @@ func Languages() []string {
 
 // DefaultFramework returns the conventional test framework for a language.
 func DefaultFramework(language string) string {
-	if d, ok := languages[normalizeLanguage(language)]; ok {
+	if d, ok := languages[NormalizeLanguage(language)]; ok {
 		return d.framework
 	}
 	return ""
@@ -48,7 +48,7 @@ func DefaultFramework(language string) string {
 
 // DefaultOutputTemplate returns the conventional generated-file name template.
 func DefaultOutputTemplate(language string) string {
-	if d, ok := languages[normalizeLanguage(language)]; ok {
+	if d, ok := languages[NormalizeLanguage(language)]; ok {
 		return d.outputTemplate
 	}
 	return "{snake}_test.txt"
@@ -56,13 +56,15 @@ func DefaultOutputTemplate(language string) string {
 
 // DefaultTestCommand returns the conventional command for running the suite.
 func DefaultTestCommand(language string) string {
-	if d, ok := languages[normalizeLanguage(language)]; ok {
+	if d, ok := languages[NormalizeLanguage(language)]; ok {
 		return d.testCommand
 	}
 	return ""
 }
 
-func normalizeLanguage(l string) string {
+// NormalizeLanguage folds the spellings katana accepts for a language ("py",
+// "golang") onto the one it keys its conventions by.
+func NormalizeLanguage(l string) string {
 	l = strings.ToLower(strings.TrimSpace(l))
 	switch l {
 	case "js", "node", "nodejs":

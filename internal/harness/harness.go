@@ -184,6 +184,19 @@ func New(name string, override Spec, opts Options) (*Runner, error) {
 // Spec returns the resolved spec, for diagnostics.
 func (r *Runner) Spec() Spec { return r.spec }
 
+// WithStderr returns a copy of the runner that sends verbose harness output to
+// w instead of the configured writer.
+//
+// Parallel generation uses it to give each behavior its own buffer, so several
+// agents running at once do not interleave line by line on one terminal. A
+// Runner holds no mutable state, so the copy is safe to use concurrently with
+// the original.
+func (r *Runner) WithStderr(w io.Writer) *Runner {
+	c := *r
+	c.opts.Stderr = w
+	return &c
+}
+
 // Available reports whether the harness executable is on PATH.
 func (r *Runner) Available() error {
 	if _, err := exec.LookPath(r.spec.Command); err != nil {

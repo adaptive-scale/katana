@@ -22,6 +22,7 @@ func TestSaveAndReload(t *testing.T) {
 		SourceHash:  "abc",
 		Output:      "tests/checkout_test.go",
 		OutputHash:  "def",
+		Tests:       []string{"TestAppliesDiscount", "TestRejectsExpiredCode"},
 		Language:    "go",
 		Framework:   "go-test",
 		Harness:     "claude",
@@ -41,6 +42,53 @@ func TestSaveAndReload(t *testing.T) {
 	}
 	if e.SourceHash != "abc" || e.Harness != "claude" {
 		t.Errorf("entry corrupted: %+v", e)
+	}
+	if len(e.Tests) != 2 || e.Tests[0] != "TestAppliesDiscount" {
+		t.Errorf("test index did not survive the round trip: %q", e.Tests)
+	}
+}
+
+// TestRecordCountsTheIndex keeps the count honest: it is derived on the way in,
+// so no caller can leave it disagreeing with the list beside it.
+func TestRecordCountsTheIndex(t *testing.T) {
+	tr, _ := Load(t.TempDir())
+
+	tr.Record(Entry{Source: "a.md", Tests: []string{"TestOne", "TestTwo"}, TestCount: 99})
+	if e, _ := tr.Get("a.md"); e.TestCount != 2 {
+		t.Errorf("TestCount = %d, want 2", e.TestCount)
+	}
+
+	// Regenerating into fewer tests must shrink the index, not merge with it.
+	tr.Record(Entry{Source: "a.md", Tests: []string{"TestOne"}})
+	e, _ := tr.Get("a.md")
+	if len(e.Tests) != 1 || e.TestCount != 1 {
+		t.Errorf("entry = %q / %d, want one test", e.Tests, e.TestCount)
+	}
+}
+
+// TestOlderTrackerLoads covers the upgrade path: a tracker written before the
+// index existed must still load, with an empty index rather than an error.
+func TestOlderTrackerLoads(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, ".katana")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	old := `{"version":1,"entries":{"a.md":{"source":"a.md","source_hash":"abc","output":"tests/a_test.go"}}}`
+	if err := os.WriteFile(filepath.Join(dir, FileName), []byte(old), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	tr, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	e, ok := tr.Get("a.md")
+	if !ok {
+		t.Fatal("entry was dropped")
+	}
+	if e.SourceHash != "abc" || len(e.Tests) != 0 {
+		t.Errorf("entry = %+v, want the old fields and an empty index", e)
 	}
 }
 

@@ -24,10 +24,20 @@ const Version = 1
 
 // Entry is the record of one generated test file.
 type Entry struct {
-	Source        string    `json:"source"`
-	SourceHash    string    `json:"source_hash"`
-	Output        string    `json:"output"`
-	OutputHash    string    `json:"output_hash"`
+	Source     string `json:"source"`
+	SourceHash string `json:"source_hash"`
+	Output     string `json:"output"`
+	OutputHash string `json:"output_hash"`
+	// Tests index the cases the generated file declares, in the order they
+	// appear. It answers "which tests came out of this behavior" without
+	// running the suite, and is written from what the last generation produced.
+	// An empty index means katana could not read cases out of the file, never
+	// that the behavior is out of date: staleness is decided by the hashes
+	// above and nothing else.
+	Tests []string `json:"tests,omitempty"`
+	// TestCount is len(Tests), kept in the file so the tracker can be read at a
+	// glance. Record is what keeps the two in step.
+	TestCount     int       `json:"test_count,omitempty"`
 	Language      string    `json:"language"`
 	Framework     string    `json:"framework"`
 	Harness       string    `json:"harness"`
@@ -129,8 +139,11 @@ func (t *Tracker) Get(source string) (Entry, bool) {
 	return e, ok
 }
 
-// Record stores an entry and marks the tracker for saving.
+// Record stores an entry and marks the tracker for saving. The test count is
+// derived here rather than by the caller, so the index and its count cannot
+// disagree in the file.
 func (t *Tracker) Record(e Entry) {
+	e.TestCount = len(e.Tests)
 	t.Entries[e.Source] = e
 	t.dirty = true
 }
@@ -188,6 +201,13 @@ func (t *Tracker) Save() error {
 	}
 	t.dirty = false
 	return nil
+}
+
+// HashBytes returns the SHA-256 of content already in memory, so a caller that
+// has just read a file does not have to read it a second time to hash it.
+func HashBytes(b []byte) string {
+	sum := sha256.Sum256(b)
+	return hex.EncodeToString(sum[:])
 }
 
 // HashFile returns the SHA-256 of a file's contents. A missing file hashes to

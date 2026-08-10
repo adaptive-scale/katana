@@ -171,6 +171,7 @@ harness:
   # model: ""                   # passed through with model_flag when set
   # model_flag: --model
   # timeout: 10m                # bound on a single generation
+  # jobs: 4                     # behaviors generated at once; 1 is sequential
   # env:                        # added to the harness environment
   #   KATANA: "1"
 

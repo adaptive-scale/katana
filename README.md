@@ -129,6 +129,7 @@ katana generate                          # only what changed
 katana generate --dry-run                # report what would run, run nothing
 katana generate --file behaviors/cart.md # one behavior (repeatable)
 katana generate --force                  # regenerate everything
+katana generate --jobs 8                 # eight agents at once (-j for short)
 katana generate --verbose                # narrate each generation
 ```
 
@@ -136,7 +137,36 @@ The tracker is saved after each behavior succeeds, so an interrupted run keeps
 the work already done. Behaviors deleted from the config have their tracker
 entries pruned on a full run.
 
-`--verbose` shows what is being generated rather than only that something is:
+### Generating in parallel
+
+Behaviors are generated four at a time by default. Each one waits on an agent
+CLI rather than on this machine, so the useful number has nothing to do with the
+core count — raise it for a repository full of behaviors, lower it if your agent
+starts returning rate-limit errors. Set the project's own default with
+`harness.jobs` in `katana.yaml`; `--jobs` overrides it for one run, and
+`--jobs 1` generates one behavior after another.
+
+Every behavior's output is printed as one block when it finishes, so concurrent
+agents never interleave mid-line. A `start` line goes out as each behavior is
+picked up, so it is clear what is in flight:
+
+```
+generating 6 behavior(s), 3 at a time
+  start behaviors/cart.md → tests/cart_test.go (new)
+  start behaviors/checkout.md → tests/checkout_test.go (behavior changed)
+  start behaviors/refunds.md → tests/refunds_test.go (new)
+[1/6] behaviors/checkout.md → tests/checkout_test.go (behavior changed)
+  ok: 3271 bytes, written by harness, 41.2s
+  start behaviors/search.md → tests/search_test.go (new)
+```
+
+A harness that is missing or misconfigured is reported before any behavior
+starts, rather than after minutes of agent time. Individual failures do not stop
+the rest — the run ends by naming how many behaviors failed.
+
+`--verbose` shows what is being generated rather than only that something is.
+It narrates one behavior at a time unless `--jobs` says otherwise, since live
+narration only reads as narration when one generation is producing it:
 
 ```
 [1/1] behaviors/cart.md → tests/cart_test.go (new)
@@ -231,6 +261,33 @@ helpers, fixtures, and imports survive.
 Commit `.katana/tracker.json`. It is what lets a teammate's checkout know which
 tests are already current.
 
+### What the tracker records
+
+Every successful generation updates that behavior's entry, including an index of
+the test cases the generated file declares — so the tracker answers *which tests
+came out of this behavior*, without running the suite.
+
+```json
+"behaviors/checkout.md": {
+  "source_hash": "2abe69f4…",
+  "output": "tests/checkout_test.go",
+  "output_hash": "8323698b…",
+  "tests": ["TestAppliesDiscount", "TestRejectsExpiredCode"],
+  "test_count": 2,
+  "language": "go",
+  "framework": "go-test",
+  "harness": "claude",
+  "generated_at": "2026-08-10T12:09:39Z"
+}
+```
+
+The index is read syntactically, per language, and covers the conventions each
+framework declares tests with — `func TestX`, `def test_x`, `it("…")`, `@Test`,
+`#[test]`, `[Fact]`. A case katana cannot see is missing from the index and
+nothing more: staleness is decided by the two hashes alone, so an empty index
+never makes a behavior look out of date. `katana generate --verbose` lists the
+same cases as they are written.
+
 ## Configuration
 
 `katana.yaml` sits at the project root; katana finds it by walking up from the
@@ -247,6 +304,7 @@ harness:
   # model: ""               # passed through with model_flag when set
   # model_flag: --model
   # timeout: 10m            # bound on a single generation
+  # jobs: 4                 # behaviors generated at once; 1 is sequential
   # env:
   #   KATANA: "1"
 

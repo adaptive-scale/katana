@@ -355,3 +355,42 @@ func TestNameTemplates(t *testing.T) {
 		}
 	}
 }
+
+func TestHarnessJobs(t *testing.T) {
+	load := func(t *testing.T, jobs string) (*Config, error) {
+		t.Helper()
+		root := writeProject(t, map[string]string{
+			"katana.yaml": "version: 1\nharness:\n  name: claude\n" + jobs +
+				"behaviors:\n  - path: behaviors/checkout.md\n",
+			"behaviors/checkout.md": "# checkout",
+		})
+		return Load(filepath.Join(root, "katana.yaml"))
+	}
+
+	t.Run("unset falls back to the default", func(t *testing.T) {
+		cfg, err := load(t, "")
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		if got := cfg.HarnessJobs(); got != DefaultJobs {
+			t.Errorf("HarnessJobs() = %d, want %d", got, DefaultJobs)
+		}
+	})
+
+	t.Run("configured value wins", func(t *testing.T) {
+		cfg, err := load(t, "  jobs: 2\n")
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		if got := cfg.HarnessJobs(); got != 2 {
+			t.Errorf("HarnessJobs() = %d, want 2", got)
+		}
+	})
+
+	t.Run("negative is rejected", func(t *testing.T) {
+		_, err := load(t, "  jobs: -1\n")
+		if err == nil || !strings.Contains(err.Error(), "harness.jobs") {
+			t.Errorf("err = %v, want a harness.jobs complaint", err)
+		}
+	})
+}

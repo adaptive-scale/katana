@@ -49,6 +49,9 @@ type Harness struct {
 	ModelFlag string `yaml:"model_flag"`
 	// Timeout bounds a single generation. Accepts Go duration syntax ("10m").
 	Timeout string `yaml:"timeout"`
+	// Jobs is how many behaviors are generated at once. Zero means katana's
+	// default; one is sequential.
+	Jobs int `yaml:"jobs"`
 	// Env is added to the harness process environment.
 	Env map[string]string `yaml:"env"`
 }
@@ -180,6 +183,9 @@ func (c *Config) validate() error {
 	if p := c.Harness.Prompt; p != "" && p != "stdin" && p != "arg" {
 		return fmt.Errorf("harness.prompt must be \"stdin\" or \"arg\", got %q", p)
 	}
+	if c.Harness.Jobs < 0 {
+		return fmt.Errorf("harness.jobs must be zero or positive, got %d", c.Harness.Jobs)
+	}
 	if _, err := c.HarnessTimeout(); err != nil {
 		return err
 	}
@@ -199,6 +205,24 @@ func (c *Config) HarnessTimeout() (time.Duration, error) {
 		return 0, fmt.Errorf("harness.timeout must be positive, got %q", c.Harness.Timeout)
 	}
 	return d, nil
+}
+
+// DefaultJobs is how many behaviors katana generates at once when neither
+// katana.yaml nor --jobs says otherwise.
+//
+// Generation waits on an agent CLI rather than on this machine, so the useful
+// number is unrelated to the core count. Four is a compromise: a real speedup
+// on a repository full of behaviors, without opening so many agent sessions at
+// once that a rate limit turns into a wall of failures.
+const DefaultJobs = 4
+
+// HarnessJobs returns the configured number of concurrent generations, or
+// DefaultJobs when the config leaves it unset.
+func (c *Config) HarnessJobs() int {
+	if c.Harness.Jobs > 0 {
+		return c.Harness.Jobs
+	}
+	return DefaultJobs
 }
 
 // Resolve expands globs and applies defaults, returning one entry per behavior
