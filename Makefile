@@ -72,6 +72,17 @@ release: ## Cross-compile release binaries into dist/
 		echo "building $$out"; \
 		GOOS=$$os GOARCH=$$arch $(GO) build $(GOFLAGS) -ldflags '$(LDFLAGS)' -o "$$out" . || exit 1; \
 	done
+	@$(MAKE) --no-print-directory checksums
+
+.PHONY: checksums
+checksums: ## Write dist/checksums.txt for the built release binaries
+	@cd $(DIST_DIR) && \
+	if command -v sha256sum >/dev/null 2>&1; then \
+		sha256sum $(BINARY)_$(VERSION)_* > checksums.txt; \
+	else \
+		shasum -a 256 $(BINARY)_$(VERSION)_* > checksums.txt; \
+	fi
+	@echo "wrote $(DIST_DIR)/checksums.txt"
 
 .PHONY: clean
 clean: ## Remove build artifacts

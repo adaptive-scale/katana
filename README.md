@@ -14,6 +14,30 @@ inherits that agent's authentication, model choice, and tool permissions.
 ## Install
 
 ```sh
+curl -fsSL https://raw.githubusercontent.com/adaptive-scale/katana/master/install.sh | sh
+```
+
+The script installs the release binary for your platform into `/usr/local/bin`,
+or `~/.local/bin` when that is not writable. Where a release publishes
+`checksums.txt`, the download is verified against it. If no release binary
+matches your platform, the script builds from source with the Go toolchain.
+
+```sh
+install.sh --version v1.2.3    # pin a version instead of the latest release
+install.sh --dir ~/bin         # choose the install directory
+install.sh --source            # always build from source
+```
+
+`KATANA_VERSION` and `KATANA_INSTALL_DIR` do the same as `--version` and
+`--dir`, which is handy when piping the script into `sh`:
+
+```sh
+curl -fsSL .../install.sh | KATANA_INSTALL_DIR=~/bin sh
+```
+
+With a Go toolchain, or on Windows:
+
+```sh
 go install github.com/adaptive-scale/katana@latest
 ```
 
