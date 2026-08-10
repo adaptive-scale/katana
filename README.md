@@ -47,6 +47,25 @@ Or build from a checkout:
 go build -o katana .
 ```
 
+### Staying up to date
+
+katana updates itself in place:
+
+```sh
+katana update           # install the newest release over this binary
+katana update --check   # report whether a newer release exists
+katana update --version v1.2.3
+```
+
+The download is verified against the release's `checksums.txt` and swapped in
+atomically, so a failed update leaves the working binary alone. If katana lives
+somewhere you cannot write, re-run with `sudo`.
+
+Once a day katana also asks GitHub for the newest release while your command
+runs, and mentions it afterwards if you are behind. The check never delays or
+fails a command. It is already off in CI and for locally built binaries; set
+`KATANA_NO_UPDATE_CHECK=1` to turn it off everywhere.
+
 ## Quickstart
 
 ```sh
@@ -98,6 +117,7 @@ path comes from `defaults.output_dir` and `defaults.output_template`.
 | `katana run` | Run the test command from `katana.yaml` |
 | `katana status` | Show which behaviors are out of date |
 | `katana harnesses` | List the supported agent CLIs and whether they are installed |
+| `katana update` | Install the newest release over this binary |
 | `katana version` | Print the katana version |
 
 Run `katana <command> --help` for a command's flags.

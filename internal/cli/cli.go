@@ -9,6 +9,7 @@ import (
 
 	"github.com/adaptive-scale/katana/internal/config"
 	"github.com/adaptive-scale/katana/internal/harness"
+	"github.com/adaptive-scale/katana/internal/update"
 )
 
 // Version is the katana version, overridable at build time with
@@ -22,6 +23,15 @@ func Run(args []string) error {
 		return nil
 	}
 
+	// The release check runs alongside the command and reports once it is
+	// done, so it never delays the work the user asked for. `update` does its
+	// own, better-informed check, and help output stays quiet.
+	switch args[0] {
+	case "update", "upgrade", "self-update", "help", "--help", "-h":
+	default:
+		defer update.Start(Version).Notice(os.Stderr)
+	}
+
 	switch args[0] {
 	case "init":
 		return runInit(args[1:])
@@ -33,6 +43,8 @@ func Run(args []string) error {
 		return runStatus(args[1:])
 	case "harnesses":
 		return runHarnesses(args[1:])
+	case "update", "upgrade", "self-update":
+		return runUpdate(args[1:])
 	case "version", "--version", "-v":
 		fmt.Println("katana " + Version)
 		return nil
@@ -57,6 +69,7 @@ Commands:
   run         Run the generated test suite
   status      Show which behaviors are out of date
   harnesses   List the supported coding-agent harnesses
+  update      Install the newest katana release over this binary
   version     Print the katana version
 
 Run "katana <command> --help" for the flags of a command.
