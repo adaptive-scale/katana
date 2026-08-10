@@ -173,8 +173,10 @@ func TestNeedsGeneration(t *testing.T) {
 		StatusBehaviorChanged: true,
 		StatusOutputMissing:   true,
 		StatusConfigChanged:   true,
-		// Hand edits are preserved unless the caller forces regeneration.
-		StatusOutputModified: false,
+		// Hand edits, and tests katana never recorded writing, are preserved
+		// unless the caller forces regeneration.
+		StatusOutputModified:  false,
+		StatusOutputUntracked: false,
 	}
 	for s, want := range cases {
 		if got := s.NeedsGeneration(); got != want {

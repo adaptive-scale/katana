@@ -70,7 +70,7 @@ Commands:
   discover    Write behavior files for the code this project already has
   generate    Generate tests for behaviors that changed since the last run
   run         Run the generated test suite
-  status      Show which behaviors are out of date
+  status      Show what the tracker holds and which behaviors are out of date
   harnesses   List the supported coding-agent harnesses
   update      Install the newest katana release over this binary
   version     Print the katana version

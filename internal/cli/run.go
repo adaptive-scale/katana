@@ -16,6 +16,7 @@ import (
 
 	"github.com/adaptive-scale/katana/internal/config"
 	"github.com/adaptive-scale/katana/internal/report"
+	"github.com/adaptive-scale/katana/internal/results"
 	"github.com/adaptive-scale/katana/internal/tracker"
 )
 
@@ -24,6 +25,7 @@ func runTest(args []string) error {
 	var (
 		dir     = fs.String("dir", "", "project directory (defaults to the current directory)")
 		check   = fs.Bool("check", false, "fail before running if any behavior is out of date")
+		cases   = fs.Bool("cases", true, "ask the runner to report every test case, so `katana status` can show what passed")
 		save    = fs.Bool("save", false, "write an HTML report of the test results to the output directory")
 		saveDir = fs.String("out", "out", "directory --save writes its HTML report to")
 	)
@@ -35,6 +37,12 @@ so `+"`katana run -- -run TestCheckout`"+` narrows a Go test run.
 
 katana warns when a behavior has changed since its tests were generated; pass
 --check to make that a hard failure instead, which is the useful form in CI.
+
+Every run is recorded to `+"`.katana/results.json`"+`, so `+"`katana status`"+` can say how
+many test cases passed without running the suite again. Recording per case needs
+the runner to name each case, which some only do in verbose mode, so katana adds
+that flag where it knows it; --cases=false leaves the command exactly as
+configured and records the suite-wide result alone.
 
 --save writes each run's results to out/report-<timestamp>.html: a self-contained
 page listing every test case with its outcome, the failure output, and which
@@ -89,11 +97,11 @@ Flags:
 	}
 
 	command := cfg.Test.Command
-	if *save {
-		// A report of "the suite passed" is worth little, so ask the runner for
+	if *cases || *save {
+		// "The suite passed" is worth little on its own, so ask the runner for
 		// per-case output when katana knows how.
 		if verbose, added := report.Verbose(cfg.Defaults.Framework, command); added {
-			fmt.Fprintf(os.Stderr, "note: --save added -v to the test command so each case is recorded\n")
+			fmt.Fprintf(os.Stderr, "note: added -v to the test command so each case is recorded\n")
 			command = verbose
 		}
 	}
@@ -116,14 +124,11 @@ Flags:
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	// With --save the suite output is copied as it streams, so the terminal is
-	// unchanged and the report has the runner's own words to parse.
-	var rec *report.Recorder
-	if *save {
-		rec = &report.Recorder{}
-		cmd.Stdout = rec.Tee(os.Stdout)
-		cmd.Stderr = rec.Tee(os.Stderr)
-	}
+	// The suite output is copied as it streams, so the terminal is unchanged and
+	// katana still has the runner's own words to recover per-case results from.
+	rec := &report.Recorder{}
+	cmd.Stdout = rec.Tee(os.Stdout)
+	cmd.Stderr = rec.Tee(os.Stderr)
 
 	startedAt := time.Now()
 	runErr := cmd.Run()
@@ -138,21 +143,28 @@ Flags:
 		exitCode = exitErr.ExitCode()
 	}
 
-	if *save {
-		r := &report.Report{
-			Project:   filepath.Base(cfg.Root),
-			Root:      cfg.Root,
-			Command:   command,
-			Framework: cfg.Defaults.Framework,
-			Version:   Version,
-			StartedAt: startedAt,
-			Duration:  elapsed,
-			ExitCode:  exitCode,
-			Behaviors: reportBehaviors(items),
-			Output:    rec.String(),
-		}
-		r.Collect()
+	r := &report.Report{
+		Project:   filepath.Base(cfg.Root),
+		Root:      cfg.Root,
+		Command:   command,
+		Framework: cfg.Defaults.Framework,
+		Version:   Version,
+		StartedAt: startedAt,
+		Duration:  elapsed,
+		ExitCode:  exitCode,
+		Behaviors: reportBehaviors(items),
+		Output:    rec.String(),
+	}
+	r.Collect()
 
+	// Record the outcome for `katana status`. A run that could not be recorded
+	// is still a run that happened, so this never outranks the suite's result.
+	res := results.Record(command, startedAt, exitCode, r.Parsed, r.Cases)
+	if err := res.Save(cfg.Root); err != nil {
+		fmt.Fprintf(os.Stderr, "katana: recording test results: %v\n", err)
+	}
+
+	if *save {
 		path, err := r.WriteHTML(reportDir(cfg, *saveDir))
 		if err != nil {
 			err = fmt.Errorf("writing test report: %w", err)

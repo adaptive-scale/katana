@@ -34,6 +34,9 @@ func TestClassify(t *testing.T) {
 		want     tracker.Status
 	}{
 		{"never generated", nil, "src1", "", r, tracker.StatusNew},
+		// Tests katana has no record of writing are not overwritten by a run it
+		// was never asked to force.
+		{"untracked tests already there", nil, "src1", "out1", r, tracker.StatusOutputUntracked},
 		{"nothing changed", &recorded, "src1", "out1", r, tracker.StatusUpToDate},
 		{"behavior edited", &recorded, "src2", "out1", r, tracker.StatusBehaviorChanged},
 		{"tests deleted", &recorded, "src1", "", r, tracker.StatusOutputMissing},

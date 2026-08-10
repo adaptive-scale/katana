@@ -59,9 +59,12 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 - `generate` produces tests only for behaviors that need it, judged against the tracker; everything else is left alone.
 - `--file` limits the run to named behavior files and may be repeated; an absolute path is interpreted relative to the project root.
 - When no behavior matches, generate prints `no behaviors matched` and succeeds.
+- A behavior whose tests are already generated and whose markdown has not changed since is left alone; only `--force` regenerates it.
 - A behavior whose generated tests were edited by hand is skipped and reported as `skip <source> → <output> (<status>; pass --force to regenerate over it)`, so hand edits are never silently discarded.
-- `--force` regenerates every matched behavior, including up-to-date and hand-edited ones.
-- When nothing needs work, generate reports `all <n> behavior(s) up to date` and succeeds.
+- A behavior with no tracker entry whose test file already exists is skipped and reported the same way, so tests katana has no record of writing are never silently overwritten.
+- `--force` regenerates every matched behavior, including up-to-date ones and those whose tests katana did not write.
+- When nothing needs work and nothing was held back, generate reports `all <n> behavior(s) up to date` and succeeds.
+- When nothing needs work but some behaviors were held back for a test file katana did not write, generate reports `nothing to generate: <n> behavior(s) up to date, <m> left alone (pass --force to regenerate over them)` and succeeds.
 - `--dry-run` lists each behavior that would be generated with its status, source, output and language/framework/harness, and runs no harness.
 - Every distinct harness the planned work needs is built and checked before any behavior is generated, so a missing or misconfigured agent CLI is reported before agent time is spent.
 - Each finished behavior reports its size in bytes, the number of test cases found in the generated file when there is at least one, how the file arrived, and its elapsed time.
@@ -89,7 +92,8 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 
 ## Deciding whether a behavior is current
 
-- A behavior with no tracker entry is `new`.
+- A behavior with no tracker entry whose test file does not exist is `new`.
+- A behavior with no tracker entry whose test file does exist is `output not tracked`.
 - A behavior whose specification file has changed since it was recorded is `behavior changed`, and that takes precedence over any hand edit to the generated file.
 - A behavior whose recorded output path, language, framework or harness differs from the current configuration is `config changed`.
 - A behavior whose generated file is absent is `output missing`.

@@ -27,7 +27,7 @@ func runGenerate(args []string) error {
 	var jobs int
 	var (
 		dir     = fs.String("dir", "", "project directory (defaults to the current directory)")
-		force   = fs.Bool("force", false, "regenerate every behavior, including up-to-date and hand-edited ones")
+		force   = fs.Bool("force", false, "regenerate every behavior, including up-to-date ones and those whose tests katana did not write")
 		dryRun  = fs.Bool("dry-run", false, "report what would be generated without running the harness")
 		verbose = fs.Bool("verbose", false, "show what is being generated: spec, target, harness command, prompt and the harness output as it runs")
 	)
@@ -38,8 +38,12 @@ func runGenerate(args []string) error {
 		fmt.Fprint(os.Stderr, `Usage: katana generate [flags]
 
 Generates tests for behaviors that changed since the last run. A behavior whose
-generated file was edited by hand is reported and skipped unless --force is set,
-so katana never silently discards your edits.
+tests are already there and whose specification has not changed since they were
+generated is left alone.
+
+A test file katana did not write — edited by hand, or already present for a
+behavior the tracker has no record of — is reported and skipped unless --force
+is set, so katana never silently discards work it did not do.
 
 Behaviors are generated several at a time, since each one waits on an agent CLI
 rather than on this machine. Each behavior's output is printed as one block when
@@ -97,14 +101,25 @@ Flags:
 		}
 	}
 
+	// Some skips are "nothing to do" and some are "katana is holding back from a
+	// file it did not write". Only the second kind is worth a line, and only the
+	// second kind makes "all up to date" the wrong thing to say afterwards.
+	held := 0
 	for _, it := range skipped {
-		if it.Status == tracker.StatusOutputModified {
+		switch it.Status {
+		case tracker.StatusOutputModified, tracker.StatusOutputUntracked:
+			held++
 			fmt.Printf("  skip  %s → %s (%s; pass --force to regenerate over it)\n",
 				it.Source, it.Output, it.Status)
 		}
 	}
 
 	if len(todo) == 0 {
+		if held > 0 {
+			fmt.Printf("nothing to generate: %d behavior(s) up to date, %d left alone (pass --force to regenerate over them)\n",
+				len(items)-held, held)
+			return nil
+		}
 		fmt.Printf("all %d behavior(s) up to date\n", len(items))
 		return nil
 	}

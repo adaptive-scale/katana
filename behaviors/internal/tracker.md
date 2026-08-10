@@ -52,10 +52,11 @@ Katana keeps a record of what it generated, from which behavior file, and with w
 
 ## Why a behavior is or is not out of date
 
-- The reasons a behavior can be in are: unchanged, never generated, behavior markdown changed since generation, generated file gone, generated file edited by hand, and generation settings changed.
-- Each reason has a fixed wording for command-line output: `up to date`, `new`, `behavior changed`, `output missing`, `output edited by hand`, and `config changed`.
+- The reasons a behavior can be in are: unchanged, never generated, behavior markdown changed since generation, generated file gone, generated file edited by hand, generation settings changed, and a test file already present for a behavior nothing was ever recorded for.
+- Each reason has a fixed wording for command-line output: `up to date`, `new`, `behavior changed`, `output missing`, `output edited by hand`, `config changed`, and `output not tracked`.
 - Settings changing means the language, framework or harness differ from what was recorded.
-- Any reason outside the six listed renders as `unknown`.
+- Any reason outside the seven listed renders as `unknown`.
 - By default, regeneration is called for when a behavior is new, when the behavior markdown changed, when the generated file is missing, or when the settings changed.
 - A generated file that was edited by hand deliberately does not call for regeneration by default: katana will not silently discard hand-written edits, so that case requires forcing.
+- A test file that is already there for a behavior with no tracker entry deliberately does not call for regeneration by default either: katana never recorded writing it, so it is treated the same as a hand edit and requires forcing.
 - A behavior that is unchanged does not call for regeneration.

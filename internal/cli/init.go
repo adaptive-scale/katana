@@ -11,6 +11,7 @@ import (
 
 	"github.com/adaptive-scale/katana/internal/config"
 	"github.com/adaptive-scale/katana/internal/harness"
+	"github.com/adaptive-scale/katana/internal/results"
 	"github.com/adaptive-scale/katana/internal/tracker"
 )
 
@@ -73,10 +74,13 @@ func runInit(args []string) error {
 	}
 
 	// The tracker is shared state that belongs in version control — it is what
-	// lets a teammate's checkout know which tests are already current. Only the
-	// scratch files are ignored.
+	// lets a teammate's checkout know which tests are already current. What is
+	// ignored is the scratch files and the recorded test results: a run's
+	// outcome is one machine's, not the project's. Missing lines are appended
+	// rather than only written for a new project, so `katana init` in a project
+	// set up by an older katana still ends up ignoring the right files.
 	gitignore := filepath.Join(katanaDir, ".gitignore")
-	if err := writeIfAbsent(gitignore, ".tracker-*.json\n"); err != nil {
+	if err := ensureIgnored(gitignore, ".tracker-*.json", ".results-*.json", results.FileName); err != nil {
 		return err
 	}
 
@@ -126,6 +130,36 @@ func ensureTracker(root string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+// ensureIgnored makes sure a .gitignore lists every pattern, appending only the
+// ones it does not already have so a hand-edited file keeps its own entries.
+func ensureIgnored(path string, patterns ...string) error {
+	data, err := os.ReadFile(path)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return err
+	}
+	have := map[string]bool{}
+	for _, line := range strings.Split(string(data), "\n") {
+		have[strings.TrimSpace(line)] = true
+	}
+
+	out := string(data)
+	added := false
+	for _, p := range patterns {
+		if have[p] {
+			continue
+		}
+		if out != "" && !strings.HasSuffix(out, "\n") {
+			out += "\n"
+		}
+		out += p + "\n"
+		added = true
+	}
+	if !added {
+		return nil
+	}
+	return os.WriteFile(path, []byte(out), 0o644)
 }
 
 func writeIfAbsent(path, content string) error {

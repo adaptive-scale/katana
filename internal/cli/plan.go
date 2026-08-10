@@ -53,6 +53,14 @@ func plan(cfg *config.Config, t *tracker.Tracker, only []string) ([]item, error)
 func classify(t *tracker.Tracker, r config.Resolved, srcHash, outHash string) tracker.Status {
 	entry, ok := t.Get(r.Source)
 	if !ok {
+		// Tests are already there for a behavior katana has no record of: an
+		// older katana, a teammate's run whose tracker was not committed, or a
+		// file written by hand. Generating would overwrite work katana never
+		// made, and it cannot claim the spec changed since something it never
+		// recorded, so the file is left alone until --force asks for it.
+		if outHash != "" {
+			return tracker.StatusOutputUntracked
+		}
 		return tracker.StatusNew
 	}
 	if entry.SourceHash != srcHash {

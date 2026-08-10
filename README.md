@@ -83,6 +83,10 @@ behaviors/example.md   # a sample behavior to edit or delete
 .katana/tracker.json   # what was generated from what — commit this
 ```
 
+`katana run` later adds `.katana/results.json`, the outcome of the last run that
+`katana status` reports pass counts from. That one is local, and `init` writes a
+`.katana/.gitignore` that leaves it out of version control.
+
 Then the loop is: edit a behavior file, run `katana generate`, run `katana run`.
 
 ## Writing a behavior
@@ -115,7 +119,7 @@ path comes from `defaults.output_dir` and `defaults.output_template`.
 | `katana init` | Create `katana.yaml`, `.katana/`, and a sample behavior |
 | `katana generate` | Generate tests for behaviors that changed since the last run |
 | `katana run` | Run the test command from `katana.yaml` |
-| `katana status` | Show which behaviors are out of date |
+| `katana status` | Show what the tracker holds and which behaviors are out of date |
 | `katana harnesses` | List the supported agent CLIs and whether they are installed |
 | `katana update` | Install the newest release over this binary |
 | `katana version` | Print the katana version |
@@ -196,6 +200,14 @@ katana run -- -run TestCheckout    # arguments after -- are appended
 green suite is never mistaken for one that covers the current specification.
 `--check` turns that warning into a failure — the useful form in CI.
 
+Every run records what each test case did to `.katana/results.json`, which is
+what lets `katana status` report how many cases passed without running the suite
+again. Recovering results per case needs the runner to name each one, which some
+only do in verbose mode, so katana adds that flag where it knows it and says so;
+`--cases=false` leaves the command exactly as configured and records the
+suite-wide result alone. The file describes one machine's last run, so it is
+ignored by `.katana/.gitignore` rather than committed.
+
 ### Saving results as HTML
 
 `katana run --save` writes `out/report-<timestamp>.html` — one file per run, so
@@ -215,7 +227,7 @@ Per-case results are recovered by reading the runner's own output, so the table
 is as detailed as the runner is: go-test, pytest, jest, vitest, mocha,
 cargo-test, xunit and xctest are parsed. Any other runner still gets a report of
 the command, the exit code and the full output. Because `go test` and `pytest`
-only name individual cases in verbose mode, `--save` appends `-v` to those two
+only name individual cases in verbose mode, katana appends `-v` to those two
 commands and says so.
 
 The suite's exit code is still propagated after the report is written, so
@@ -225,14 +237,55 @@ The suite's exit code is still propagated after the report is written, so
 
 ```sh
 katana status
-katana status --strict   # exit non-zero when anything is out of date
+katana status --tests                     # name the test cases behind each behavior
+katana status --file behaviors/cart.md    # one behavior (repeatable)
+katana status --strict                    # exit non-zero when anything is out of date
 ```
 
 ```
-STATUS  BEHAVIOR              TESTS                  STACK
-new     behaviors/example.md  tests/example_test.go  go/go-test via claude
+tracker  .katana/tracker.json (v1, 2 entry(ies), updated 3h ago)
+last run  20m ago, failed (exit 1) — 6 of 7 case(s) passed, 1 failed, 0 skipped
 
-1 behavior(s), 1 out of date
+STATUS            BEHAVIOR               TESTS                   CASES  PASSED  GENERATED  STACK
+up to date        behaviors/cart.md      tests/cart_test.go      5      4/5     3h ago     go/go-test via claude
+behavior changed  behaviors/example.md   tests/example_test.go   2      2/2     6d ago     go/go-test via claude
+
+2 behavior(s), 1 out of date, 7 test case(s) mapped, 6 of 7 passed in the last run
+```
+
+The table is the tracker read back: what each behavior is mapped to, how many
+test cases came out of it, how many of them passed, when it was generated, and
+whether any of it still holds. `CASES` and `GENERATED` are what the last
+generation recorded, so a behavior katana has never generated shows `-` in both.
+
+`PASSED` is how those cases fared in the last `katana run`, which every run
+records to `.katana/results.json`. status never runs the suite itself, so the
+count is only as current as that run — the `last run` line says how old it is. A
+case the run did not cover counts as neither passed nor failed, and is reported
+separately:
+
+```
+2 behavior(s), 0 out of date, 7 test case(s) mapped, 2 of 7 passed in the last run (5 case(s) it did not cover)
+```
+
+`--tests` names the cases themselves, marked with what each one did: `✓` passed,
+`✗` failed, `○` skipped, `•` not in the last run.
+
+```
+behaviors/cart.md → tests/cart_test.go (5 case(s), 4 of 5 passed)
+  ✓ TestValidDiscountReducesTotal
+  ✗ TestDiscountAppliesBeforeShipping
+  …
+```
+
+A behavior deleted from `katana.yaml` leaves its tracker entry behind until the
+next `katana generate` prunes it. Those are listed after the table, so a mapping
+that outlived its specification is visible before then:
+
+```
+1 tracker entry(ies) no longer in katana.yaml:
+  behaviors/old.md → tests/old_test.go (3 case(s), generated 2026-01-14)
+run `katana generate` to prune them
 ```
 
 ## How staleness is decided
@@ -243,15 +296,21 @@ against `.katana/tracker.json`.
 | Status | Meaning | Regenerated by default |
 | --- | --- | --- |
 | `up to date` | Behavior and output both unchanged | — |
-| `new` | Never generated | yes |
+| `new` | Never generated, and no test file is there | yes |
 | `behavior changed` | The specification changed | yes |
 | `output missing` | The generated file is gone | yes |
 | `config changed` | Language, framework, harness, or output path changed | yes |
 | `output edited by hand` | The generated file was edited since generation | **no** — needs `--force` |
+| `output not tracked` | Tests are already there for a behavior the tracker has no entry for | **no** — needs `--force` |
 
-The last row is the point of the tracker: katana will not silently discard your
-edits. A hand-edited test file is reported and skipped until you ask for it to
-be overwritten.
+Once a behavior's tests exist and its markdown has not changed since they were
+generated, `katana generate` leaves it alone — no agent runs, nothing is
+rewritten. Only `--force` regenerates it.
+
+The last two rows are the point of the tracker: katana will not silently discard
+a test file it did not write. Whether you edited it by hand or it arrived
+without a tracker entry — an older katana, a teammate's run, a file you wrote
+yourself — it is reported and skipped until you ask for it to be overwritten.
 
 When the specification *and* the output have both changed, the specification
 wins — regeneration is what you asked for by editing the spec. The generated

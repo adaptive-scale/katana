@@ -71,6 +71,9 @@ const (
 	StatusOutputModified
 	// StatusConfigChanged means the language, framework or harness changed.
 	StatusConfigChanged
+	// StatusOutputUntracked means tests are already there for a behavior katana
+	// has no record of generating.
+	StatusOutputUntracked
 )
 
 // String renders the status for CLI output.
@@ -88,13 +91,16 @@ func (s Status) String() string {
 		return "output edited by hand"
 	case StatusConfigChanged:
 		return "config changed"
+	case StatusOutputUntracked:
+		return "output not tracked"
 	}
 	return "unknown"
 }
 
 // NeedsGeneration reports whether the status calls for regeneration by default.
-// StatusOutputModified deliberately does not: katana will not silently discard
-// hand-written edits, so that case requires --force.
+// StatusOutputModified and StatusOutputUntracked deliberately do not: katana
+// will not silently discard a test file it did not write, so those cases
+// require --force.
 func (s Status) NeedsGeneration() bool {
 	switch s {
 	case StatusNew, StatusBehaviorChanged, StatusOutputMissing, StatusConfigChanged:
