@@ -92,6 +92,10 @@ Then the loop is: edit a behavior file, run `katana generate`, run `katana run`.
 Or run `katana` on its own, which opens the whole project in one screen and runs
 a behavior's tests where you are standing.
 
+A codebase that already exists starts one step earlier: `katana discover` reads
+the code and writes the behavior files it already implements, as a draft to
+correct before generating from it.
+
 ## Writing a behavior
 
 A behavior file is ordinary markdown. State what is observable, not how it is
@@ -121,6 +125,7 @@ path comes from `defaults.output_dir` and `defaults.output_template`.
 | --- | --- |
 | `katana` | Open the full-screen view of the project (same as `katana tui`) |
 | `katana init` | Create `katana.yaml`, `.katana/`, and a sample behavior |
+| `katana discover` | Write behavior files for the code this project already has |
 | `katana generate` | Generate tests for behaviors that changed since the last run |
 | `katana run` | Run the test command from `katana.yaml` |
 | `katana status` | Show what the tracker holds and which behaviors are out of date |
@@ -137,6 +142,59 @@ is a failure or a generated file that is gone, and magenta is a test file katana
 did not write and will not overwrite. Colour is used only when the output is a
 terminal; `NO_COLOR`, `CLICOLOR_FORCE` and `--color auto|always|never` decide it
 outright.
+
+### discover
+
+```sh
+katana discover                          # a behavior file per source directory
+katana discover --dry-run                # report what would be discovered, run nothing
+katana discover --path internal/billing  # only this file or subtree (repeatable)
+katana discover --exclude examples       # skip a directory, by name or path (repeatable)
+katana discover --force                  # update existing behavior files against the code
+katana discover --jobs 8                 # eight agents at once (-j for short)
+```
+
+discover is `katana generate` run backwards: it reads the code the project
+already has and writes the behavior it implements into the behaviors directory,
+so a codebase with no specifications has somewhere to start.
+
+```sh
+katana init --language go --harness claude
+katana discover --dry-run
+katana discover
+```
+
+Only one language is read — `defaults.language`, or `--language` — and only
+product code: test files, dependencies, build output, generated files and
+hidden directories are left out, and `--include-tests` brings the test code
+back in. Source files are gathered one behavior file per directory — a package,
+in most of the languages katana targets — and the behavior tree mirrors the
+source tree, so `internal/billing` becomes `behaviors/internal/billing.md` and
+the tests generated from it land under the matching directory. `--group file`
+writes one behavior file per source file instead, for directories too large to
+describe in one specification, and `--out` writes somewhere other than where
+`katana.yaml` already keeps behaviors.
+
+Each unit goes to the configured harness, which reads the source and writes the
+specification the way generation writes tests: the file itself, with stdout as
+the fallback. A unit whose source states no product behavior — constants, plain
+data, a package that only wires other packages together — is skipped with the
+harness's reason, rather than padded out into invented rules. Units are
+discovered four at a time, under the same `harness.jobs` and `--jobs` as
+generation, and `--verbose` narrates the files read, the prompt, and the
+harness output as it arrives.
+
+A behavior file that already exists is reported and left alone. `--force` asks
+the harness to update it against the code as it now stands — correcting what
+the code contradicts, keeping the wording of everything still true — so hand
+edits survive; a file the harness found nothing to correct comes back unchanged
+and says so.
+
+What comes back is a draft. It describes what the code does today, including
+whatever it does by accident, so read and correct it before running
+`katana generate` — from then on the behavior file is the source of truth. A
+discovered file that falls outside every `behaviors:` path in `katana.yaml` is
+pointed out, along with the `- path:` line that would include it.
 
 ### generate
 
@@ -368,6 +426,9 @@ its cases passed in each:
      6h ago       ██████████████████████▓▓▓▓▓▓▓▓▓▓▓░      2/3  ✗ 5.30s
      9h ago       ██████████████████████████████████      3/3  ✓ 5.16s
 ```
+
+`n` and `p` step to the next and previous behavior from there, without going
+back to the list.
 
 `r` runs the selected behavior's tests and `a` runs the whole suite, streaming
 the runner's output as it arrives; `x` stops a run in flight. A run started here
