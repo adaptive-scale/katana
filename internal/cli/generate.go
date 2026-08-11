@@ -135,6 +135,12 @@ Flags:
 	}
 
 	if len(todo) == 0 {
+		// A deleted behavior leaves a stale entry behind while every remaining
+		// one is up to date, so this run is the only chance to clear it: the
+		// next one has nothing to generate either.
+		if pruneTracker(cfg, t, only) {
+			saveTracker(t)
+		}
 		if held > 0 {
 			fmt.Printf("nothing to generate: %d behavior(s) up to date, %d left alone (pass --force to regenerate over them)\n",
 				len(items)-held, held)
@@ -223,18 +229,7 @@ Flags:
 		fmt.Println("  interrupted; stopping")
 	}
 
-	// Behaviors deleted from the config leave stale tracker entries behind.
-	if len(only) == 0 {
-		if resolved, err := cfg.Resolve(); err == nil {
-			keep := make(map[string]bool, len(resolved))
-			for _, r := range resolved {
-				keep[r.Source] = true
-			}
-			for _, gone := range t.Prune(keep) {
-				fmt.Printf("  pruned tracker entry for removed behavior %s\n", gone)
-			}
-		}
-	}
+	pruneTracker(cfg, t, only)
 	if err := t.Save(); err != nil {
 		return err
 	}
@@ -587,6 +582,29 @@ func (c *runnerCache) get(name string) (*harness.Runner, error) {
 
 // saveTracker persists progress mid-run; a failure to write is reported but
 // does not abort generation already in flight.
+// pruneTracker drops tracker entries for behaviors the config no longer lists
+// and reports each one, returning whether anything was dropped. A --file run
+// prunes nothing: it was told to look at part of the project, so the behaviors
+// outside that part are not evidence of anything.
+func pruneTracker(cfg *config.Config, t *tracker.Tracker, only []string) bool {
+	if len(only) > 0 {
+		return false
+	}
+	resolved, err := cfg.Resolve()
+	if err != nil {
+		return false
+	}
+	keep := make(map[string]bool, len(resolved))
+	for _, r := range resolved {
+		keep[r.Source] = true
+	}
+	gone := t.Prune(keep)
+	for _, name := range gone {
+		fmt.Printf("  pruned tracker entry for removed behavior %s\n", name)
+	}
+	return len(gone) > 0
+}
+
 func saveTracker(t *tracker.Tracker) {
 	if err := t.Save(); err != nil {
 		fmt.Fprintf(os.Stderr, "  warning: could not update tracker: %v\n", err)

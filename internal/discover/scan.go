@@ -275,8 +275,10 @@ func (o Options) disambiguator(u Unit) string {
 }
 
 func (o Options) behaviorPath(u Unit, suffix string) string {
+	// Clean turns "" into "." and "/" into "/", neither of which is a directory
+	// a behavior file belongs in, so both fall back to the default.
 	dir := path.Clean(o.BehaviorDir)
-	if dir == "" || dir == "/" {
+	if dir == "." || dir == "/" {
 		dir = "behaviors"
 	}
 

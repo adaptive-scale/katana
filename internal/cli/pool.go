@@ -31,7 +31,10 @@ func runPool[T, R any](ctx context.Context, workers int, items []T, do func(cont
 				if ctx.Err() != nil {
 					continue // the run is stopping; drain the queue
 				}
-				results <- do(ctx, it)
+				// The agent runs under a context the interrupt does not reach,
+				// so cancelling stops the queue rather than the harness that is
+				// already writing a file. Its own timeout still bounds it.
+				results <- do(context.WithoutCancel(ctx), it)
 			}
 		}()
 	}

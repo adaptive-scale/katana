@@ -546,8 +546,9 @@ func TestWithNoExtraEntriesTheHarnessInheritsTheParentEnvironmentUnchanged(t *te
 	t.Setenv(agentEnvExit, "0")
 	t.Setenv("KATANA_HARNESS_INHERITED", "from the parent")
 
+	dir := t.TempDir()
 	runner, err := harness.New(standInName, standInSpec(t), harness.Options{
-		Dir:    t.TempDir(),
+		Dir:    dir,
 		Stderr: io.Discard,
 	})
 	if err != nil {
@@ -556,6 +557,13 @@ func TestWithNoExtraEntriesTheHarnessInheritsTheParentEnvironmentUnchanged(t *te
 	rep := reportFrom(t, runner, agentPrompt)
 
 	got, want := append([]string(nil), rep.Env...), os.Environ()
+	// os/exec points the harness's PWD at its working directory, so that one
+	// entry is expected to differ from the parent's.
+	for i, kv := range want {
+		if strings.HasPrefix(kv, "PWD=") {
+			want[i] = "PWD=" + dir
+		}
+	}
 	sort.Strings(got)
 	sort.Strings(want)
 	if !sameStrings(got, want) {

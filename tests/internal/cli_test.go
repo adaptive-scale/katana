@@ -86,6 +86,12 @@ type cliOptions struct {
 	env     map[string]string // added to the child environment, overriding the defaults
 	exe     string            // binary to run; this test binary when empty
 	onStart func(*exec.Cmd)   // called once the child is running, on its own goroutine
+	// merged gives the child one file descriptor for both streams, the way a
+	// terminal does. It is the only way to observe the order writes to the two
+	// streams really happened in: with a pipe each, the order they arrive in is
+	// the order this process happens to read them. It leaves stdout and stderr
+	// empty, so a test that needs them apart runs twice.
+	merged bool
 }
 
 // cliOutcome is everything a finished invocation said.
@@ -141,8 +147,29 @@ func startKatana(t *testing.T, opts cliOptions, args ...string) (*exec.Cmd, func
 
 	var mu sync.Mutex
 	var stdout, stderr, all bytes.Buffer
-	cmd.Stdout = cliTee{mu: &mu, self: &stdout, all: &all}
-	cmd.Stderr = cliTee{mu: &mu, self: &stderr, all: &all}
+
+	// One pipe shared by both streams keeps the kernel's ordering; a pipe each
+	// records the streams apart but not their order relative to one another.
+	var drained chan struct{}
+	if opts.merged {
+		r, w, err := os.Pipe()
+		if err != nil {
+			t.Fatalf("creating the output pipe: %v", err)
+		}
+		cmd.Stdout, cmd.Stderr = w, w
+		drained = make(chan struct{})
+		go func() {
+			defer close(drained)
+			defer r.Close()
+			io.Copy(&all, r)
+		}()
+		// The child holds the only other reference once it has started, so the
+		// reader above sees EOF when it exits.
+		defer w.Close()
+	} else {
+		cmd.Stdout = cliTee{mu: &mu, self: &stdout, all: &all}
+		cmd.Stderr = cliTee{mu: &mu, self: &stderr, all: &all}
+	}
 
 	if err := cmd.Start(); err != nil {
 		t.Fatalf("starting katana: %v", err)
@@ -156,6 +183,9 @@ func startKatana(t *testing.T, opts cliOptions, args ...string) (*exec.Cmd, func
 				t.Fatalf("running katana: %v", err)
 			}
 			code = exitErr.ExitCode()
+		}
+		if drained != nil {
+			<-drained
 		}
 		mu.Lock()
 		defer mu.Unlock()
@@ -693,19 +723,30 @@ func primeReleaseCache(t *testing.T, tag string) string {
 }
 
 func TestTheReleaseNoticeIsPrintedToStandardErrorAfterTheCommandHasFinished(t *testing.T) {
-	res := runKatana(t, cliOptions{
-		version: "v1.0.0",
-		env: map[string]string{
-			"KATANA_NO_UPDATE_CHECK": "",
-			"KATANA_CACHE_DIR":       primeReleaseCache(t, "v9.9.9"),
-		},
-	}, "version")
+	const notice = "katana v9.9.9 is available (you have v1.0.0)"
+	opts := func() cliOptions {
+		return cliOptions{
+			version: "v1.0.0",
+			env: map[string]string{
+				"KATANA_NO_UPDATE_CHECK": "",
+				"KATANA_CACHE_DIR":       primeReleaseCache(t, "v9.9.9"),
+			},
+		}
+	}
+
+	res := runKatana(t, opts(), "version")
 
 	wantExit(t, res, 0)
-	const notice = "katana v9.9.9 is available (you have v1.0.0)"
 	wantContains(t, res.stderr, notice, "release notice")
 	wantAbsent(t, res.stdout, notice, "standard output")
 
+	// Which stream carried which line is settled above. Ordering between the
+	// two is only observable over one descriptor, as a terminal gives katana.
+	merged := opts()
+	merged.merged = true
+	res = runKatana(t, merged, "version")
+
+	wantExit(t, res, 0)
 	work := strings.Index(res.all, "katana v1.0.0")
 	news := strings.Index(res.all, notice)
 	if work < 0 || news < 0 || news < work {
@@ -2432,7 +2473,8 @@ func TestTheInstalledColumnSaysNoForAHarnessThatIsNotOnThePath(t *testing.T) {
 
 	wantExit(t, res, 0)
 	for _, line := range strings.Split(res.stdout, "\n") {
-		if !strings.HasPrefix(line, "claude") {
+		// The table draws borders, so the name is not at the start of the line.
+		if !strings.HasPrefix(strings.TrimLeft(line, "│ \t"), "claude") {
 			continue
 		}
 		wantContains(t, line, "no", "installed column")
@@ -2534,7 +2576,13 @@ func TestUpdateReplacesTheRunningBinaryAndReportsTheTag(t *testing.T) {
 	}, "update")
 
 	wantExit(t, res, 0)
-	wantContains(t, res.stdout, "updated katana to v2.0.0 ("+dest+")", "report")
+	// katana resolves symlinks before replacing itself, so the path it reports
+	// is the resolved one — on macOS the temp directory lives under /private.
+	resolved := dest
+	if p, err := filepath.EvalSymlinks(dest); err == nil {
+		resolved = p
+	}
+	wantContains(t, res.stdout, "updated katana to v2.0.0 ("+resolved+")", "report")
 	body, err := os.ReadFile(dest)
 	if err != nil {
 		t.Fatal(err)

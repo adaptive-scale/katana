@@ -1195,10 +1195,10 @@ func TestThePromptShowsTheRequiredMarkdownShape(t *testing.T) {
 	prompt := discover.BuildPrompt(sampleRequest())
 
 	assertPromptContains(t, prompt,
-		"# What this part of the product does",           // a title
-		"One or two sentences of context",                // context
-		"## A group of related behavior",                 // one section per group
-		"- A single statement of observable behavior")    // bullets stating one fact
+		"# What this part of the product does",        // a title
+		"One or two sentences of context",             // context
+		"## A group of related behavior",              // one section per group
+		"- A single statement of observable behavior") // bullets stating one fact
 }
 
 func TestThePromptRequiresObservableBehaviorOnly(t *testing.T) {

@@ -77,7 +77,7 @@ func describeSpec(w io.Writer, root, name string, out *discover.Outcome) {
 	}
 	fmt.Fprintf(w, "  wrote    %s (%s, %d section(s), %d statement(s))\n",
 		name, byteSize(int64(len(body))), sections, statements)
-	fmt.Fprint(w, indent(preview(string(body), previewLines), "  │ "))
+	fmt.Fprint(w, preview(string(body), previewLines, "  │ "))
 	if out.HarnessOutput != "" {
 		fmt.Fprintf(w, "  harness said: %s\n", firstLine(out.HarnessOutput))
 	}
@@ -87,7 +87,7 @@ func describeSpec(w io.Writer, root, name string, out *discover.Outcome) {
 // existing test file does not bury the terminal.
 func describePrompt(w io.Writer, prompt string) {
 	fmt.Fprintf(w, "  prompt   %s, %d lines\n", byteSize(int64(len(prompt))), countLines(prompt))
-	fmt.Fprint(w, indent(preview(prompt, previewLines), "  │ "))
+	fmt.Fprint(w, preview(prompt, previewLines, "  │ "))
 }
 
 // describeOutcome reports what the harness produced: the size of the file, and
@@ -111,14 +111,16 @@ func describeOutcome(w io.Writer, name, body, language string, out *generator.Ou
 	}
 }
 
-// preview returns the first n lines of s, noting how many were left out.
-func preview(s string, n int) string {
+// preview returns the first n lines of s indented under prefix, followed by a
+// note of how many lines were left out. The note stays outside the prefix, so
+// the gutter marks previewed content and nothing else.
+func preview(s string, n int, prefix string) string {
 	lines := strings.Split(strings.TrimRight(s, "\n"), "\n")
 	if len(lines) <= n {
-		return strings.Join(lines, "\n") + "\n"
+		return indent(strings.Join(lines, "\n"), prefix)
 	}
-	return strings.Join(lines[:n], "\n") +
-		fmt.Sprintf("\n… %d more lines …\n", len(lines)-n)
+	return indent(strings.Join(lines[:n], "\n"), prefix) +
+		fmt.Sprintf("  … %d more lines …\n", len(lines)-n)
 }
 
 func indent(s, prefix string) string {

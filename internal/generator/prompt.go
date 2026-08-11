@@ -14,7 +14,7 @@ type Request struct {
 	OutputPath        string // project-relative path the tests belong at
 	Language          string
 	Framework         string
-	ExistingTests     string // current contents of OutputPath, empty if new
+	ExistingTests     string   // current contents of OutputPath, empty if new
 	Reserved          []string // test names already declared by neighbouring files
 	ExtraInstructions string
 }

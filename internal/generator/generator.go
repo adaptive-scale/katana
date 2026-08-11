@@ -121,11 +121,25 @@ func extractCode(stdout string) string {
 		return strings.TrimSpace(best) + "\n"
 	}
 
-	trimmed := strings.TrimSpace(stdout)
+	trimmed := trimBlankLines(stdout)
 	if trimmed == "" || !looksLikeCode(trimmed) {
 		return ""
 	}
 	return trimmed + "\n"
+}
+
+// trimBlankLines drops leading and trailing blank lines but keeps the first
+// line's indentation, which looksLikeCode reads as a signal.
+func trimBlankLines(s string) string {
+	lines := strings.Split(s, "\n")
+	start, end := 0, len(lines)
+	for start < end && strings.TrimSpace(lines[start]) == "" {
+		start++
+	}
+	for end > start && strings.TrimSpace(lines[end-1]) == "" {
+		end--
+	}
+	return strings.Join(lines[start:end], "\n")
 }
 
 // codeMarkers are line prefixes that only appear in source, never in an agent's
