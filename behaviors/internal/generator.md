@@ -49,6 +49,10 @@ Turns one written behavior specification into a test file by asking a configured
 - The prompt permits printing the file contents as a single fenced code block, with no surrounding prose, only when writing fails because no file tool is available or a permission check denies the write — and tells the harness not to stop or ask for access in that case.
 - When existing tests are present, the prompt includes them and asks the harness to update the file in place: change cases the specification changed, add cases it added, remove cases it no longer describes, and preserve unrelated hand-written helpers, fixtures and imports.
 - When there are no existing tests, no existing-tests section appears in the prompt at all.
+- When a generation is given test names already taken by neighbouring files, the prompt lists them and forbids declaring any of them, saying that in a language where a directory is one namespace a redeclared name stops the whole package compiling and every test beside it stops running.
+- That section also tells the harness that two specifications describing the same rule about different parts of the product should still both be tested, naming each test for the part of the product its specification is about rather than for the rule alone.
+- When no names are taken, no taken-names section appears in the prompt at all.
+- The prompt requires every test name to be unique across the files sharing the target's package or directory, not merely within the file being written.
 - The prompt always includes the behavior specification's content along with the project-relative path of the behavior file it came from.
 - The prompt requires one test per distinct asserted behavior, covering every behavior stated including error and edge cases, with each test named after the behavior it verifies.
 - The prompt requires assertions on the described behavior rather than incidental implementation detail, and asks that gaps in the specification be resolved with a reasonable interpretation noted in a brief comment rather than an invented requirement.

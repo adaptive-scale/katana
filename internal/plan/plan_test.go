@@ -1,4 +1,4 @@
-package cli
+package plan
 
 import (
 	"testing"
@@ -57,7 +57,7 @@ func TestClassify(t *testing.T) {
 			if c.entry != nil {
 				tr.Record(*c.entry)
 			}
-			if got := classify(tr, c.resolved, c.srcHash, c.outHash); got != c.want {
+			if got := Classify(tr, c.resolved, c.srcHash, c.outHash); got != c.want {
 				t.Errorf("classify = %v, want %v", got, c.want)
 			}
 		})
@@ -76,8 +76,8 @@ func TestNormalizePath(t *testing.T) {
 		"behaviors/../behaviors/a.md": "behaviors/a.md",
 	}
 	for in, want := range cases {
-		if got := normalizePath(root, in); got != want {
-			t.Errorf("normalizePath(%q) = %q, want %q", in, got, want)
+		if got := NormalizePath(root, in); got != want {
+			t.Errorf("NormalizePath(%q) = %q, want %q", in, got, want)
 		}
 	}
 }

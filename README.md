@@ -84,10 +84,13 @@ behaviors/example.md   # a sample behavior to edit or delete
 ```
 
 `katana run` later adds `.katana/results.json`, the outcome of the last run that
-`katana status` reports pass counts from. That one is local, and `init` writes a
-`.katana/.gitignore` that leaves it out of version control.
+`katana status` reports pass counts from, and `.katana/history.json`, a short
+record of the runs before it that the charts are drawn from. Both are local, and
+`init` writes a `.katana/.gitignore` that leaves them out of version control.
 
 Then the loop is: edit a behavior file, run `katana generate`, run `katana run`.
+Or run `katana` on its own, which opens the whole project in one screen and runs
+a behavior's tests where you are standing.
 
 ## Writing a behavior
 
@@ -116,15 +119,24 @@ path comes from `defaults.output_dir` and `defaults.output_template`.
 
 | Command | What it does |
 | --- | --- |
+| `katana` | Open the full-screen view of the project (same as `katana tui`) |
 | `katana init` | Create `katana.yaml`, `.katana/`, and a sample behavior |
 | `katana generate` | Generate tests for behaviors that changed since the last run |
 | `katana run` | Run the test command from `katana.yaml` |
 | `katana status` | Show what the tracker holds and which behaviors are out of date |
+| `katana tui` | Behaviors, their results, and runs on demand, in one screen |
 | `katana harnesses` | List the supported agent CLIs and whether they are installed |
 | `katana update` | Install the newest release over this binary |
 | `katana version` | Print the katana version |
 
 Run `katana <command> --help` for a command's flags.
+
+Output that is a table is drawn as one, and colour-coded: green is a behavior
+that needs nothing done, yellow is work the next `katana generate` will do, red
+is a failure or a generated file that is gone, and magenta is a test file katana
+did not write and will not overwrite. Colour is used only when the output is a
+terminal; `NO_COLOR`, `CLICOLOR_FORCE` and `--color auto|always|never` decide it
+outright.
 
 ### generate
 
@@ -190,10 +202,11 @@ narration only reads as narration when one generation is producing it:
 ### run
 
 ```sh
-katana run                         # run the suite
-katana run --check                 # fail if any behavior is out of date
-katana run --save                  # also write an HTML report to out/
-katana run -- -run TestCheckout    # arguments after -- are appended
+katana run                                 # run the suite
+katana run --check                         # fail if any behavior is out of date
+katana run --save                          # also write an HTML report to out/
+katana run --behavior behaviors/cart.md    # only the tests generated for one behavior
+katana run -- -run TestCheckout            # arguments after -- are appended
 ```
 
 `run` warns when a behavior has changed since its tests were generated, so a
@@ -202,11 +215,19 @@ green suite is never mistaken for one that covers the current specification.
 
 Every run records what each test case did to `.katana/results.json`, which is
 what lets `katana status` report how many cases passed without running the suite
-again. Recovering results per case needs the runner to name each one, which some
-only do in verbose mode, so katana adds that flag where it knows it and says so;
-`--cases=false` leaves the command exactly as configured and records the
-suite-wide result alone. The file describes one machine's last run, so it is
+again, and appends a row to `.katana/history.json`, which is what the charts are
+drawn from. Recovering results per case needs the runner to name each one, which
+some only do in verbose mode, so katana adds that flag where it knows it and says
+so; `--cases=false` leaves the command exactly as configured and records the
+suite-wide result alone. Both files describe one machine's runs, so they are
 ignored by `.katana/.gitignore` rather than committed.
+
+`--behavior` runs only the tests generated for one behavior, where katana knows
+how to narrow the runner: by test name for `go test`, by file for pytest, jest,
+vitest and mocha. Anything else runs whole and says so. The outcomes recorded for
+the other behaviors are left standing rather than erased, so `katana status`
+still knows how they last did — and says which of them are older than the last
+run.
 
 ### Saving results as HTML
 
@@ -245,10 +266,14 @@ katana status --strict                    # exit non-zero when anything is out o
 ```
 tracker  .katana/tracker.json (v1, 2 entry(ies), updated 3h ago)
 last run  20m ago, failed (exit 1) — 6 of 7 case(s) passed, 1 failed, 0 skipped
+history   ▇█████▆█  8 run(s), 2d ago to 20m ago
 
-STATUS            BEHAVIOR               TESTS                   CASES  PASSED  GENERATED  STACK
-up to date        behaviors/cart.md      tests/cart_test.go      5      4/5     3h ago     go/go-test via claude
-behavior changed  behaviors/example.md   tests/example_test.go   2      2/2     6d ago     go/go-test via claude
+┌──────────────────┬──────────────────────┬───────────────────────┬───────┬────────┬────────────┬───────────┬───────────────────────┐
+│ STATUS           │ BEHAVIOR             │ TESTS                 │ CASES │ PASSED │ RECENT     │ GENERATED │ STACK                 │
+├──────────────────┼──────────────────────┼───────────────────────┼───────┼────────┼────────────┼───────────┼───────────────────────┤
+│ up to date       │ behaviors/cart.md    │ tests/cart_test.go    │     5 │    4/5 │ ███▆███▆   │ 3h ago    │ go/go-test via claude │
+│ behavior changed │ behaviors/example.md │ tests/example_test.go │     2 │    2/2 │ ████████   │ 6d ago    │ go/go-test via claude │
+└──────────────────┴──────────────────────┴───────────────────────┴───────┴────────┴────────────┴───────────┴───────────────────────┘
 
 2 behavior(s), 1 out of date, 7 test case(s) mapped, 6 of 7 passed in the last run
 ```
@@ -257,6 +282,12 @@ The table is the tracker read back: what each behavior is mapped to, how many
 test cases came out of it, how many of them passed, when it was generated, and
 whether any of it still holds. `CASES` and `GENERATED` are what the last
 generation recorded, so a behavior katana has never generated shows `-` in both.
+
+`RECENT` is one column per run from `.katana/history.json`, oldest on the left:
+full height for a run in which every one of that behavior's cases passed, red
+and shorter for one where some did not. A run that said nothing about a behavior
+— a targeted run of another one — is not plotted in its row at all. The `history`
+line above the table is the same chart for the suite as a whole.
 
 `PASSED` is how those cases fared in the last `katana run`, which every run
 records to `.katana/results.json`. status never runs the suite itself, so the
@@ -287,6 +318,58 @@ that outlived its specification is visible before then:
   behaviors/old.md → tests/old_test.go (3 case(s), generated 2026-01-14)
 run `katana generate` to prune them
 ```
+
+### tui
+
+```sh
+katana                  # in a terminal, inside a project
+katana tui
+katana tui --snapshot   # print one frame and exit, for a log or a pipe
+```
+
+The full-screen view is `katana status` you can move around in, and run things
+from. The list is every behavior with its state, its cases, how many of them
+passed, and its recent runs; `enter` opens one.
+
+```
+ katana  checkout-service          4 behavior(s) · 1 out of date · last run 4m ago passed 9/10
+
+ ┌──────────────────┬───────────────────────┬───────┬────────┬─────────────┬───────────┐
+ │ STATUS           │ BEHAVIOR              │ CASES │ PASSED │ RECENT      │ GENERATED │
+ ├──────────────────┼───────────────────────┼───────┼────────┼─────────────┼───────────┤
+ │ up to date       │ behaviors/checkout.md │     2 │    2/2 │ ██████████  │ 2h ago    │
+ │ behavior changed │ behaviors/login.md    │     3 │    2/3 │ ███▆▆███▆█  │ 5h ago    │
+ └──────────────────┴───────────────────────┴───────┴────────┴─────────────┴───────────┘
+
+   history   ████████▇█  10 run(s), oldest 1d ago
+
+  ↑↓ select · enter open · r run · a run all · o output · u reload · ? help · q quit
+```
+
+Opening a behavior shows the test cases it owns — with how each one last fared
+and how long ago that was — and a bar per past run, newest first, of how many of
+its cases passed in each:
+
+```
+   history  — one row per run, newest first
+     3h ago       ██████████████████████████████████      3/3  ✓ 5.43s
+     6h ago       ██████████████████████▓▓▓▓▓▓▓▓▓▓▓░      2/3  ✗ 5.30s
+     9h ago       ██████████████████████████████████      3/3  ✓ 5.16s
+```
+
+`r` runs the selected behavior's tests and `a` runs the whole suite, streaming
+the runner's output as it arrives; `x` stops a run in flight. A run started here
+is recorded exactly as `katana run` records one — the results file, the history
+behind the charts — and the list is refreshed from it the moment it finishes, so
+what is on screen is what the next `katana status` would say.
+
+Narrowing a run to one behavior needs a runner katana knows how to narrow, as
+`--behavior` does; anything else runs the whole suite and says so in the message
+line.
+
+`katana` on its own opens this view when it is run in a terminal inside a
+project. Anywhere else — a pipe, a script, a directory with no `katana.yaml` —
+it prints the usage it always has.
 
 ## How staleness is decided
 

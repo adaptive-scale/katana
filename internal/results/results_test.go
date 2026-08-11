@@ -177,3 +177,123 @@ func TestUnparsedRunHasNoPerCaseOutcomes(t *testing.T) {
 		t.Errorf("tally = %+v, want the case unknown", tally)
 	}
 }
+
+// TestInheritKeepsWhatATargetedRunDidNotCover is what makes running one
+// behavior an update to the record rather than a replacement of it: the cases
+// that did not run keep the outcome they had, and the run's own counts do not
+// take credit for them.
+func TestInheritKeepsWhatATargetedRunDidNotCover(t *testing.T) {
+	earlier := time.Now().Add(-time.Hour)
+	prev := Record("go test ./... -v", earlier, 1, true, []report.Case{
+		{Name: "TestCheckout", Status: report.StatusPass},
+		{Name: "TestLogin", Status: report.StatusFail},
+	})
+
+	now := time.Now()
+	r := Record("go test ./... -run '^(TestLogin)$' -v", now, 0, true, []report.Case{
+		{Name: "TestLogin", Status: report.StatusPass},
+	})
+	r.Scope = "behaviors/login.md"
+	r.Inherit(prev)
+
+	if got, ok := r.Outcome("TestLogin"); !ok || got != report.StatusPass {
+		t.Errorf("the case that ran should hold its new outcome, got %v", got)
+	}
+	if got, ok := r.Outcome("TestCheckout"); !ok || got != report.StatusPass {
+		t.Errorf("the case that did not run should keep its outcome, got %v", got)
+	}
+	// The summary of the last run is the run, not the record it was merged into.
+	if c := r.Counts(); c.Total() != 1 || c.Pass != 1 {
+		t.Errorf("Counts = %+v, want only the case this run reported", c)
+	}
+	if n := r.Inherited(); n != 1 {
+		t.Errorf("Inherited = %d, want 1", n)
+	}
+	when, ok := r.CaseRanAt("TestCheckout")
+	if !ok || !when.Equal(earlier.UTC()) {
+		t.Errorf("an inherited outcome keeps the age of the run that produced it: %v", when)
+	}
+	if when, _ := r.CaseRanAt("TestLogin"); !when.Equal(now.UTC()) {
+		t.Errorf("the case that just ran should be dated now, got %v", when)
+	}
+}
+
+// TestInheritIgnoresRecordsThatNameNoCases keeps a suite-wide result from being
+// mistaken for the outcome of a test: a record katana could not read case by
+// case holds one entry standing for the whole run.
+func TestInheritIgnoresRecordsThatNameNoCases(t *testing.T) {
+	prev := Record("make test", time.Now().Add(-time.Hour), 0, false, []report.Case{
+		{Name: "make test", Status: report.StatusPass},
+	})
+	r := Record("go test -run '^(TestLogin)$' -v", time.Now(), 0, true, []report.Case{
+		{Name: "TestLogin", Status: report.StatusPass},
+	})
+	r.Inherit(prev)
+
+	if len(r.Cases) != 1 {
+		t.Errorf("nothing should have been carried over, got %+v", r.Cases)
+	}
+}
+
+// A package that stops compiling is the one case where inheriting an outcome
+// would be a lie rather than a carry-over: the run reached that package, and
+// none of its tests ran. Reporting the last green result would say a suite
+// passed when it no longer builds.
+func TestASuiteThatFailedToBuildInheritsNothing(t *testing.T) {
+	prev := Record("go test ./... -v", time.Now().UTC().Add(-time.Hour), 0, true, []report.Case{
+		{Suite: "pkg/broken", Name: "TestOne", Status: report.StatusPass},
+		{Suite: "pkg/broken", Name: "TestTwo", Status: report.StatusPass},
+		{Suite: "pkg/fine", Name: "TestThree", Status: report.StatusPass},
+	})
+	now := Record("go test ./... -v", time.Now().UTC(), 1, true, []report.Case{
+		{Suite: "pkg/broken", Name: "build failed", Status: report.StatusFail, Blocked: true},
+	})
+
+	now.Inherit(prev)
+
+	for _, c := range now.Cases {
+		if c.Name == "TestOne" || c.Name == "TestTwo" {
+			t.Errorf("%s was inherited into a suite that did not build", c.Name)
+		}
+	}
+	// A suite the run genuinely did not cover still carries forward.
+	if _, ok := now.Outcome("TestThree"); !ok {
+		t.Error("an untouched suite's outcome was dropped along with the blocked one")
+	}
+}
+
+func TestBlockedSuitesNamesEachSuiteOnce(t *testing.T) {
+	rec := Record("go test ./... -v", time.Now().UTC(), 1, true, []report.Case{
+		{Suite: "pkg/a", Name: "build failed", Status: report.StatusFail, Blocked: true},
+		{Suite: "pkg/a", Name: "setup failed", Status: report.StatusFail, Blocked: true},
+		{Suite: "pkg/b", Name: "TestRan", Status: report.StatusFail},
+	})
+
+	got := rec.BlockedSuites()
+	if len(got) != 1 || got[0] != "pkg/a" {
+		t.Errorf("BlockedSuites() = %v, want [pkg/a]", got)
+	}
+}
+
+// A build failure describes the run that hit it. Once the package compiles
+// again there is nothing for the marker to be true about, and a record that
+// keeps it reports a permanent failure for a suite that is now green.
+func TestABlockedMarkerIsNotCarriedIntoALaterRun(t *testing.T) {
+	prev := Record("go test ./... -v", time.Now().UTC().Add(-time.Hour), 1, true, []report.Case{
+		{Suite: "pkg/was-broken", Name: "build failed", Status: report.StatusFail, Blocked: true},
+	})
+	now := Record("go test ./... -v", time.Now().UTC(), 0, true, []report.Case{
+		{Suite: "pkg/was-broken", Name: "TestOne", Status: report.StatusPass},
+	})
+
+	now.Inherit(prev)
+
+	if len(now.BlockedSuites()) != 0 {
+		t.Errorf("BlockedSuites() = %v, want none: the package builds again", now.BlockedSuites())
+	}
+	for _, c := range now.Cases {
+		if c.Name == "build failed" {
+			t.Error("the previous run's build failure was inherited into a run that built")
+		}
+	}
+}

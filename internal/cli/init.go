@@ -11,6 +11,7 @@ import (
 
 	"github.com/adaptive-scale/katana/internal/config"
 	"github.com/adaptive-scale/katana/internal/harness"
+	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/results"
 	"github.com/adaptive-scale/katana/internal/tracker"
 )
@@ -80,7 +81,8 @@ func runInit(args []string) error {
 	// rather than only written for a new project, so `katana init` in a project
 	// set up by an older katana still ends up ignoring the right files.
 	gitignore := filepath.Join(katanaDir, ".gitignore")
-	if err := ensureIgnored(gitignore, ".tracker-*.json", ".results-*.json", results.FileName); err != nil {
+	if err := ensureIgnored(gitignore, ".tracker-*.json", ".results-*.json", ".history-*.json",
+		results.FileName, history.FileName); err != nil {
 		return err
 	}
 

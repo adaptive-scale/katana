@@ -102,3 +102,45 @@ func TestBuildPromptAsksForAnUpdateWhenTestsExist(t *testing.T) {
 		t.Error("existing test body should be included so edits are preserved")
 	}
 }
+
+func TestPromptListsTakenTestNames(t *testing.T) {
+	p := BuildPrompt(Request{
+		BehaviorPath:    "behaviors/checkout.md",
+		BehaviorContent: "the cart totals correctly",
+		OutputPath:      "tests/checkout_test.go",
+		Language:        "go",
+		Framework:       "go-test",
+		Reserved:        []string{"TestTheCartIsEmpty", "TestTheTotalIncludesTax"},
+	})
+
+	for _, name := range []string{"TestTheCartIsEmpty", "TestTheTotalIncludesTax"} {
+		if !strings.Contains(p, "- "+name) {
+			t.Errorf("prompt does not list the taken name %s:\n%s", name, p)
+		}
+	}
+	if !strings.Contains(p, "Do not declare any of them in this file") {
+		t.Errorf("prompt does not forbid redeclaring them:\n%s", p)
+	}
+	// The reason is the point: an agent that knows a collision only offends a
+	// style rule will trade it away against a better name.
+	if !strings.Contains(p, "stops the whole package compiling") {
+		t.Errorf("prompt does not say what a collision costs:\n%s", p)
+	}
+	if !strings.Contains(p, "unique across the files that share this one's package or directory") {
+		t.Errorf("prompt does not require names unique to the package:\n%s", p)
+	}
+}
+
+func TestPromptOmitsTakenNamesWhenThereAreNone(t *testing.T) {
+	p := BuildPrompt(Request{
+		BehaviorPath:    "behaviors/checkout.md",
+		BehaviorContent: "the cart totals correctly",
+		OutputPath:      "tests/checkout_test.go",
+		Language:        "go",
+		Framework:       "go-test",
+	})
+
+	if strings.Contains(p, "Test names already taken") {
+		t.Errorf("prompt has an empty taken-names section:\n%s", p)
+	}
+}

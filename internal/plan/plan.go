@@ -1,4 +1,10 @@
-package cli
+// Package plan compares the behaviors a project configures against what the
+// tracker recorded, and reports the state of each one.
+//
+// It is separate from the command line because more than the command line asks
+// the question: `katana status`, `katana generate` and the terminal UI all need
+// the same answer, and it must be the same answer in each of them.
+package plan
 
 import (
 	"path/filepath"
@@ -7,24 +13,31 @@ import (
 	"github.com/adaptive-scale/katana/internal/tracker"
 )
 
-// item pairs a resolved behavior with why it does or does not need work.
-type item struct {
+// Item pairs a resolved behavior with why it does or does not need work.
+type Item struct {
 	config.Resolved
 	Status     tracker.Status
 	SourceHash string
 	OutputHash string
 }
 
-// plan compares the configured behaviors against the tracker and reports the
-// state of each one.
-func plan(cfg *config.Config, t *tracker.Tracker, only []string) ([]item, error) {
+// Stale reports whether the behavior is out of date with its generated tests.
+func (i Item) Stale() bool { return i.Status != tracker.StatusUpToDate }
+
+// Stack is the one-line description of how the behavior's tests are produced.
+func (i Item) Stack() string { return i.Language + "/" + i.Framework + " via " + i.Harness }
+
+// Build compares the configured behaviors against the tracker and reports the
+// state of each one. only limits the result to the named behavior files; an
+// empty list means every behavior.
+func Build(cfg *config.Config, t *tracker.Tracker, only []string) ([]Item, error) {
 	resolved, err := cfg.Resolve()
 	if err != nil {
 		return nil, err
 	}
-	filter := filterSet(cfg, only)
+	filter := FilterSet(cfg, only)
 
-	items := make([]item, 0, len(resolved))
+	items := make([]Item, 0, len(resolved))
 	for _, r := range resolved {
 		if filter != nil && !filter[r.Source] {
 			continue
@@ -38,19 +51,19 @@ func plan(cfg *config.Config, t *tracker.Tracker, only []string) ([]item, error)
 			return nil, err
 		}
 
-		it := item{Resolved: r, SourceHash: srcHash, OutputHash: outHash}
-		it.Status = classify(t, r, srcHash, outHash)
+		it := Item{Resolved: r, SourceHash: srcHash, OutputHash: outHash}
+		it.Status = Classify(t, r, srcHash, outHash)
 		items = append(items, it)
 	}
 	return items, nil
 }
 
-// classify determines why a behavior is or is not current.
+// Classify determines why a behavior is or is not current.
 //
 // Order matters. A changed behavior outranks a hand-edited output: when the
 // spec moved, the spec wins and regeneration is expected. Only when the spec is
 // unchanged does a hand-edited output become the reason to hold back.
-func classify(t *tracker.Tracker, r config.Resolved, srcHash, outHash string) tracker.Status {
+func Classify(t *tracker.Tracker, r config.Resolved, srcHash, outHash string) tracker.Status {
 	entry, ok := t.Get(r.Source)
 	if !ok {
 		// Tests are already there for a behavior katana has no record of: an
@@ -79,34 +92,26 @@ func classify(t *tracker.Tracker, r config.Resolved, srcHash, outHash string) tr
 	return tracker.StatusUpToDate
 }
 
-// filterSet normalizes --file values to project-relative slash paths. It returns
+// FilterSet normalizes --file values to project-relative slash paths. It returns
 // nil when no filter was given, meaning "every behavior".
-func filterSet(cfg *config.Config, only []string) map[string]bool {
+func FilterSet(cfg *config.Config, only []string) map[string]bool {
 	if len(only) == 0 {
 		return nil
 	}
 	set := make(map[string]bool, len(only))
 	for _, o := range only {
-		set[normalizePath(cfg.Root, o)] = true
+		set[NormalizePath(cfg.Root, o)] = true
 	}
 	return set
 }
 
-func normalizePath(root, p string) string {
+// NormalizePath renders a path the way the tracker and the config name one:
+// relative to the project root, with forward slashes.
+func NormalizePath(root, p string) string {
 	if filepath.IsAbs(p) {
 		if r, err := filepath.Rel(root, p); err == nil {
 			return filepath.ToSlash(r)
 		}
 	}
 	return filepath.ToSlash(filepath.Clean(p))
-}
-
-// stringList collects a repeatable string flag.
-type stringList []string
-
-func (s *stringList) String() string { return "" }
-
-func (s *stringList) Set(v string) error {
-	*s = append(*s, v)
-	return nil
 }

@@ -15,6 +15,7 @@ type Request struct {
 	Language          string
 	Framework         string
 	ExistingTests     string // current contents of OutputPath, empty if new
+	Reserved          []string // test names already declared by neighbouring files
 	ExtraInstructions string
 }
 
@@ -48,6 +49,20 @@ func BuildPrompt(r Request) string {
 		b.WriteString("\n\n")
 	}
 
+	if len(r.Reserved) > 0 {
+		b.WriteString("## Test names already taken\n\n")
+		b.WriteString("Other test files beside this one, generated from other specifications, already declare the test cases listed below. ")
+		b.WriteString("Do not declare any of them in this file. ")
+		b.WriteString("In languages where a directory is one namespace — Go is one — a redeclared name stops the whole package compiling, ")
+		b.WriteString("so every test in every file beside it silently stops running.\n\n")
+		b.WriteString("Two specifications often describe the same rule about different parts of the product. ")
+		b.WriteString("Where that happens, still write the test: name it for the part of the product this specification is about, not for the rule alone.\n\n")
+		for _, name := range r.Reserved {
+			fmt.Fprintf(&b, "- %s\n", name)
+		}
+		b.WriteString("\n")
+	}
+
 	b.WriteString("## Behavior specification\n\n")
 	fmt.Fprintf(&b, "Source file: %s\n\n", r.BehaviorPath)
 	b.WriteString(fence.Wrap(r.BehaviorContent))
@@ -61,6 +76,7 @@ func BuildPrompt(r Request) string {
 	b.WriteString("- Match the conventions of the surrounding codebase: read a neighbouring test file first and follow its import style, fixture setup, naming and assertion library.\n")
 	b.WriteString("- If the code under test exists in this repository, read it so the tests call the real API. Do not invent function signatures you have not verified.\n")
 	b.WriteString("- The file must compile and be runnable by the project's normal test command.\n")
+	b.WriteString("- Every test name must be unique across the files that share this one's package or directory, not merely within this file.\n")
 	b.WriteString("- Do not modify any file other than the target test file.\n")
 	b.WriteString("- Do not run the test suite; katana runs it separately.\n")
 

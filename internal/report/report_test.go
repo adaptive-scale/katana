@@ -359,3 +359,35 @@ func TestWriteHTMLEscapesTestOutput(t *testing.T) {
 		t.Error("test output was not escaped into the report")
 	}
 }
+
+func TestABuildFailureIsMarkedBlockedAndAPlainFailureIsNot(t *testing.T) {
+	out := `--- FAIL: TestBroke (0.00s)
+FAIL	github.com/x/ran	0.10s
+FAIL	github.com/x/broken [build failed]
+`
+	r := &Report{Framework: "go-test", Output: out, ExitCode: 1}
+	r.Collect()
+
+	blocked := r.Blocked()
+	if len(blocked) != 1 {
+		t.Fatalf("Blocked() = %+v, want only the package that never ran", blocked)
+	}
+	if blocked[0].Suite != "github.com/x/broken" {
+		t.Errorf("blocked suite = %q, want the package that failed to build", blocked[0].Suite)
+	}
+	// A test that ran and failed is a different thing, and must not be swept up.
+	for _, c := range r.Cases {
+		if c.Name == "TestBroke" && c.Blocked {
+			t.Error("a test that ran and failed was marked blocked")
+		}
+	}
+}
+
+func TestAReportWithNothingBlockedReportsNone(t *testing.T) {
+	r := &Report{Framework: "go-test", Output: "--- PASS: TestOne (0.00s)\nok  \tgithub.com/x/fine\t0.10s\n"}
+	r.Collect()
+
+	if got := r.Blocked(); len(got) != 0 {
+		t.Errorf("Blocked() = %+v, want none", got)
+	}
+}

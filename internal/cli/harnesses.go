@@ -6,13 +6,14 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"text/tabwriter"
 
 	"github.com/adaptive-scale/katana/internal/harness"
+	"github.com/adaptive-scale/katana/internal/ui"
 )
 
 func runHarnesses(args []string) error {
 	fs := flag.NewFlagSet("katana harnesses", flag.ContinueOnError)
+	color := fs.String("color", "auto", "colour the output: auto, always or never")
 	fs.Usage = func() {
 		fmt.Fprint(os.Stderr, `Usage: katana harnesses
 
@@ -26,18 +27,23 @@ harness.command lets katana drive an agent CLI it has no built-in entry for.
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
+	mode, err := ui.ParseMode(*color)
+	if err != nil {
+		return err
+	}
+	ui.SetMode(mode)
+	p := ui.For(os.Stdout)
 
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "NAME\tINSTALLED\tINVOCATION\tPROMPT VIA\tDESCRIPTION")
+	table := ui.NewTable("NAME", "INSTALLED", "INVOCATION", "PROMPT VIA", "DESCRIPTION")
 	for _, s := range harness.Describe() {
-		installed := "no"
+		installed := p.Red("no")
 		if path, err := exec.LookPath(s.Command); err == nil {
-			installed = path
+			installed = p.Green(path)
 		}
 		invocation := strings.TrimSpace(s.Command + " " + strings.Join(s.Args, " "))
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", s.Name, installed, invocation, s.Prompt, s.Docs)
+		table.Row(p.Bold(s.Name), installed, p.Cyan(invocation), string(s.Prompt), p.Dim(s.Docs))
 	}
-	if err := w.Flush(); err != nil {
+	if err := table.MaxWidth(ui.TerminalWidth(os.Stdout)).Render(os.Stdout, p); err != nil {
 		return err
 	}
 

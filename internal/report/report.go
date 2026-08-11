@@ -43,6 +43,11 @@ type Case struct {
 	Duration time.Duration
 	// Output is the failure detail the runner printed for this case.
 	Output string
+	// Blocked marks a case that stands for a whole suite which never ran: it
+	// failed to compile or to set up. One such case can account for hundreds of
+	// tests that did not execute, so it is not the same kind of failure as a
+	// test that ran and did not pass, and nothing may read it as one.
+	Blocked bool
 }
 
 // Behavior pairs a behavior spec with the tests generated from it, so a report
@@ -142,6 +147,21 @@ func (r *Report) PassRate() float64 {
 		return 0
 	}
 	return float64(r.Passed()) / float64(executed) * 100
+}
+
+// Blocked returns the cases standing for suites that never ran their tests,
+// in the order the runner reported them. A suite that failed to compile
+// contributes one failing case in place of every test it holds, so a caller
+// that only counts pass and fail would report hundreds of missing tests as a
+// single failure.
+func (r *Report) Blocked() []Case {
+	var out []Case
+	for _, c := range r.Cases {
+		if c.Blocked {
+			out = append(out, c)
+		}
+	}
+	return out
 }
 
 // StaleBehaviors counts behaviors whose tests were not up to date when the

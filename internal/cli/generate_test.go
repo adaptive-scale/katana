@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/adaptive-scale/katana/internal/config"
+	"github.com/adaptive-scale/katana/internal/plan"
 	"github.com/adaptive-scale/katana/internal/tracker"
 )
 
@@ -59,15 +60,15 @@ func TestProgressKeepsBlocksWhole(t *testing.T) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			it := item{Resolved: config.Resolved{
+			it := plan.Item{Resolved: config.Resolved{
 				Source: fmt.Sprintf("behaviors/b%d.md", i),
 				Output: fmt.Sprintf("tests/b%d_test.go", i),
 			}}
-			lg := prog.begin(it.task())
+			lg := prog.begin(taskFor(it))
 			for line := 0; line < 5; line++ {
 				fmt.Fprintf(lg.out, "  b%d line %d\n", i, line)
 			}
-			prog.finish(it.task(), lg)
+			prog.finish(taskFor(it), lg)
 		}(i)
 	}
 	wg.Wait()
@@ -104,11 +105,11 @@ func TestProgressLiveStreams(t *testing.T) {
 	var out, errOut bytes.Buffer
 	prog := newProgress(&out, &errOut, 1, true)
 
-	it := item{
+	it := plan.Item{
 		Resolved: config.Resolved{Source: "behaviors/cart.md", Output: "tests/cart_test.go"},
 		Status:   tracker.StatusNew,
 	}
-	lg := prog.begin(it.task())
+	lg := prog.begin(taskFor(it))
 	if lg.buffered() {
 		t.Fatal("a single worker should not buffer its output")
 	}
@@ -118,7 +119,7 @@ func TestProgressLiveStreams(t *testing.T) {
 
 	fmt.Fprint(lg.out, "  running…\n")
 	fmt.Fprint(lg.errOut, "  failed: nope\n")
-	prog.finish(it.task(), lg)
+	prog.finish(taskFor(it), lg)
 
 	if got := out.String(); !strings.HasSuffix(got, "  running…\n") {
 		t.Errorf("stdout = %q", got)

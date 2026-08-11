@@ -46,6 +46,8 @@ This is katana's test report: it captures the output of whatever test command a 
 - Result lines are recognised even when indented, so subtests are recorded as their own cases.
 - A package summary line beginning `ok`, `FAIL` or `?` followed by a package path assigns that package as the suite of every case recorded since the previous package summary.
 - A `FAIL` package line whose trailing text starts with `[` — such as a build failure note — adds an extra failed case in that package whose name is that text with the surrounding brackets removed, so a package that never ran its tests does not read as empty and passing.
+- That case is also marked as blocked, meaning it stands for a whole suite that never ran rather than for a test that ran and failed; no other parser produces one.
+- A report lists the blocked cases it holds, in the order the runner reported them, so a caller can tell one broken test from a package of hundreds that did not run — a distinction a count of passes and failures cannot make.
 - Detail printed between a `=== RUN` line and the case's result line is attached to that case, but only when the case failed or was skipped; a passing case carries no detail.
 - Lines beginning `=== RUN`, `=== PAUSE`, `=== CONT` or `=== NAME` discard any detail buffered so far.
 - A line that is exactly `PASS` or `FAIL` discards any detail buffered so far.

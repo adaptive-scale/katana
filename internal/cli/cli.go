@@ -19,8 +19,10 @@ var Version = "dev"
 // Run dispatches a katana invocation. args excludes the program name.
 func Run(args []string) error {
 	if len(args) == 0 {
-		usage(os.Stdout)
-		return nil
+		// A bare `katana` in a terminal opens the project; everywhere else it
+		// prints the usage it always has. The release check is skipped either
+		// way: the UI owns the screen, and usage output stays quiet.
+		return runDefault()
 	}
 
 	// The release check runs alongside the command and reports once it is
@@ -43,6 +45,8 @@ func Run(args []string) error {
 		return runTest(args[1:])
 	case "status":
 		return runStatus(args[1:])
+	case "tui", "ui":
+		return runTUI(args[1:])
 	case "harnesses":
 		return runHarnesses(args[1:])
 	case "update", "upgrade", "self-update":
@@ -71,6 +75,7 @@ Commands:
   generate    Generate tests for behaviors that changed since the last run
   run         Run the generated test suite
   status      Show what the tracker holds and which behaviors are out of date
+  tui         Open the full-screen view: behaviors, results and runs on demand
   harnesses   List the supported coding-agent harnesses
   update      Install the newest katana release over this binary
   version     Print the katana version
@@ -83,6 +88,9 @@ Typical use:
   katana generate
   katana run
 
+Running katana with no command opens the full-screen view of the project, where
+behaviors can be read and their tests run one at a time.
+
 On a codebase that has no behaviors written down yet:
   katana init --language go --harness claude
   katana discover --dry-run
@@ -90,6 +98,16 @@ On a codebase that has no behaviors written down yet:
 
 Harnesses: %s
 `, config.FileName, config.Dir, strings.Join(harness.Names(), ", "))
+}
+
+// stringList collects a repeatable string flag.
+type stringList []string
+
+func (s *stringList) String() string { return "" }
+
+func (s *stringList) Set(v string) error {
+	*s = append(*s, v)
+	return nil
 }
 
 // loadProject finds katana.yaml from dir and loads it.

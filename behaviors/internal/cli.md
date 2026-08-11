@@ -77,6 +77,15 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 - When all planned behaviors succeeded, generate reports `generated <n> behavior(s)`.
 - If the generated file is missing after a generation that otherwise succeeded, that is not an error; it is recorded as an empty hash and surfaces as an out-of-date "output missing" state on the next status.
 
+## Keeping neighbouring test files from colliding
+
+- Each generation is told which test names the other behaviors' output files in the same directory already declare, so it can avoid redeclaring one.
+- Those names are read from the files on disk rather than from the tracker, so tests katana has no record of writing still reserve their names.
+- The names are read once, before any behavior in the run is generated, and a file that cannot be read reserves nothing.
+- A `--file` run considers every configured behavior's output, not only the ones it is generating, since the names it must avoid are mostly in the files it is leaving alone.
+- After the run, any test name declared by more than one file in the same directory is reported on standard error as a warning listing the name and each file declaring it, followed by advice to reword one of the specifications and regenerate it with `--force`.
+- That warning does not fail the command: both generations did what they were asked, and which file should change is a judgement about which specification owns the name.
+
 ## Choosing how many run at once
 
 - Both discover and generate accept `--jobs`, with `-j` as its shorthand.
@@ -121,6 +130,8 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 - If the test command fails to start at all, run fails with `running test command: <error>`.
 - When the test command exits non-zero, katana exits with that same exit code so CI sees the real result.
 - On Windows the command is run through `cmd /C`; elsewhere through the shell named by the `SHELL` environment variable, falling back to `/bin/sh`, with `-c`.
+- A suite that never ran its tests, because it failed to build or to set up, is reported after the verdict on standard error as `blocked: <n> suite(s) did not run`, naming each one, since a tally of passed and failed cases cannot show the difference between one broken test and a whole package that did not run.
+- Status reports the same thing about the last recorded run, listing each suite that failed to build under the run summary.
 
 ## Saving a test report
 

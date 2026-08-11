@@ -114,10 +114,11 @@ func parseGo(ls []string) []Case {
 			// the report does not read as an empty, passing package.
 			if m[1] == "FAIL" && strings.HasPrefix(m[3], "[") {
 				cases = append(cases, Case{
-					Suite:  m[2],
-					Name:   strings.Trim(m[3], "[]"),
-					Status: StatusFail,
-					Output: dedent(pending),
+					Suite:   m[2],
+					Name:    strings.Trim(m[3], "[]"),
+					Status:  StatusFail,
+					Output:  dedent(pending),
+					Blocked: true,
 				})
 			}
 			attribute(m[2])

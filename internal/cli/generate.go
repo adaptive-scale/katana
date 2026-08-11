@@ -17,8 +17,10 @@ import (
 	"github.com/adaptive-scale/katana/internal/config"
 	"github.com/adaptive-scale/katana/internal/generator"
 	"github.com/adaptive-scale/katana/internal/harness"
+	"github.com/adaptive-scale/katana/internal/plan"
 	"github.com/adaptive-scale/katana/internal/testindex"
 	"github.com/adaptive-scale/katana/internal/tracker"
+	"github.com/adaptive-scale/katana/internal/ui"
 )
 
 func runGenerate(args []string) error {
@@ -29,7 +31,8 @@ func runGenerate(args []string) error {
 		dir     = fs.String("dir", "", "project directory (defaults to the current directory)")
 		force   = fs.Bool("force", false, "regenerate every behavior, including up-to-date ones and those whose tests katana did not write")
 		dryRun  = fs.Bool("dry-run", false, "report what would be generated without running the harness")
-		verbose = fs.Bool("verbose", false, "show what is being generated: spec, target, harness command, prompt and the harness output as it runs")
+		verbose = fs.Bool("verbose", false, "show what is being generated: spec, target, harness command, prompt, each test case as it is written, and the harness output as it runs")
+		color   = fs.String("color", "auto", "colour the output: auto, always or never")
 	)
 	fs.Var(&only, "file", "limit to this behavior file (repeatable)")
 	fs.IntVar(&jobs, "jobs", 0, "generate this many behaviors at once (default: harness.jobs in katana.yaml, else 4)")
@@ -52,7 +55,8 @@ another; --verbose implies that unless --jobs says otherwise.
 
 --verbose narrates each generation — the specification being read, the file being
 written, the harness command line, the prompt katana sends, the harness's own
-output as it runs, and a preview of the tests that came back.
+output as it runs, and each test case by name as the harness writes it, so a long
+generation says what it is producing rather than only what it produced.
 
 Flags:
 `)
@@ -70,6 +74,12 @@ Flags:
 	if jobsSet && jobs < 1 {
 		return fmt.Errorf("--jobs must be at least 1, got %d", jobs)
 	}
+	mode, err := ui.ParseMode(*color)
+	if err != nil {
+		return err
+	}
+	ui.SetMode(mode)
+	p := ui.For(os.Stdout)
 
 	cfg, err := loadProject(*dir)
 	if err != nil {
@@ -79,7 +89,7 @@ Flags:
 	if err != nil {
 		return err
 	}
-	items, err := plan(cfg, t, only)
+	items, err := plan.Build(cfg, t, only)
 	if err != nil {
 		return err
 	}
@@ -88,8 +98,18 @@ Flags:
 		return nil
 	}
 
-	var todo []item
-	var skipped []item
+	// Neighbours are every configured behavior, not only the ones being
+	// generated: the names a --file run must not collide with are mostly in the
+	// files it is deliberately leaving alone.
+	all := items
+	if len(only) > 0 {
+		if all, err = plan.Build(cfg, t, nil); err != nil {
+			return err
+		}
+	}
+
+	var todo []plan.Item
+	var skipped []plan.Item
 	for _, it := range items {
 		switch {
 		case *force:
@@ -109,8 +129,8 @@ Flags:
 		switch it.Status {
 		case tracker.StatusOutputModified, tracker.StatusOutputUntracked:
 			held++
-			fmt.Printf("  skip  %s → %s (%s; pass --force to regenerate over it)\n",
-				it.Source, it.Output, it.Status)
+			fmt.Printf("  %s  %s → %s (%s; pass --force to regenerate over it)\n",
+				p.Yellow("skip"), it.Source, it.Output, p.StatusText(it.Status))
 		}
 	}
 
@@ -126,11 +146,11 @@ Flags:
 
 	if *dryRun {
 		fmt.Printf("%d behavior(s) would be generated:\n", len(todo))
+		table := ui.NewTable("STATUS", "BEHAVIOR", "TESTS", "STACK")
 		for _, it := range todo {
-			fmt.Printf("  %-22s %s → %s [%s/%s via %s]\n",
-				it.Status, it.Source, it.Output, it.Language, it.Framework, it.Harness)
+			table.Row(p.StatusText(it.Status), it.Source, it.Output, p.Dim(it.Stack()))
 		}
-		return nil
+		return table.MaxWidth(ui.TerminalWidth(os.Stdout)).Render(os.Stdout, p)
 	}
 
 	want := cfg.HarnessJobs()
@@ -165,10 +185,16 @@ Flags:
 
 	prog := newProgress(os.Stdout, os.Stderr, len(todo), workers == 1)
 
+	// Read once, before anything is overwritten: what the neighbours declare now
+	// is what a generation starting now has to avoid. Behaviors generated
+	// concurrently are read as they stood at the start, which guards the names
+	// they keep; the check after the run is what catches the rest.
+	declared := scanDeclared(cfg.Root, all)
+
 	var generated, failures int
 	runPool(ctx, workers, todo,
-		func(ctx context.Context, it item) generation {
-			return generateOne(ctx, cfg, runners, prog, it, *verbose)
+		func(ctx context.Context, it plan.Item) generation {
+			return generateOne(ctx, cfg, runners, prog, it, reservedFor(declared, it.Output), *verbose)
 		},
 		func(res generation) {
 			if res.err != nil {
@@ -213,6 +239,11 @@ Flags:
 		return err
 	}
 
+	// Said after the tracker is written, because a collision does not undo the
+	// generation: the files are on disk and recorded, and what is wrong with
+	// them is the pair, not either one.
+	reportClashes(p, duplicateTests(scanDeclared(cfg.Root, all)))
+
 	if failures > 0 {
 		return fmt.Errorf("%d of %d behavior(s) failed to generate", failures, len(todo))
 	}
@@ -223,6 +254,32 @@ Flags:
 	}
 	fmt.Printf("generated %d behavior(s)\n", len(todo))
 	return nil
+}
+
+// reportClashes names the test cases that ended up declared by two files in one
+// directory. It is a warning rather than a failure: both generations did what
+// they were asked, and the file to change is a judgement about which
+// specification owns the name.
+//
+// It is worth saying loudly all the same. In Go this is the difference between
+// a package that runs and a package that does not compile, and a package that
+// does not compile reports no failing test — it reports nothing at all, while
+// every behavior mapped into it still reads as up to date.
+func reportClashes(p ui.Printer, clashes []clash) {
+	if len(clashes) == 0 {
+		return
+	}
+	fmt.Fprintf(os.Stderr, "\n%s %d test name(s) are declared by more than one file in the same directory:\n",
+		p.Yellow("warning:"), len(clashes))
+	for _, c := range clashes {
+		fmt.Fprintf(os.Stderr, "  %s\n", c.Name)
+		for _, f := range c.Files {
+			fmt.Fprintf(os.Stderr, "    %s\n", p.Dim(f))
+		}
+	}
+	fmt.Fprintln(os.Stderr, "  where a directory is one namespace, such as a Go package, this stops it")
+	fmt.Fprintln(os.Stderr, "  compiling and nothing in it runs. Reword one of the specifications so the")
+	fmt.Fprintln(os.Stderr, "  two name different cases, then regenerate it with --force.")
 }
 
 // resolveJobs settles how many behaviors are generated at once, given what was
@@ -248,7 +305,7 @@ func resolveJobs(want, items int, verboseDefault bool) (int, string) {
 // generation is the outcome of one behavior. Results are collected on the main
 // goroutine so the tracker is only ever written from one place.
 type generation struct {
-	item    item
+	item    plan.Item
 	outcome *generator.Outcome
 	outHash string
 	tests   []string
@@ -257,12 +314,12 @@ type generation struct {
 }
 
 // generateOne generates a single behavior and reports it as one block.
-func generateOne(ctx context.Context, cfg *config.Config, runners *runnerCache, prog *progress, it item, verbose bool) generation {
-	lg := prog.begin(it.task())
-	res := runBehavior(ctx, cfg, runners, lg, it, verbose)
+func generateOne(ctx context.Context, cfg *config.Config, runners *runnerCache, prog *progress, it plan.Item, reserved []string, verbose bool) generation {
+	lg := prog.begin(taskFor(it))
+	res := runBehavior(ctx, cfg, runners, lg, it, reserved, verbose)
 
 	if res.err != nil {
-		fmt.Fprintf(lg.errOut, "  failed: %v\n", res.err)
+		fmt.Fprintf(lg.errOut, "  %s %v\n", prog.p.Red("failed:"), res.err)
 	} else {
 		via := "written by harness"
 		switch {
@@ -275,15 +332,15 @@ func generateOne(ctx context.Context, cfg *config.Config, runners *runnerCache, 
 		if n := len(res.tests); n > 0 {
 			cases = fmt.Sprintf("%d test case(s), ", n)
 		}
-		fmt.Fprintf(lg.out, "  ok: %d bytes, %s%s, %s\n",
-			res.outcome.Bytes, cases, via, res.elapsed.Round(time.Millisecond))
+		fmt.Fprintf(lg.out, "  %s %d bytes, %s%s, %s\n",
+			prog.p.Green("ok:"), res.outcome.Bytes, cases, via, res.elapsed.Round(time.Millisecond))
 	}
-	prog.finish(it.task(), lg)
+	prog.finish(taskFor(it), lg)
 	return res
 }
 
 // runBehavior does the work for one behavior, writing any narration to lg.
-func runBehavior(ctx context.Context, cfg *config.Config, runners *runnerCache, lg genLog, it item, verbose bool) generation {
+func runBehavior(ctx context.Context, cfg *config.Config, runners *runnerCache, lg genLog, it plan.Item, reserved []string, verbose bool) generation {
 	res := generation{item: it}
 
 	runner, err := runners.get(it.Harness)
@@ -311,6 +368,13 @@ func runBehavior(ctx context.Context, cfg *config.Config, runners *runnerCache, 
 		}
 	}
 
+	// The harness writes the test file as it goes, so watching it says which
+	// cases have landed while the agent is still working on the rest.
+	var watch *testWatcher
+	if verbose {
+		watch = watchTests(lg.out, it.AbsOutput(cfg.Root), it.Language)
+	}
+
 	start := time.Now()
 	out, err := gen.Generate(ctx, generator.Request{
 		BehaviorPath:      it.Source,
@@ -318,9 +382,15 @@ func runBehavior(ctx context.Context, cfg *config.Config, runners *runnerCache, 
 		OutputPath:        it.Output,
 		Language:          it.Language,
 		Framework:         it.Framework,
+		Reserved:          reserved,
 		ExtraInstructions: it.Instructions,
 	})
 	res.elapsed = time.Since(start)
+	if watch != nil {
+		// Stopped before anything else writes to lg.out, so the watcher is the
+		// only thing narrating for as long as it is running.
+		watch.stop()
+	}
 	if err != nil {
 		res.err = err
 		return res
@@ -333,7 +403,7 @@ func runBehavior(ctx context.Context, cfg *config.Config, runners *runnerCache, 
 		return res
 	}
 	if verbose {
-		describeOutcome(lg.out, it.Output, body, it.Language, out)
+		describeOutcome(lg.out, it.Output, body, it.Language, out, watch)
 	}
 	res.outcome, res.outHash = out, outHash
 	res.tests = testindex.Names(body, it.Language)
@@ -368,6 +438,21 @@ type genLog struct {
 
 func (l genLog) buffered() bool { return l.buf != nil }
 
+// syncWriter serializes writes to one destination. A verbose generation has two
+// writers going at once — the harness's own output, copied by os/exec, and the
+// watcher naming test cases as they land — and a bytes.Buffer tolerates neither
+// concurrently nor mid-line.
+type syncWriter struct {
+	mu sync.Mutex
+	w  io.Writer
+}
+
+func (s *syncWriter) Write(p []byte) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.w.Write(p)
+}
+
 // progress serializes the output of concurrent generations.
 //
 // With one worker, output streams to the terminal as it happens, which is what
@@ -378,13 +463,14 @@ type progress struct {
 	mu     sync.Mutex
 	out    io.Writer
 	errOut io.Writer
+	p      ui.Printer
 	total  int
 	done   int
 	live   bool
 }
 
 func newProgress(out, errOut io.Writer, total int, live bool) *progress {
-	return &progress{out: out, errOut: errOut, total: total, live: live}
+	return &progress{out: out, errOut: errOut, p: ui.For(out), total: total, live: live}
 }
 
 // task is the one-line identity of a unit of work: what it was read from, what
@@ -395,7 +481,8 @@ type task struct {
 	status string
 }
 
-func (i item) task() task {
+// taskFor is the one-line identity of the work a behavior needs.
+func taskFor(i plan.Item) task {
 	return task{source: i.Source, output: i.Output, status: i.Status.String()}
 }
 
@@ -407,14 +494,15 @@ func (p *progress) begin(t task) genLog {
 
 	if p.live {
 		p.done++
-		fmt.Fprintf(p.out, "[%d/%d] %s → %s (%s)\n", p.done, p.total, t.source, t.output, t.status)
+		fmt.Fprintln(p.out, p.headline(t))
 		return genLog{out: p.out, errOut: p.errOut}
 	}
 	// One line, so the user can see what is in flight without waiting for the
 	// first agent to finish.
-	fmt.Fprintf(p.out, "  start %s → %s (%s)\n", t.source, t.output, t.status)
+	fmt.Fprintf(p.out, "  %s %s → %s (%s)\n", p.p.Dim("start"), t.source, t.output, p.p.Dim(t.status))
 	buf := &bytes.Buffer{}
-	return genLog{out: buf, errOut: buf, buf: buf}
+	w := &syncWriter{w: buf}
+	return genLog{out: w, errOut: w, buf: buf}
 }
 
 // finish prints everything the work had to say as a single block. The counter
@@ -427,8 +515,15 @@ func (p *progress) finish(t task, lg genLog) {
 		return // already on screen, in the order it happened
 	}
 	p.done++
-	fmt.Fprintf(p.out, "[%d/%d] %s → %s (%s)\n", p.done, p.total, t.source, t.output, t.status)
+	fmt.Fprintln(p.out, p.headline(t))
 	p.out.Write(lg.buf.Bytes())
+}
+
+// headline is the line that announces one behavior's generation, counted
+// against the total so a long run says how far along it is.
+func (p *progress) headline(t task) string {
+	return fmt.Sprintf("%s %s → %s (%s)",
+		p.p.Bold(fmt.Sprintf("[%d/%d]", p.done, p.total)), t.source, t.output, p.p.Dim(t.status))
 }
 
 // runnerCache builds one Runner per harness name and shares it across workers;

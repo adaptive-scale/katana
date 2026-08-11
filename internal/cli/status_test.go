@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/report"
 	"github.com/adaptive-scale/katana/internal/results"
 	"github.com/adaptive-scale/katana/internal/tracker"
@@ -178,30 +179,6 @@ func TestStatusWithoutARun(t *testing.T) {
 	}
 }
 
-func TestAge(t *testing.T) {
-	now := time.Now()
-	cases := []struct {
-		name string
-		ts   time.Time
-		want string
-	}{
-		{"never generated", time.Time{}, "-"},
-		{"seconds", now.Add(-3 * time.Second), "just now"},
-		{"minutes", now.Add(-90 * time.Second), "1m ago"},
-		{"hours", now.Add(-5 * time.Hour), "5h ago"},
-		{"days", now.Add(-3 * 24 * time.Hour), "3d ago"},
-		{"older than a week", now.Add(-30 * 24 * time.Hour), now.Add(-30 * 24 * time.Hour).Local().Format("2006-01-02")},
-		{"in the future", now.Add(time.Hour), now.Add(time.Hour).Local().Format("2006-01-02")},
-	}
-	for _, c := range cases {
-		t.Run(c.name, func(t *testing.T) {
-			if got := age(c.ts); got != c.want {
-				t.Errorf("age(%v) = %q, want %q", c.ts, got, c.want)
-			}
-		})
-	}
-}
-
 func TestCaseCount(t *testing.T) {
 	cases := map[string]struct {
 		entry tracker.Entry
@@ -245,4 +222,70 @@ func captureStdout(t *testing.T, fn func()) string {
 		fn()
 	}()
 	return <-done
+}
+
+// TestStatusChartsRecentRuns covers the two things the table gained: a column
+// per recent run for each behavior, and a line saying when a run only covered
+// one of them — a targeted run is not a verdict on the whole suite.
+func TestStatusChartsRecentRuns(t *testing.T) {
+	root := fakeProject(t, 1)
+
+	tr, err := tracker.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tr.Record(tracker.Entry{
+		Source:      "behaviors/b0.md",
+		Output:      "tests/b0_test.go",
+		Tests:       []string{"TestOne", "TestTwo"},
+		Language:    "go",
+		Framework:   "go-test",
+		Harness:     "fake",
+		GeneratedAt: time.Now().UTC().Add(-time.Hour),
+	})
+	if err := tr.Save(); err != nil {
+		t.Fatal(err)
+	}
+
+	run := results.Record("go test ./... -run '^(TestOne|TestTwo)$' -v", time.Now().Add(-time.Minute), 0, true,
+		[]report.Case{
+			{Name: "TestOne", Status: report.StatusPass},
+			{Name: "TestTwo", Status: report.StatusPass},
+		})
+	run.Scope = "behaviors/b0.md"
+	if err := run.Save(root); err != nil {
+		t.Fatal(err)
+	}
+	for i := range 3 {
+		if err := history.Record(root, history.Run{
+			RanAt:   time.Now().Add(-time.Duration(3-i) * time.Hour),
+			Command: "go test ./... -v",
+			PerCase: true,
+			Pass:    2,
+			Behaviors: []history.Behavior{
+				{Source: "behaviors/b0.md", Pass: 2},
+			},
+		}); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	out := captureStdout(t, func() {
+		if err := runStatus([]string{"--dir", root}); err != nil {
+			t.Fatalf("status: %v", err)
+		}
+	})
+
+	for _, want := range []string{
+		"RECENT",
+		// The run only covered this behavior, and status has to say so.
+		"of behaviors/b0.md",
+		"history",
+		// Three runs in which everything passed, drawn as three full columns.
+		"███",
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("status output is missing %q:\n%s", want, out)
+		}
+	}
 }

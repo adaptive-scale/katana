@@ -14,6 +14,7 @@ import (
 
 	"github.com/adaptive-scale/katana/internal/config"
 	"github.com/adaptive-scale/katana/internal/discover"
+	"github.com/adaptive-scale/katana/internal/ui"
 )
 
 func runDiscover(args []string) error {
@@ -103,8 +104,10 @@ Flags:
 		}
 		todo = append(todo, u)
 	}
+	p := ui.For(os.Stdout)
 	for _, u := range existing {
-		fmt.Printf("  skip  %s → %s (already written; pass --force to update it against the code)\n", u.Name, u.Output)
+		fmt.Printf("  %s  %s → %s (already written; pass --force to update it against the code)\n",
+			p.Yellow("skip"), u.Name, u.Output)
 	}
 	if len(todo) == 0 {
 		fmt.Printf("all %d unit(s) already have behavior files\n", len(units))
@@ -114,9 +117,13 @@ Flags:
 	if *dryRun {
 		files := 0
 		fmt.Printf("%d behavior file(s) would be discovered:\n", len(todo))
+		table := ui.NewTable("UNIT", "BEHAVIOR", "FILES", "SIZE").RightAlign(2, 3)
 		for _, u := range todo {
 			files += len(u.Files)
-			fmt.Printf("  %-40s → %-40s %d file(s), %s\n", u.Name, u.Output, len(u.Files), byteSize(u.Bytes))
+			table.Row(u.Name, u.Output, fmt.Sprint(len(u.Files)), p.Dim(byteSize(u.Bytes)))
+		}
+		if err := table.MaxWidth(ui.TerminalWidth(os.Stdout)).Render(os.Stdout, p); err != nil {
+			return err
 		}
 		fmt.Printf("reading %d %s file(s) with %s\n", files, lang, cfg.Harness.Name)
 		return nil

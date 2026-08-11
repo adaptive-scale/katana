@@ -10,6 +10,7 @@ import (
 	"github.com/adaptive-scale/katana/internal/discover"
 	"github.com/adaptive-scale/katana/internal/generator"
 	"github.com/adaptive-scale/katana/internal/harness"
+	"github.com/adaptive-scale/katana/internal/plan"
 	"github.com/adaptive-scale/katana/internal/testindex"
 )
 
@@ -20,7 +21,7 @@ const previewLines = 40
 
 // describeRequest narrates one generation before the harness starts, so the
 // wait is spent looking at what was asked for.
-func describeRequest(w io.Writer, root string, r *harness.Runner, it item, source string) {
+func describeRequest(w io.Writer, root string, r *harness.Runner, it plan.Item, source string) {
 	spec := r.Spec()
 	target := "new file"
 	if info, err := os.Stat(it.AbsOutput(root)); err == nil {
@@ -92,11 +93,17 @@ func describePrompt(w io.Writer, prompt string) {
 // describeOutcome reports what the harness produced: the size of the file, and
 // the test cases katana can see in it — the same index that goes into the
 // tracker, so what is narrated is what is recorded.
-func describeOutcome(w io.Writer, name, body, language string, out *generator.Outcome) {
+//
+// A case the watcher already named as it was written is not repeated here; the
+// count on the first line is the whole index either way.
+func describeOutcome(w io.Writer, name, body, language string, out *generator.Outcome, watch *testWatcher) {
 	names := testindex.Names(body, language)
 	fmt.Fprintf(w, "  wrote    %s (%s, %d lines, %d test case(s))\n",
 		name, byteSize(int64(len(body))), countLines(body), len(names))
 	for _, n := range names {
+		if watch.announced(n) {
+			continue
+		}
 		fmt.Fprintf(w, "    • %s\n", n)
 	}
 	if out.HarnessOutput != "" {
