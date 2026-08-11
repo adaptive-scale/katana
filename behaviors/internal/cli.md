@@ -116,6 +116,9 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 - When no behavior matches the filter, status prints `no behaviors matched` and succeeds.
 - `--file` limits the report to named behavior files and may be repeated.
 - Status ends with `<n> behavior(s), <m> out of date`.
+- Every recorded run is counted, and status reports the totals: how many runs there have been, how many of them passed and failed, how long they spent in the runner, and how many case outcomes they reported between them.
+- The totals count runs the history has already dropped, so they keep climbing after the chart's own count has stopped at the runs it still keeps.
+- A history recorded before totals were kept is counted from the runs still on file rather than from zero.
 - When anything is out of date, status advises running generate.
 - `--strict` makes an out-of-date behavior a failure, exiting with `<n> behavior(s) out of date`.
 

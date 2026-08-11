@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"runtime"
@@ -283,9 +284,53 @@ func TestStatusChartsRecentRuns(t *testing.T) {
 		"history",
 		// Three runs in which everything passed, drawn as three full columns.
 		"███",
+		// And how much has been run here in total, which the chart stops
+		// counting once the history is full.
+		"totals",
+		"3 run(s) since",
+		"3 passed",
+		"6 case outcome(s) recorded",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("status output is missing %q:\n%s", want, out)
 		}
+	}
+}
+
+// TestStatusTotalsCountRunsTheHistoryHasDropped is what the totals line is for:
+// once a project has run more than the history keeps, the chart's count stops
+// climbing and the totals line is the only place the real number is left.
+func TestStatusTotalsCountRunsTheHistoryHasDropped(t *testing.T) {
+	root := fakeProject(t, 1)
+
+	h, err := history.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	base := time.Now().Add(-(history.Max + 5) * time.Hour)
+	for i := range history.Max + 5 {
+		h.Add(history.Run{
+			RanAt:   base.Add(time.Duration(i) * time.Hour),
+			Command: "go test ./... -v",
+			Millis:  1500,
+			PerCase: true,
+			Pass:    2,
+		})
+	}
+	if err := h.Save(root); err != nil {
+		t.Fatal(err)
+	}
+
+	out := captureStdout(t, func() {
+		if err := runStatus([]string{"--dir", root}); err != nil {
+			t.Fatalf("status: %v", err)
+		}
+	})
+
+	if want := fmt.Sprintf("%d run(s) since", history.Max+5); !strings.Contains(out, want) {
+		t.Errorf("status should report every run recorded (%q):\n%s", want, out)
+	}
+	if want := fmt.Sprintf("%d run(s), ", history.Max); !strings.Contains(out, want) {
+		t.Errorf("the history line should still report the window of %d runs:\n%s", history.Max, out)
 	}
 }

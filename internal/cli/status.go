@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"time"
 
 	"github.com/adaptive-scale/katana/internal/config"
 	"github.com/adaptive-scale/katana/internal/history"
@@ -38,7 +39,9 @@ Pass counts come from `+"`.katana/results.json`"+`, written by the last `+"`kata
 status never runs the suite itself, so a case the last run did not cover counts
 as neither passed nor failed. The RECENT column is one column per run from
 `+"`.katana/history.json`"+`, oldest on the left, tall for a run that passed
-entirely and red for one that did not.
+entirely and red for one that did not. The history keeps the last few dozen runs;
+the totals line counts every run this project has recorded, including the ones
+that have since dropped out of it.
 
 Tracker entries whose behavior is no longer configured are listed separately;
 `+"`katana generate`"+` prunes them.
@@ -234,6 +237,47 @@ func printHistorySummary(p ui.Printer, h *history.History) {
 	first, last := runs[0], runs[len(runs)-1]
 	fmt.Printf("history   %s  %d run(s), %s to %s\n",
 		p.RunSpark(runs), len(h.Runs), ui.Age(first.RanAt), ui.Age(last.RanAt))
+	printTotals(p, h.Totals)
+}
+
+// printTotals is what the project has run in total, which the line above cannot
+// say: the history keeps the last history.Max runs, so its count stops climbing
+// long before the suite does.
+func printTotals(p ui.Printer, t history.Totals) {
+	if t.Runs == 0 {
+		return
+	}
+	fmt.Printf("totals    %d run(s) since %s — %s, %s, %s in the runner\n",
+		t.Runs, ui.Age(t.FirstRanAt),
+		p.Green(fmt.Sprintf("%d passed", t.Passed)), failedRunsText(p, t.Failed),
+		roundDuration(t.Duration()))
+	if t.Cases() > 0 {
+		fmt.Printf("          %s\n", p.Dim(fmt.Sprintf("%d case outcome(s) recorded: %d passed, %d failed, %d skipped",
+			t.Cases(), t.Pass, t.Fail, t.Skip)))
+	}
+}
+
+// failedRunsText leaves a clean record uncoloured: red on a zero reads as a
+// problem where there is none.
+func failedRunsText(p ui.Printer, failed int) string {
+	s := fmt.Sprintf("%d failed", failed)
+	if failed == 0 {
+		return p.Dim(s)
+	}
+	return p.Red(s)
+}
+
+// roundDuration keeps the total readable at both ends: seconds matter for a
+// suite that has run twice, and are noise for one that has run all week.
+func roundDuration(d time.Duration) string {
+	switch {
+	case d >= time.Hour:
+		return d.Round(time.Minute).String()
+	case d >= time.Minute:
+		return d.Round(time.Second).String()
+	default:
+		return d.Round(10 * time.Millisecond).String()
+	}
 }
 
 // staleText colours the count of out-of-date behaviors in the summary line, so

@@ -361,8 +361,14 @@ func (m *model) historyLine() string {
 	if len(runs) == 0 {
 		return p.Dim("  history   nothing recorded yet — run the suite to start the chart")
 	}
-	return fmt.Sprintf("  %s %s  %s", p.Dim("history  "), p.RunSpark(runs),
-		p.Dim(fmt.Sprintf("%d run(s), oldest %s", len(runs), ui.Age(runs[0].RanAt))))
+	// The chart holds as many runs as the terminal is wide; the count beside it
+	// is every run recorded, so a project that has run a thousand times does not
+	// read as one that has run twenty.
+	note := fmt.Sprintf("%d run(s), oldest %s", len(runs), ui.Age(runs[0].RanAt))
+	if total := m.hist.Totals.Runs; total > len(runs) {
+		note = fmt.Sprintf("%d of %d run(s), oldest shown %s", len(runs), total, ui.Age(runs[0].RanAt))
+	}
+	return fmt.Sprintf("  %s %s  %s", p.Dim("history  "), p.RunSpark(runs), p.Dim(note))
 }
 
 // messageLine is what just happened: the result of the last run, or what went

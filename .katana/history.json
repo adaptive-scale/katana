@@ -344,6 +344,58 @@
           "pass": 135
         }
       ]
+    },
+    {
+      "ran_at": "2026-08-11T14:36:31.904877Z",
+      "command": "go test ./... -v",
+      "exit_code": 1,
+      "millis": 27328,
+      "per_case": true,
+      "pass": 1592,
+      "fail": 11,
+      "skip": 7,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 74
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "pass": 34
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "pass": 45,
+          "fail": 1
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "pass": 135
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "pass": 44
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "pass": 97,
+          "skip": 3
+        },
+        {
+          "source": "behaviors/katana.md",
+          "pass": 10
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "pass": 123
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "pass": 55,
+          "fail": 1,
+          "skip": 1
+        }
+      ]
     }
   ]
 }

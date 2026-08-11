@@ -216,7 +216,11 @@ green suite is never mistaken for one that covers the current specification.
 Every run records what each test case did to `.katana/results.json`, which is
 what lets `katana status` report how many cases passed without running the suite
 again, and appends a row to `.katana/history.json`, which is what the charts are
-drawn from. Recovering results per case needs the runner to name each one, which
+drawn from and what counts the runs: the file keeps the last fifty of them, and
+carries running totals — how many runs there have been, how many passed, how
+many case outcomes they reported and how long they spent in the runner — so the
+count survives the rows being trimmed. Recovering results per case needs the
+runner to name each one, which
 some only do in verbose mode, so katana adds that flag where it knows it and says
 so; `--cases=false` leaves the command exactly as configured and records the
 suite-wide result alone. Both files describe one machine's runs, so they are
@@ -267,6 +271,8 @@ katana status --strict                    # exit non-zero when anything is out o
 tracker  .katana/tracker.json (v1, 2 entry(ies), updated 3h ago)
 last run  20m ago, failed (exit 1) — 6 of 7 case(s) passed, 1 failed, 0 skipped
 history   ▇█████▆█  8 run(s), 2d ago to 20m ago
+totals    64 run(s) since 9d ago — 57 passed, 7 failed, 6m12s in the runner
+          431 case outcome(s) recorded: 402 passed, 21 failed, 8 skipped
 
 ┌──────────────────┬──────────────────────┬───────────────────────┬───────┬────────┬────────────┬───────────┬───────────────────────┐
 │ STATUS           │ BEHAVIOR             │ TESTS                 │ CASES │ PASSED │ RECENT     │ GENERATED │ STACK                 │
@@ -288,6 +294,12 @@ full height for a run in which every one of that behavior's cases passed, red
 and shorter for one where some did not. A run that said nothing about a behavior
 — a targeted run of another one — is not plotted in its row at all. The `history`
 line above the table is the same chart for the suite as a whole.
+
+The `totals` line is every run this project has recorded, not only the ones still
+in the file: the history keeps the last fifty runs, so its count stops climbing
+long before the suite does. It counts targeted runs too — a run of one behavior
+is still a run — and the case outcomes are summed across runs, so a suite of ten
+cases run twenty times has counted two hundred of them.
 
 `PASSED` is how those cases fared in the last `katana run`, which every run
 records to `.katana/results.json`. status never runs the suite itself, so the
@@ -341,7 +353,7 @@ passed, and its recent runs; `enter` opens one.
  │ behavior changed │ behaviors/login.md    │     3 │    2/3 │ ███▆▆███▆█  │ 5h ago    │
  └──────────────────┴───────────────────────┴───────┴────────┴─────────────┴───────────┘
 
-   history   ████████▇█  10 run(s), oldest 1d ago
+   history   ████████▇█  10 of 64 run(s), oldest shown 1d ago
 
   ↑↓ select · enter open · r run · a run all · o output · u reload · ? help · q quit
 ```

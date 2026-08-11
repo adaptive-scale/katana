@@ -20,7 +20,9 @@ import (
 // FileName is the history file inside the .katana directory.
 const FileName = "history.json"
 
-// Version is the history schema version.
+// Version is the history schema version. Fields that a katana which has never
+// heard of them can ignore — the totals are the example — are added without
+// bumping it, so an upgrade does not throw away the history a project has.
 const Version = 1
 
 // Max is how many runs are kept. The history is a picture of recent behaviour,
@@ -96,10 +98,75 @@ func (r Run) Find(source string) (Behavior, bool) {
 	return Behavior{}, false
 }
 
-// History is the recent runs, oldest first.
+// Totals are the lifetime counts for a project: how many times the suite has
+// been run here, how those runs came out, and how long they took between them.
+//
+// They are kept beside the runs rather than derived from them because the run
+// list is trimmed at Max. Once a project has run more times than that, "how many
+// runs have there been" is a question the window can no longer answer, and it is
+// the first question asked of a record like this one.
+type Totals struct {
+	// Runs is every run recorded, including the ones since dropped from the
+	// window and the targeted runs of a single behavior.
+	Runs int `json:"runs,omitempty"`
+	// Passed and Failed split those runs by their command's exit code.
+	Passed int `json:"passed,omitempty"`
+	Failed int `json:"failed,omitempty"`
+	// Pass, Fail and Skip are case outcomes summed over every run, so a suite of
+	// ten cases run twenty times has counted two hundred of them. They are what
+	// each run reported, not what it inherited from the runs before it.
+	Pass int `json:"pass,omitempty"`
+	Fail int `json:"fail,omitempty"`
+	Skip int `json:"skip,omitempty"`
+	// Millis is the time spent in the runner, which is the cost of the suite as
+	// the project has actually paid it.
+	Millis     int64     `json:"millis,omitempty"`
+	FirstRanAt time.Time `json:"first_ran_at,omitempty"`
+	LastRanAt  time.Time `json:"last_ran_at,omitempty"`
+}
+
+// Cases is how many case outcomes the runs reported between them.
+func (t Totals) Cases() int { return t.Pass + t.Fail + t.Skip }
+
+// Rate is the share of runs that passed, and false before anything has run —
+// which is not the same as every run having failed.
+func (t Totals) Rate() (float64, bool) {
+	if t.Runs == 0 {
+		return 0, false
+	}
+	return float64(t.Passed) / float64(t.Runs), true
+}
+
+// Duration is the time spent running the suite.
+func (t Totals) Duration() time.Duration {
+	return time.Duration(t.Millis) * time.Millisecond
+}
+
+// add counts one run into the totals.
+func (t *Totals) add(r Run) {
+	t.Runs++
+	if r.OK() {
+		t.Passed++
+	} else {
+		t.Failed++
+	}
+	t.Pass += r.Pass
+	t.Fail += r.Fail
+	t.Skip += r.Skip
+	t.Millis += r.Millis
+	if t.FirstRanAt.IsZero() || r.RanAt.Before(t.FirstRanAt) {
+		t.FirstRanAt = r.RanAt
+	}
+	if r.RanAt.After(t.LastRanAt) {
+		t.LastRanAt = r.RanAt
+	}
+}
+
+// History is the recent runs, oldest first, and the totals over all of them.
 type History struct {
-	Version int   `json:"version"`
-	Runs    []Run `json:"runs,omitempty"`
+	Version int    `json:"version"`
+	Totals  Totals `json:"totals,omitzero"`
+	Runs    []Run  `json:"runs,omitempty"`
 }
 
 // Path returns the history file path for a project root.
@@ -126,15 +193,31 @@ func Load(root string) (*History, error) {
 		return nil, fmt.Errorf("history %s has version %d, this katana understands %d", Path(root), h.Version, Version)
 	}
 	sort.SliceStable(h.Runs, func(i, j int) bool { return h.Runs[i].RanAt.Before(h.Runs[j].RanAt) })
+	h.backfill()
 	return h, nil
 }
 
-// Add appends a run, dropping the oldest once there are more than Max.
+// Add appends a run, dropping the oldest once there are more than Max. The
+// totals count it whether or not it stays in the window.
 func (h *History) Add(r Run) {
 	r.RanAt = r.RanAt.UTC()
 	h.Runs = append(h.Runs, r)
+	h.Totals.add(r)
 	if n := len(h.Runs) - Max; n > 0 {
 		h.Runs = append([]Run(nil), h.Runs[n:]...)
+	}
+}
+
+// backfill counts the runs on file into the totals, for a history written before
+// totals were recorded. It credits a project only with the runs it can still
+// see — the ones already trimmed away are gone, and there is nothing left to
+// count them from — but starting at the window is closer than starting at zero.
+func (h *History) backfill() {
+	if h.Totals.Runs > 0 || len(h.Runs) == 0 {
+		return
+	}
+	for _, r := range h.Runs {
+		h.Totals.add(r)
 	}
 }
 
@@ -177,7 +260,9 @@ func Record(root string, r Run) error {
 	if err != nil {
 		// A history that cannot be read is started again rather than lost for
 		// good: it is a convenience, and refusing to record any more runs
-		// because of one bad file would be the worse failure.
+		// because of one bad file would be the worse failure. The totals start
+		// again with it — they are counted from the runs, and an unreadable file
+		// has none.
 		h = &History{Version: Version}
 	}
 	h.Add(r)
