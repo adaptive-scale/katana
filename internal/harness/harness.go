@@ -69,10 +69,10 @@ var builtins = map[string]Spec{
 	"codex": {
 		Name:      "codex",
 		Command:   "codex",
-		Args:      []string{"exec"},
-		Prompt:    PromptArg,
+		Args:      []string{"exec", "--sandbox", "workspace-write"},
+		Prompt:    PromptStdin,
 		ModelFlag: "--model",
-		Docs:      "Codex CLI, non-interactive exec mode",
+		Docs:      "Codex CLI, non-interactive exec mode, workspace-write sandbox",
 	},
 	"opencode": {
 		Name:      "opencode",
@@ -149,6 +149,8 @@ func PermissionHint(harnessName, stdout, stderr string) string {
 	fix := "grant it write access to the output path, e.g. via harness.args in katana.yaml"
 	if harnessName == "claude" {
 		fix = `run it with write access, e.g. harness.args: ["-p", "--permission-mode", "auto"] in katana.yaml`
+	} else if harnessName == "codex" {
+		fix = `run it with a writable sandbox, e.g. harness.args: ["exec", "--sandbox", "workspace-write"] in katana.yaml`
 	}
 	return "hint: the harness looks like it was denied file-write permission; " + fix
 }

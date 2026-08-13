@@ -522,6 +522,7 @@ func TestAcceptedHarnessPrompts(t *testing.T) {
 	for name, harnessSection := range map[string]string{
 		"stdin":  "harness:\n  prompt: stdin\n",
 		"arg":    "harness:\n  prompt: arg\n",
+		"empty":  "harness:\n  prompt: \"\"\n",
 		"absent": "",
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -696,6 +697,15 @@ func TestBehaviorDirIsTheFixedPartBeforeAWildcard(t *testing.T) {
 	}
 }
 
+func TestBehaviorDirComesFromTheFirstUsableConfiguredPath(t *testing.T) {
+	cfg := loadConfig(t, map[string]string{
+		"katana.yaml": "version: 1\nbehaviors:\n  - path: specs\n  - path: docs\n",
+	})
+	if got := cfg.BehaviorDir(); got != "specs" {
+		t.Errorf("BehaviorDir() = %q, want specs from the first behavior", got)
+	}
+}
+
 func TestBehaviorDirIsADirectoryPathItself(t *testing.T) {
 	cfg := loadConfig(t, map[string]string{
 		"katana.yaml":       "version: 1\nbehaviors:\n  - path: docs/specs\n",
@@ -737,6 +747,15 @@ func TestBehaviorDirSkipsAPathWithNoFixedDirectory(t *testing.T) {
 func TestBehaviorDirSkipsTheProjectRoot(t *testing.T) {
 	cfg := loadConfig(t, map[string]string{
 		"katana.yaml": "version: 1\nbehaviors:\n  - path: \".\"\n  - path: specs\n",
+	})
+	if got := cfg.BehaviorDir(); got != "specs" {
+		t.Errorf("BehaviorDir() = %q, want specs from the second behavior", got)
+	}
+}
+
+func TestBehaviorDirSkipsTheFilesystemRoot(t *testing.T) {
+	cfg := loadConfig(t, map[string]string{
+		"katana.yaml": "version: 1\nbehaviors:\n  - path: \"/\"\n  - path: specs\n",
 	})
 	if got := cfg.BehaviorDir(); got != "specs" {
 		t.Errorf("BehaviorDir() = %q, want specs from the second behavior", got)

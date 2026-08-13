@@ -328,6 +328,24 @@ func (r *Results) CaseRanAt(name string) (time.Time, bool) {
 	return newest, true
 }
 
+// LastRun reports when any of the named cases last produced an outcome. A
+// targeted run can leave cases belonging to other behaviors untouched, so this
+// is deliberately per case rather than the timestamp of the most recent
+// suite invocation.
+func (r *Results) LastRun(names []string) (time.Time, bool) {
+	newest := time.Time{}
+	for _, name := range names {
+		when, ok := r.CaseRanAt(name)
+		if ok && when.After(newest) {
+			newest = when
+		}
+	}
+	if newest.IsZero() {
+		return time.Time{}, false
+	}
+	return newest, true
+}
+
 func (r *Results) recorded(name string) ([]Case, bool) {
 	if !r.Recorded() || !r.PerCase {
 		return nil, false

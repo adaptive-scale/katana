@@ -102,7 +102,7 @@ Flags:
 	}
 
 	fmt.Println()
-	table := ui.NewTable("STATUS", "BEHAVIOR", "TESTS", "CASES", "PASSED", "RECENT", "GENERATED", "STACK").
+	table := ui.NewTable("STATUS", "BEHAVIOR", "TESTS", "CASES", "PASSED", "RECENT", "LAST RUN", "GENERATED", "STACK").
 		RightAlign(3, 4)
 	stale, cases := 0, 0
 	var tally results.Tally
@@ -111,7 +111,7 @@ Flags:
 			stale++
 		}
 		entry, mapped := t.Get(it.Source)
-		count, passed, when, recent := p.Dim("-"), p.Dim("-"), p.Dim("-"), ""
+		count, passed, when, lastRun, recent := p.Dim("-"), p.Dim("-"), p.Dim("-"), p.Dim("-"), ""
 		if mapped {
 			n := caseCount(entry)
 			cases += n
@@ -121,8 +121,11 @@ Flags:
 			tally.Add(behavior)
 			passed = p.PassedText(behavior)
 			recent = p.BehaviorSpark(it.Source, hist.For(it.Source, sparkRuns))
+			if when, ok := res.LastRun(entry.Tests); ok {
+				lastRun = ui.Age(when)
+			}
 		}
-		table.Row(p.StatusText(it.Status), it.Source, it.Output, count, passed, recent, when, p.Dim(it.Stack()))
+		table.Row(p.StatusText(it.Status), it.Source, it.Output, count, passed, recent, lastRun, when, p.Dim(it.Stack()))
 	}
 	if err := table.MaxWidth(ui.TerminalWidth(os.Stdout)).Render(os.Stdout, p); err != nil {
 		return err

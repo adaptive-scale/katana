@@ -1183,10 +1183,83 @@ func TestOnWindowsAPreviousOldFileIsRemovedBeforeTheSwap(t *testing.T) {
 	}
 }
 
+func TestOnWindowsAFailedSwapRestoresTheMovedAsideBinary(t *testing.T) {
+	if runtime.GOOS != "windows" {
+		t.Skip("the move-aside swap only runs on Windows")
+	}
+	dir := t.TempDir()
+	dest := filepath.Join(dir, "katana.exe")
+	if err := os.WriteFile(dest, []byte(oldKatana), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	// Holding the closed staged download open prevents Windows from renaming it.
+	// That reaches the failure after dest has already been moved to dest.old.
+	var mu sync.Mutex
+	var stagedLock *os.File
+	var lockErr error
+	g := newFakeGitHub(t, githubOptions{
+		tag: updateTag,
+		assets: []releaseAsset{
+			{name: updateAsset, body: newKatana},
+			{name: checksumsFile, body: manifestLine(newKatana, updateAsset)},
+		},
+		onAsset: func(name string) {
+			if name != checksumsFile {
+				return
+			}
+			entries, err := os.ReadDir(dir)
+			if err != nil {
+				mu.Lock()
+				lockErr = err
+				mu.Unlock()
+				return
+			}
+			for _, entry := range entries {
+				if !strings.HasPrefix(entry.Name(), ".katana-update-") {
+					continue
+				}
+				f, err := os.Open(filepath.Join(dir, entry.Name()))
+				mu.Lock()
+				stagedLock, lockErr = f, err
+				mu.Unlock()
+				return
+			}
+			mu.Lock()
+			lockErr = errors.New("the staged download was not found")
+			mu.Unlock()
+		},
+	})
+	c := updateClient(t, g, updateCurrent)
+	c.Dest = dest
+
+	_, err := c.Apply(context.Background(), latestRelease(t, c), io.Discard)
+	mu.Lock()
+	lock, observedErr := stagedLock, lockErr
+	mu.Unlock()
+	if lock != nil {
+		if closeErr := lock.Close(); closeErr != nil {
+			t.Errorf("closing the staged-file lock: %v", closeErr)
+		}
+	}
+	if observedErr != nil {
+		t.Fatalf("locking the staged download: %v", observedErr)
+	}
+	if err == nil {
+		t.Fatal("Apply succeeded, want the locked staged file to stop the swap")
+	}
+	if prefix := "installing to " + dest + ": "; !strings.HasPrefix(err.Error(), prefix) {
+		t.Errorf("error = %q, want it to start with %q", err.Error(), prefix)
+	}
+	if got := installedBody(t, dest); got != oldKatana {
+		t.Errorf("restored binary = %q, want %q", got, oldKatana)
+	}
+	if _, statErr := os.Stat(dest + ".old"); !errors.Is(statErr, fs.ErrNotExist) {
+		t.Errorf("the restored binary also remains at %s.old (stat gave %v)", dest, statErr)
+	}
+}
+
 func TestOnWindowsTheDisplacedOldFileIsDeletedAfterASuccessfulSwap(t *testing.T) {
-	// Deleting it can fail while the image is still mapped, which is not
-	// treated as an error — the update still reports success, which is what the
-	// install above already shows. What is checked here is the clean-up itself.
 	if runtime.GOOS != "windows" {
 		t.Skip("the move-aside swap only runs on Windows")
 	}
@@ -1248,7 +1321,7 @@ func TestOnSuccessThePathThatWasWrittenIsReturned(t *testing.T) {
 const installHelperEnv = "KATANA_UPDATE_INSTALL_HELPER"
 
 // TestUpdateInstallHelperProcess is not a test of its own: it is a katana that
-// updates itself, run only as a child process of the two tests below.
+// updates itself, run only as a child process of the tests below.
 func TestUpdateInstallHelperProcess(t *testing.T) {
 	if os.Getenv(installHelperEnv) != "1" {
 		t.Skip("the self-updating katana, run only as a child process of an install test")
@@ -1370,6 +1443,33 @@ func TestWithNoDestinationTheRunningExecutableIsReplaced(t *testing.T) {
 	}
 	if !samePath(got, exe) {
 		t.Errorf("installed to %q, want the running binary %q", got, exe)
+	}
+}
+
+func TestOnWindowsFailureToDeleteTheDisplacedBinaryDoesNotFailTheUpdate(t *testing.T) {
+	if runtime.GOOS != "windows" {
+		t.Skip("only Windows keeps the running image mapped after moving it aside")
+	}
+	g := selfUpdateRelease(t)
+	exe := filepath.Join(t.TempDir(), "katana.exe")
+	copyTestBinary(t, exe)
+
+	got := runSelfUpdate(t, exe, g)
+
+	if !samePath(got, exe) {
+		t.Errorf("installed to %q, want the running binary %q", got, exe)
+	}
+	if body := installedBody(t, exe); body != newKatana {
+		t.Errorf("installed %q, want %q", body, newKatana)
+	}
+	// The child tried to remove its displaced, still-mapped image before it
+	// exited. Its presence proves that failure was ignored on the success path.
+	info, err := os.Stat(exe + ".old")
+	if err != nil {
+		t.Fatalf("the mapped binary was not left at .old: %v", err)
+	}
+	if info.Size() == 0 {
+		t.Error("the mapped binary left at .old is empty")
 	}
 }
 
@@ -1737,6 +1837,20 @@ func seedCache(t *testing.T, dir string, age time.Duration, tag string) {
 	}
 }
 
+// readCache returns the check katana recorded in dir.
+func readCache(t *testing.T, dir string) cachedCheck {
+	t.Helper()
+	body, err := os.ReadFile(filepath.Join(dir, cacheFile))
+	if err != nil {
+		t.Fatalf("reading the update cache: %v", err)
+	}
+	var cached cachedCheck
+	if err := json.Unmarshal(body, &cached); err != nil {
+		t.Fatalf("decoding the update cache: %v", err)
+	}
+	return cached
+}
+
 // checkAndNotice runs katana's release check beside a command and returns what
 // the user sees once that command has finished.
 func checkAndNotice(t *testing.T, current string) string {
@@ -1855,15 +1969,24 @@ func TestGithubIsAskedOnlyWhenTheLastCheckIsMoreThanADayOld(t *testing.T) {
 
 func TestASuccessfulCheckRemembersTheTagAndItsPageUrl(t *testing.T) {
 	g := binaryRelease(t)
-	isolateChecks(t, g)
+	dir := isolateChecks(t, g)
 
+	started := time.Now()
 	out := checkAndNotice(t, "v1.0.0")
+	finished := time.Now()
 
 	if !strings.Contains(out, updateTag) {
 		t.Errorf("notice = %q, want the tag that was found", out)
 	}
 	if !strings.Contains(out, releasePage+updateTag) {
 		t.Errorf("notice = %q, want the release page %q", out, releasePage+updateTag)
+	}
+	cached := readCache(t, dir)
+	if cached.LatestTag != updateTag {
+		t.Errorf("cached tag = %q, want %q", cached.LatestTag, updateTag)
+	}
+	if cached.CheckedAt.Before(started) || cached.CheckedAt.After(finished) {
+		t.Errorf("cached check time = %v, want a time between %v and %v", cached.CheckedAt, started, finished)
 	}
 	// The check was stamped, so the next run reports the same news from the
 	// cache without asking again.
@@ -1900,7 +2023,7 @@ func TestTheBackgroundRequestIsAbandonedAfterFiveSeconds(t *testing.T) {
 		t.Skip("the five second window has to be waited out")
 	}
 	g := newFakeGitHub(t, githubOptions{tag: updateTag, hold: true})
-	isolateChecks(t, g)
+	dir := isolateChecks(t, g)
 
 	start := time.Now()
 	n := update.Start("v1.0.0")
@@ -1922,7 +2045,22 @@ func TestTheBackgroundRequestIsAbandonedAfterFiveSeconds(t *testing.T) {
 	if waited < 4*time.Second || waited > 10*time.Second {
 		t.Errorf("the check gave up after %v, want about five seconds", waited)
 	}
+	var out strings.Builder
+	n.Notice(&out)
+	if out.String() != "" {
+		t.Errorf("notice = %q, want silence after the request timed out", out.String())
+	}
+	if _, err := os.Stat(filepath.Join(dir, cacheFile)); !errors.Is(err, fs.ErrNotExist) {
+		t.Errorf("a cache file was written after a timeout (stat gave %v)", err)
+	}
+	before := len(g.requests())
 	g.release()
+	if again := checkAndNotice(t, "v1.0.0"); !strings.Contains(again, updateTag) {
+		t.Errorf("notice on retry = %q, want it to report %q", again, updateTag)
+	}
+	if got := len(g.requests()); got <= before {
+		t.Errorf("the next run made no request after the timeout, requests = %+v", g.requests())
+	}
 }
 
 // --- Printing the notice ---------------------------------------------------
@@ -2169,5 +2307,12 @@ func TestACacheThatCannotBeWrittenIsNotAnError(t *testing.T) {
 
 	if !strings.Contains(out, updateTag) {
 		t.Errorf("notice = %q, want the check to be reported even though it could not be cached", out)
+	}
+	before := len(g.requests())
+	if again := checkAndNotice(t, "v1.0.0"); !strings.Contains(again, updateTag) {
+		t.Errorf("notice on retry = %q, want the uncached check to still be reported", again)
+	}
+	if got := len(g.requests()); got <= before {
+		t.Errorf("the next run made no request after the cache write failed, requests = %+v", g.requests())
 	}
 }

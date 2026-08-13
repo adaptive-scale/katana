@@ -2504,7 +2504,7 @@ func TestHarnessesExplainsThatTheDefaultsAreNotAContract(t *testing.T) {
 	wantContains(t, res.stdout,
 		"Defaults are katana's best-known invocation for each CLI, not a contract with\nthe upstream tool.",
 		"explanation")
-	for _, override := range []string{"command: codex", "args: [\"exec\", \"--full-auto\"]", "prompt: arg"} {
+	for _, override := range []string{"command: codex", "args: [\"exec\", \"--sandbox\", \"workspace-write\"]", "prompt: stdin"} {
 		wantContains(t, res.stdout, override, "override example")
 	}
 }

@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -45,6 +46,77 @@ func TestResolveJobs(t *testing.T) {
 				t.Errorf("note = %q, want note: %v", note, c.note)
 			}
 		})
+	}
+}
+
+func TestOperationBarUpdatesCasesBeforeCompletion(t *testing.T) {
+	var out bytes.Buffer
+	bar := newOperationBarMode(&out, "generate", 2, true)
+	bar.addCases(1)
+
+	if got := out.String(); !strings.Contains(got, "\r  generate [....................] 0/2 — 1 case(s)") {
+		t.Fatalf("case did not update the unfinished bar:\n%s", got)
+	}
+	bar.finish()
+	if got := out.String(); !strings.Contains(got, "generate [==========..........] 1/2 — 1 case(s)") {
+		t.Fatalf("completion did not advance the bar:\n%s", got)
+	}
+}
+
+func TestOperationBarDoesNotFloodPipedOutputWithCaseUpdates(t *testing.T) {
+	var out bytes.Buffer
+	bar := newOperationBar(&out, "generate", 2)
+	for i := 0; i < 100; i++ {
+		bar.addCases(1)
+	}
+	bar.finish()
+	bar.finish()
+	bar.stop()
+
+	lines := strings.Split(strings.TrimSpace(out.String()), "\n")
+	if len(lines) != 2 {
+		t.Fatalf("piped progress wrote %d lines, want initial and final only:\n%s", len(lines), out.String())
+	}
+	if !strings.Contains(lines[1], "2/2 — 100 case(s)") {
+		t.Fatalf("final progress lost its case count: %q", lines[1])
+	}
+}
+
+func TestOperationBarWaitsForPartialOutputLine(t *testing.T) {
+	var out bytes.Buffer
+	bar := newOperationBarMode(&out, "generate", 2, true)
+	w := bar.writer(&out)
+	if _, err := io.WriteString(w, "partial output"); err != nil {
+		t.Fatal(err)
+	}
+	bar.addCases(1)
+	if strings.HasSuffix(out.String(), "case(s)") {
+		t.Fatalf("bar was drawn into a partial output line: %q", out.String())
+	}
+	if _, err := io.WriteString(w, " finished\n"); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasSuffix(out.String(), "  generate [....................] 0/2 — 1 case(s)") {
+		t.Fatalf("bar was not restored after the line completed: %q", out.String())
+	}
+}
+
+func TestOperationBarYieldsTerminalLineToOrdinaryOutput(t *testing.T) {
+	var out bytes.Buffer
+	bar := newOperationBarMode(&out, "generate", 2, true)
+	w := bar.writer(&out)
+	if _, err := fmt.Fprintln(w, "worker finished"); err != nil {
+		t.Fatal(err)
+	}
+	bar.addCases(1)
+	bar.stop()
+
+	got := out.String()
+	if !strings.Contains(got, "worker finished\n  generate [....................] 0/2") {
+		t.Fatalf("bar was not restored after ordinary output:\n%q", got)
+	}
+	if !strings.HasSuffix(got, "\n") {
+		t.Fatalf("stopped bar did not end its line: %q", got)
 	}
 }
 

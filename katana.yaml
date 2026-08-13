@@ -11,7 +11,7 @@ version: 1
 #
 # Built-in harnesses: claude, codex, hermes, opencode, pi
 harness:
-  name: claude
+  name: codex
 
   # Every field below is optional. Defaults come from katana's built-in spec for
   # the harness above. Override them when your agent CLI's flags differ — that

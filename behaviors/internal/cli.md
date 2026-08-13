@@ -46,6 +46,7 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 - `--dry-run` lists each unit that would be discovered with its output path, file count and total size, then reports how many files would be read with which harness, and runs no harness.
 - The harness is checked once before any unit is started, so an unavailable harness fails immediately rather than once per unit.
 - Each finished unit reports its size in bytes, how the file arrived, and its elapsed time; the arrival is `written by harness`, `recovered from harness stdout` when the file had to be recovered from the harness's own output, or `unchanged; harness found nothing to correct`.
+- Discovery prints a progress bar for the planned units before work starts. Its unit count advances as each unit finishes, and its case count advances as behavior statements appear in files still being written.
 - A unit the harness declined reports `skipped: <reason>` and counts toward the summary line `, <n> unit(s) had no behavior to specify`.
 - A unit that errored reports `failed: <error>` to standard error.
 - The run ends with `wrote <n> behavior file(s)`.
@@ -68,6 +69,8 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 - `--dry-run` lists each behavior that would be generated with its status, source, output and language/framework/harness, and runs no harness.
 - Every distinct harness the planned work needs is built and checked before any behavior is generated, so a missing or misconfigured agent CLI is reported before agent time is spent.
 - Each finished behavior reports its size in bytes, the number of test cases found in the generated file when there is at least one, how the file arrived, and its elapsed time.
+- Generation prints a progress bar for the planned behaviors before work starts. Its behavior count advances as each behavior finishes, and its case count advances as test declarations appear in files still being written, including without `--verbose`.
+- In an interactive terminal a progress bar redraws one line in place and yields that line while ordinary command output is printed; when output is redirected, only its initial and final snapshots are written so case-by-case updates do not flood logs.
 - The arrival is `written by harness`, `recovered from harness stdout`, or `unchanged; harness judged existing tests sufficient`.
 - After each successful behavior the tracker entry — source, source hash, output, output hash, test names, language, framework, harness, generation time and katana version — is recorded and written to disk immediately, so an interrupted run keeps the work already done.
 - A failure to write the tracker mid-run prints `warning: could not update tracker: <error>` to standard error and does not stop generation.
@@ -125,6 +128,7 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 ## Running the test suite
 
 - `run` executes the test command from the project configuration through a shell, in the project root or in the configured test directory when one is set.
+- Run prints a progress bar whose expected total comes from the distinct test names in the tracker (or the selected behavior), and advances it whenever another completed case is parsed from the runner's output rather than waiting for the command to exit.
 - A configuration with no test command fails with `no test.command set in katana.yaml`.
 - Arguments after `--` are shell-quoted and appended to the test command, so paths and patterns containing spaces or quotes survive.
 - Before running, any out-of-date behavior is listed on standard error with its status and source, followed by advice to run generate first, so a passing suite is never mistaken for one that covers the current specification.

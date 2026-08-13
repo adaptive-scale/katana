@@ -189,7 +189,8 @@ Flags:
 		fmt.Printf("generating %d behavior(s)\n", len(todo))
 	}
 
-	prog := newProgress(os.Stdout, os.Stderr, len(todo), workers == 1)
+	bar := newOperationBar(os.Stdout, "generate", len(todo))
+	prog := newProgress(bar.writer(os.Stdout), bar.writer(os.Stderr), len(todo), workers == 1)
 
 	// Read once, before anything is overwritten: what the neighbours declare now
 	// is what a generation starting now has to avoid. Behaviors generated
@@ -200,9 +201,10 @@ Flags:
 	var generated, failures int
 	runPool(ctx, workers, todo,
 		func(ctx context.Context, it plan.Item) generation {
-			return generateOne(ctx, cfg, runners, prog, it, reservedFor(declared, it.Output), *verbose)
+			return generateOne(ctx, cfg, runners, prog, bar, it, reservedFor(declared, it.Output), *verbose)
 		},
 		func(res generation) {
+			bar.finish()
 			if res.err != nil {
 				failures++
 				return
@@ -222,8 +224,9 @@ Flags:
 			})
 			// Persist after each success so an interrupted run does not lose the
 			// work already done.
-			saveTracker(t)
+			saveTracker(t, bar.writer(os.Stderr))
 		})
+	bar.stop()
 
 	if ctx.Err() != nil {
 		fmt.Println("  interrupted; stopping")
@@ -309,9 +312,9 @@ type generation struct {
 }
 
 // generateOne generates a single behavior and reports it as one block.
-func generateOne(ctx context.Context, cfg *config.Config, runners *runnerCache, prog *progress, it plan.Item, reserved []string, verbose bool) generation {
+func generateOne(ctx context.Context, cfg *config.Config, runners *runnerCache, prog *progress, bar *operationBar, it plan.Item, reserved []string, verbose bool) generation {
 	lg := prog.begin(taskFor(it))
-	res := runBehavior(ctx, cfg, runners, lg, it, reserved, verbose)
+	res := runBehavior(ctx, cfg, runners, lg, bar, it, reserved, verbose)
 
 	if res.err != nil {
 		fmt.Fprintf(lg.errOut, "  %s %v\n", prog.p.Red("failed:"), res.err)
@@ -335,7 +338,7 @@ func generateOne(ctx context.Context, cfg *config.Config, runners *runnerCache, 
 }
 
 // runBehavior does the work for one behavior, writing any narration to lg.
-func runBehavior(ctx context.Context, cfg *config.Config, runners *runnerCache, lg genLog, it plan.Item, reserved []string, verbose bool) generation {
+func runBehavior(ctx context.Context, cfg *config.Config, runners *runnerCache, lg genLog, bar *operationBar, it plan.Item, reserved []string, verbose bool) generation {
 	res := generation{item: it}
 
 	runner, err := runners.get(it.Harness)
@@ -366,9 +369,11 @@ func runBehavior(ctx context.Context, cfg *config.Config, runners *runnerCache, 
 	// The harness writes the test file as it goes, so watching it says which
 	// cases have landed while the agent is still working on the rest.
 	var watch *testWatcher
+	watchOut := io.Discard
 	if verbose {
-		watch = watchTests(lg.out, it.AbsOutput(cfg.Root), it.Language)
+		watchOut = lg.out
 	}
+	watch = watchTests(watchOut, it.AbsOutput(cfg.Root), it.Language, func(int) { bar.addCases(1) })
 
 	start := time.Now()
 	out, err := gen.Generate(ctx, generator.Request{
@@ -465,7 +470,11 @@ type progress struct {
 }
 
 func newProgress(out, errOut io.Writer, total int, live bool) *progress {
-	return &progress{out: out, errOut: errOut, p: ui.For(out), total: total, live: live}
+	colorOut := out
+	if w, ok := out.(operationWriter); ok {
+		colorOut = w.w
+	}
+	return &progress{out: out, errOut: errOut, p: ui.For(colorOut), total: total, live: live}
 }
 
 // task is the one-line identity of a unit of work: what it was read from, what
@@ -605,8 +614,12 @@ func pruneTracker(cfg *config.Config, t *tracker.Tracker, only []string) bool {
 	return len(gone) > 0
 }
 
-func saveTracker(t *tracker.Tracker) {
+func saveTracker(t *tracker.Tracker, errW ...io.Writer) {
+	w := io.Writer(os.Stderr)
+	if len(errW) > 0 {
+		w = errW[0]
+	}
 	if err := t.Save(); err != nil {
-		fmt.Fprintf(os.Stderr, "  warning: could not update tracker: %v\n", err)
+		fmt.Fprintf(w, "  warning: could not update tracker: %v\n", err)
 	}
 }

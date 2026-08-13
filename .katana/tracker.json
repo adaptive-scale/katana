@@ -1,23 +1,30 @@
 {
   "version": 1,
-  "updated_at": "2026-08-11T13:59:31.30682Z",
+  "updated_at": "2026-08-13T13:45:44.091157Z",
   "entries": {
     "behaviors/example.md": {
       "source": "behaviors/example.md",
       "source_hash": "b2a84443e2bcf1d074de8ca0d2137ebfe77c87c259a4025b92ff0102e9450acf",
       "output": "tests/example_test.go",
-      "output_hash": "abc740f0972b80b916a35ee9bb225f2f3ce004d6b37b9f1a801423736b6d4f0a",
+      "output_hash": "53af3271fcf44344fed50f374faf1ce9f386f4c8aed7e1fc97a4f91e7200323c",
+      "tests": [
+        "TestClaudeHarnessConfigurationIsSupported",
+        "TestCodexHarnessConfigurationIsSupported",
+        "TestOpencodeHarnessConfigurationIsSupported",
+        "TestHermesHarnessConfigurationIsSupported"
+      ],
+      "test_count": 4,
       "language": "go",
       "framework": "go-test",
-      "harness": "claude",
-      "generated_at": "2026-08-10T10:42:56.112162Z",
-      "katana_version": "344d083-dirty"
+      "harness": "codex",
+      "generated_at": "2026-08-12T23:08:33.029773Z",
+      "katana_version": "v0.1.1-dirty"
     },
     "behaviors/internal/config.md": {
       "source": "behaviors/internal/config.md",
       "source_hash": "fc9e090d374be6926bebe4aa6f3d96a9d4ad8fd0dc8b85747895e947f566785d",
       "output": "tests/internal/config_test.go",
-      "output_hash": "b7287a6440c1eeacf1dcb2c254df0866d1ab41da3db0699c0b77357db5c24c71",
+      "output_hash": "254a4177221fdb6fe7c5d48ec5851a885c6df6783d28d449741601e7a1d3b32c",
       "tests": [
         "TestFindReturnsTheConfigInTheStartingDirectory",
         "TestFindWalksUpwardsToAnAncestorDirectory",
@@ -62,11 +69,13 @@
         "TestZeroJobsIsFourConcurrentGenerations",
         "TestOneJobMeansSequentialGeneration",
         "TestBehaviorDirIsTheFixedPartBeforeAWildcard",
+        "TestBehaviorDirComesFromTheFirstUsableConfiguredPath",
         "TestBehaviorDirIsADirectoryPathItself",
         "TestBehaviorDirIsTheContainingDirectoryOfASingleFile",
         "TestBehaviorDirIsTheParentOfABehaviorFileThatDoesNotExistYet",
         "TestBehaviorDirSkipsAPathWithNoFixedDirectory",
         "TestBehaviorDirSkipsTheProjectRoot",
+        "TestBehaviorDirSkipsTheFilesystemRoot",
         "TestBehaviorDirFallsBackToBehaviors",
         "TestNonWildcardFilePathResolvesToThatOneFile",
         "TestNonWildcardDirectoryResolvesToEveryMarkdownFileRecursively",
@@ -143,12 +152,12 @@
         "TestPascalCaseUppercasesEachPartAndJoinsThemWithoutASeparator",
         "TestPascalCaseLeavesTheRestOfEachPartAsItStands"
       ],
-      "test_count": 123,
+      "test_count": 125,
       "language": "go",
       "framework": "go-test",
-      "harness": "claude",
-      "generated_at": "2026-08-10T16:36:22.822833Z",
-      "katana_version": "8362d8f-dirty"
+      "harness": "codex",
+      "generated_at": "2026-08-12T23:09:12.49866Z",
+      "katana_version": "v0.1.1-dirty"
     },
     "behaviors/internal/fence.md": {
       "source": "behaviors/internal/fence.md",
@@ -194,15 +203,15 @@
       "test_count": 34,
       "language": "go",
       "framework": "go-test",
-      "harness": "claude",
-      "generated_at": "2026-08-10T16:49:19.455175Z",
-      "katana_version": "8362d8f-dirty"
+      "harness": "codex",
+      "generated_at": "2026-08-12T23:04:19.623022Z",
+      "katana_version": "v0.1.1-dirty"
     },
     "behaviors/internal/generator.md": {
       "source": "behaviors/internal/generator.md",
-      "source_hash": "8e933155e9041c82c5b2981e833d11cd9c1783b84f6204884e73b0276711ef57",
+      "source_hash": "b0da021c25cdbfdbdf2af1dd54f2a6bd7680aeec7e527f3fc333a2008067a4f3",
       "output": "tests/internal/generator_test.go",
-      "output_hash": "dacb6cf05d0249b1fd2006f0fedeb4da2941e96a599aa7fdc34b5375bee9154f",
+      "output_hash": "fd8fdc9a4f78504dee0ca83735666025d796a1dbab65bed99583024c184daeea",
       "tests": [
         "TestGenerationProducesTheTestFileAtTheRequestedPath",
         "TestForwardSlashesInTheOutputPathBecomeDirectoriesUnderTheProjectRoot",
@@ -234,16 +243,20 @@
         "TestTheFailureSummaryIsTheHarnessStandardOutput",
         "TestTheFailureSummaryFallsBackToStandardErrorWhenStandardOutputIsEmpty",
         "TestTheFailureSummaryIsNoOutputWhenTheHarnessSaidNothing",
-        "TestTheFailureSummaryIsFlattenedToASingleLine",
+        "TestTheGenerationFailureSummaryIsFlattenedToASingleLine",
         "TestTheFailureSummaryIsTruncatedAtFourHundredCharacters",
-        "TestAPermissionHintIsAppendedOnItsOwnIndentedLine",
+        "TestAGenerationPermissionHintIsAppendedOnItsOwnIndentedLine",
         "TestThePromptStatesTheLanguageFrameworkAndOutputPath",
         "TestThePromptTellsTheHarnessToWriteTheFileItself",
         "TestThePromptPermitsPrintingTheFileOnlyWhenTheWriteIsRefused",
         "TestThePromptAsksForAnInPlaceUpdateWhenTestsExist",
         "TestThePromptHasNoExistingTestsSectionWhenThereAreNone",
+        "TestTheGenerationPromptListsTakenNamesAndForbidsRedeclaringThem",
+        "TestTheGenerationPromptPreservesOverlappingBehaviorsWithPartSpecificNames",
+        "TestTheGenerationPromptOmitsTakenNamesWhenNoneAreGiven",
         "TestThePromptIncludesTheSpecificationAndThePathItCameFrom",
         "TestThePromptRequiresOneTestPerBehaviorNamedAfterIt",
+        "TestTheGenerationPromptRequiresPackageWideTestNameUniqueness",
         "TestThePromptRequiresAssertionsOnBehaviorAndAReasonableReadingOfGaps",
         "TestThePromptRequiresReadingTheSurroundingCodeAndTheCodeUnderTest",
         "TestThePromptRequiresACompilingFileAndForbidsOtherEditsAndTestRuns",
@@ -251,24 +264,24 @@
         "TestBlankExtraProjectInstructionsGetNoSectionAtAll",
         "TestThePromptClosesByAskingForAOneLineConfirmationOfThePath"
       ],
-      "test_count": 46,
+      "test_count": 50,
       "language": "go",
       "framework": "go-test",
-      "harness": "claude",
-      "generated_at": "2026-08-11T13:01:05.396691Z",
-      "katana_version": "38481ba-dirty"
+      "harness": "codex",
+      "generated_at": "2026-08-12T23:04:25.360305Z",
+      "katana_version": "v0.1.1-dirty"
     },
     "behaviors/internal/harness.md": {
       "source": "behaviors/internal/harness.md",
-      "source_hash": "4abf7c1b33cad5c7371e5814285cca1f26bf6340dc6d458c3b81a04a499d1317",
+      "source_hash": "6fe438fc48334744788e748d049aec9369ae5c600bbea410af42b6e32dd04dbe",
       "output": "tests/internal/harness_test.go",
-      "output_hash": "8ff625b965a66e2d005539c928e3590e24beb15c52df2508ce962bef6d07160c",
+      "output_hash": "64840d72db27c7e545d26f07ac2e3ba1c44396e0217019fc0f8ab0102c39c014",
       "tests": [
         "TestFiveHarnessesAreBuiltIn",
         "TestBuiltInHarnessNamesAreReturnedInAlphabeticalOrder",
         "TestTheDescriptiveListingReturnsTheFullBuiltInSpecsSortedByName",
         "TestTheClaudeHarnessRunsClaudeInPrintModeWithAutoPermissionsOverStdin",
-        "TestTheCodexHarnessRunsCodexExecWithThePromptAsAnArgument",
+        "TestTheCodexHarnessRunsCodexExecWithAWriteSandboxAndThePromptOnStdin",
         "TestTheOpencodeHarnessRunsOpencodeRunWithThePromptAsAnArgument",
         "TestThePiHarnessRunsPiInPromptModeOverStdin",
         "TestTheHermesHarnessRunsHermesInPromptModeOverStdin",
@@ -318,22 +331,66 @@
         "TestStderrOfMoreThanTenLinesIsTruncatedToTenLinesAndAnEllipsis",
         "TestAHintIsProducedForEachDenialMarkerInEitherStreamIgnoringCase",
         "TestNoHintIsProducedWhenNoDenialMarkerAppears",
-        "TestTheHintForAnyHarnessOtherThanClaudePointsAtHarnessArgs",
+        "TestTheGenericHintPointsAtHarnessArgs",
+        "TestTheHintForTheCodexHarnessPointsAtTheSandboxArguments",
         "TestTheHintForTheClaudeHarnessPointsAtThePermissionModeArguments",
         "TestHarnessHelperProcess"
       ],
-      "test_count": 57,
+      "test_count": 58,
       "language": "go",
       "framework": "go-test",
-      "harness": "claude",
-      "generated_at": "2026-08-11T13:53:16.808471Z",
-      "katana_version": "38481ba-dirty"
+      "harness": "codex",
+      "generated_at": "2026-08-12T23:08:09.432854Z",
+      "katana_version": "v0.1.1-dirty"
+    },
+    "behaviors/internal/history.md": {
+      "source": "behaviors/internal/history.md",
+      "source_hash": "3aa1278355496d70f0f0493407c1f47ea0eebbf656063d7b6485efa3f47db00a",
+      "output": "tests/internal/history_test.go",
+      "output_hash": "171b5fc72ba9572fb19e23053cc2998626e41c75cc32825407d3108db2856a71",
+      "tests": [
+        "TestHistoryAddConvertsTimestampAndUpdatesCumulativeTotals",
+        "TestHistoryRunDerivedQueries",
+        "TestHistoryRecentReturnsNewestRunsInOldestToNewestOrder",
+        "TestHistoryForFiltersKnownBehaviorsAndLimitsNewest",
+        "TestHistoryLoadMissingAndSaveCreatesIndentedNewlineTerminatedFile",
+        "TestHistoryLoadSortsStableAndRejectsBadVersionOrJSON",
+        "TestHistoryRecordRecoversFromUnreadableHistory"
+      ],
+      "test_count": 7,
+      "language": "go",
+      "framework": "go-test",
+      "harness": "codex",
+      "generated_at": "2026-08-13T13:44:10.115535Z",
+      "katana_version": "v0.1.1-dirty"
+    },
+    "behaviors/internal/plan.md": {
+      "source": "behaviors/internal/plan.md",
+      "source_hash": "435225fc1ab12acd7bb1601d99e208364b06a08a5f35f31a92d7a24c031de675",
+      "output": "tests/internal/plan_test.go",
+      "output_hash": "04a8aabdcbafc95ee4af3a806b743128ecea87a43ed9cc28998d510c2c9e720c",
+      "tests": [
+        "TestPlanBuildIncludesEveryResolvedBehaviorWithoutSelection",
+        "TestPlanBuildSelectedPathsAreNormalizedAndDeduplicated",
+        "TestPlanBuildReturnsResolutionErrorWithoutItems",
+        "TestPlanBuildReturnsSourceHashErrorWithoutCompletedResults",
+        "TestPlanClassificationCoversTrackerStates",
+        "TestPlanItemStaleAndStackDescribeTheResolvedBehavior",
+        "TestPlanFilterSetMapsEmptySelectionToNoFilterAndNormalizesPaths",
+        "TestPlanClassificationIgnoresOutputDifferencesWithoutStoredOutputHash"
+      ],
+      "test_count": 8,
+      "language": "go",
+      "framework": "go-test",
+      "harness": "codex",
+      "generated_at": "2026-08-13T13:44:11.067985Z",
+      "katana_version": "v0.1.1-dirty"
     },
     "behaviors/internal/report.md": {
       "source": "behaviors/internal/report.md",
-      "source_hash": "2573eee16299d0b8ec0fd8d58c7e25e67acef954e873a6af46040b15847d43b2",
+      "source_hash": "1b42422a462d11bb4b8c52469be445fa159e8e4a35b118aa5964f446cd58abd2",
       "output": "tests/internal/report_test.go",
-      "output_hash": "1cbe5ef09dca7cf9af999e8e7eff68ec1a53676d6d1845ae490f974bf7b1de26",
+      "output_hash": "4a3c0fc643d41f849a29d21910e0fab8c48f738cc396be53c0bcf7acd98ffa45",
       "tests": [
         "TestACommandWithShellSyntaxIsNeverAdjusted",
         "TestAGoTestCommandWithNoVerbosityFlagGetsMinusV",
@@ -368,6 +425,9 @@
         "TestAnIndentedGoResultLineIsRecordedAsItsOwnCase",
         "TestAGoPackageSummaryAssignsTheSuiteOfTheCasesSinceTheLastOne",
         "TestAGoPackageThatFailedToBuildGetsAFailedCaseOfItsOwn",
+        "TestAGoBuildFailureCaseIsMarkedAsBlocked",
+        "TestAGoTestFailureThatRanIsNotMarkedAsBlocked",
+        "TestNoNonGoParserMarksACaseAsBlocked",
         "TestGoDetailBetweenRunAndTheResultIsAttachedToAFailedCase",
         "TestGoDetailIsAttachedToASkippedCase",
         "TestAPassingGoCaseCarriesNoDetail",
@@ -433,6 +493,7 @@
         "TestTheTotalsIncludeTheStandInCaseWhenNothingWasParsed",
         "TestThePassRateIsThePercentageOfExecutedCasesThatPassed",
         "TestThePassRateIsZeroWithNoExecutedCases",
+        "TestTheReportListsBlockedCasesInRunnerOrder",
         "TestSuitesKeepTheOrderTheRunnerReportedThemIn",
         "TestACaseWithNoSuiteIsGroupedUnderTestSuite",
         "TestEachSuiteReportsItsOwnTalliesAndTotalDuration",
@@ -471,18 +532,67 @@
         "TestFilteringExpandsEverySuiteThatStillHasAVisibleRow",
         "TestThePageShowsANoMatchMessageOnlyWhenNothingIsVisible"
       ],
-      "test_count": 135,
+      "test_count": 139,
       "language": "go",
       "framework": "go-test",
-      "harness": "claude",
-      "generated_at": "2026-08-11T13:53:41.577245Z",
-      "katana_version": "38481ba-dirty"
+      "harness": "codex",
+      "generated_at": "2026-08-12T23:08:40.421008Z",
+      "katana_version": "v0.1.1-dirty"
+    },
+    "behaviors/internal/results.md": {
+      "source": "behaviors/internal/results.md",
+      "source_hash": "00c8b6965b738ebae4a603bbcc7aea310157c356970c2e523ed47cee579449e0",
+      "output": "tests/internal/results_test.go",
+      "output_hash": "14a957521cd1fe7c1d0700f292048f255e6084426d6eeaca14076ed27f376c94",
+      "tests": [
+        "TestARecordedRunPreservesItsCommandExitTimeCaseResultsAndSchema",
+        "TestASaveWritesIndentedVersionedResultsWithTrailingNewline",
+        "TestAMissingResultsAreEmptyAndUnrecorded",
+        "TestAMalformedAndWrongVersionResultsExplainTheirPathAndRemedy",
+        "TestALoadedCasesWithoutTimestampsInheritTheOverallRunTime",
+        "TestARecordIsRecordedOnlyWithANonzeroOverallTimeAndOKUsesExitCode",
+        "TestATargetedInheritanceKeepsUnreportedCasesAndTheirTimesWithoutBlockedFacts",
+        "TestABlockedSuitesAreUniqueAndOrderedByFirstBlockedCase",
+        "TestAOutcomeNormalizesNamesIncludesSubtestAncestorsAndRanksFailThenPassThenSkip",
+        "TestACaseTimesUseNewestSubtestAndFallbackToRunTimeAndLastRunFindsNewest",
+        "TestATalliesCountRunCasesRequestedUnknownsAndAddFields"
+      ],
+      "test_count": 11,
+      "language": "go",
+      "framework": "go-test",
+      "harness": "codex",
+      "generated_at": "2026-08-13T13:44:13.242656Z",
+      "katana_version": "v0.1.1-dirty"
+    },
+    "behaviors/internal/suite.md": {
+      "source": "behaviors/internal/suite.md",
+      "source_hash": "3cc658e6dc70e35a48ce89dc8dc464dc7620dff63c4db5069ecfc98fbed54504",
+      "output": "tests/internal/suite_test.go",
+      "output_hash": "1901dc5215b24dff4988e460a68d0b802b24a5e163e1869d829bf04c494c4118",
+      "tests": [
+        "TestSuiteRejectsAnEmptyTestCommand",
+        "TestSuiteRunsFromConfiguredDirectoryAndCapturesAndStreamsBothOutputs",
+        "TestSuiteUsesStdinAndQuotesExtraArguments",
+        "TestSuiteNonzeroExitIsAResultAndZeroIsOK",
+        "TestSuitePerCaseAddsVerboseOnlyForSupportedFramework",
+        "TestSuiteTargetNarrowsOrExplainsWhyItCannot",
+        "TestSuiteParsesCasesCountsAndObservesIncrementally",
+        "TestSuiteBlockedReturnsDistinctSuitesInFirstSeenOrder",
+        "TestSuiteTargetForUsesTrackerEntryIncludingEmptyTests",
+        "TestSuiteRecordWritesRunHistoryFromReportedCases"
+      ],
+      "test_count": 10,
+      "language": "go",
+      "framework": "go-test",
+      "harness": "codex",
+      "generated_at": "2026-08-13T13:44:09.022674Z",
+      "katana_version": "v0.1.1-dirty"
     },
     "behaviors/internal/testindex.md": {
       "source": "behaviors/internal/testindex.md",
       "source_hash": "f4234911e2d7c369e58f04f86ac277efadaf1aa677c45af827021f7e862e62e0",
       "output": "tests/internal/testindex_test.go",
-      "output_hash": "dd032f0edc893940102dce0bf24656bee9eb0db479c37ece6a1aa152ce5af22e",
+      "output_hash": "9553bb4455806b780acf0f525d2d4d7d037c020089f2c02754d09fcda11c3b13",
       "tests": [
         "TestEveryLanguageWithRulesListsTheCasesDeclaredInABody",
         "TestNamesAreListedInTheOrderTheyAreFirstSeen",
@@ -552,25 +662,27 @@
         "TestPHPListsMethodsNamedWithATestPrefix",
         "TestPHPAcceptsAnyCombinationOfModifiersInFrontOfAMethod",
         "TestPHPAttributeMarksAMethodWhateverItsName",
-        "TestPHPDocblockTagMarksAMethodWhateverItsName",
+        "TestPHPDocblockTagAfterALeadingStarMarksAMethodWhateverItsName",
         "TestPHPIgnoresAnAttributeThatIsNotExactlyTest",
+        "TestPHPMarkedMethodTakesTheIdentifierAfterFunction",
         "TestPHPListsAMethodMatchedByBothItsPrefixAndAMarkerOnce",
         "TestSwiftListsFunctionsNamedWithATestPrefix",
         "TestSwiftMarkerListsAFunctionThatDropsTheNamingConvention",
-        "TestSwiftMarkerIsRecognisedWithArguments"
+        "TestSwiftMarkerIsRecognisedWithArguments",
+        "TestSwiftMarkedFunctionTakesTheIdentifierAfterFunc"
       ],
-      "test_count": 74,
+      "test_count": 76,
       "language": "go",
       "framework": "go-test",
-      "harness": "claude",
-      "generated_at": "2026-08-10T18:46:39.303468Z",
-      "katana_version": "8362d8f-dirty"
+      "harness": "codex",
+      "generated_at": "2026-08-12T23:10:22.005464Z",
+      "katana_version": "v0.1.1-dirty"
     },
     "behaviors/internal/tracker.md": {
       "source": "behaviors/internal/tracker.md",
       "source_hash": "bc7a57aecd14d391661a86efc5d0b33ab12c57b09b2324cad4d1b963f461e7c9",
       "output": "tests/internal/tracker_test.go",
-      "output_hash": "0e3469f16b09e762f7a18b0c5c772c701f165cd05c235d7030ca8a1d59b9af7c",
+      "output_hash": "61df482c082d2c816440090d77e0b2b96855752d6c457d6b0847237de6256dc8",
       "tests": [
         "TestTheRecordIsTrackerJsonInsideTheKatanaDirectory",
         "TestAProjectWithNoTrackerFileLoadsAsAnEmptyRecord",
@@ -620,15 +732,58 @@
       "test_count": 44,
       "language": "go",
       "framework": "go-test",
-      "harness": "claude",
-      "generated_at": "2026-08-11T12:57:17.504013Z",
-      "katana_version": "38481ba-dirty"
+      "harness": "codex",
+      "generated_at": "2026-08-12T23:09:34.207765Z",
+      "katana_version": "v0.1.1-dirty"
+    },
+    "behaviors/internal/tui.md": {
+      "source": "behaviors/internal/tui.md",
+      "source_hash": "05525bc53f6bbfe474f0c035c90df66c9c966916b9e4b030c709b33dca35cbc9",
+      "output": "tests/internal/tui_test.go",
+      "output_hash": "1d7294477bdd18d58a7bfddbbb3c5e2f0fc52ae026aa6c39ac562176402314bb",
+      "tests": [
+        "TestTUISnapshotRendersConfiguredBehaviorsAndTerminatesLines",
+        "TestTUISnapshotEmptyProjectExplainsHowToConfigureBehaviors",
+        "TestTUISnapshotReturnsInitialTrackerLoadErrorWithoutWritingAFrame",
+        "TestTUISnapshotReturnsInitialPlanErrorWithoutWritingAFrame",
+        "TestTUISnapshotReturnsWriterErrorWhileWritingTheFrame",
+        "TestTUISnapshotFitsTheSuppliedWidthAndHeight"
+      ],
+      "test_count": 6,
+      "language": "go",
+      "framework": "go-test",
+      "harness": "codex",
+      "generated_at": "2026-08-13T13:45:05.84896Z",
+      "katana_version": "v0.1.1-dirty"
+    },
+    "behaviors/internal/ui.md": {
+      "source": "behaviors/internal/ui.md",
+      "source_hash": "719dd6afa8f3b17c2e5f84604f6be4b264e77f5f0486424c178e863202eeddf9",
+      "output": "tests/internal/ui_test.go",
+      "output_hash": "43888c99c6236ef67e0dc55a93e075dfa81055f5835b13bedcf32dd0f58a699a",
+      "tests": [
+        "TestUIColorModesTrimCaseAndRejectUnknownValues",
+        "TestUIColorEnvironmentAndPrinterBoundaries",
+        "TestUIColorTextUtilitiesHandleAnsiRunesPaddingAndTruncation",
+        "TestUIStatusMarksTalliesAndSparklines",
+        "TestUIHistorySparklinesUseOutcomeColorsAndBehaviorScope",
+        "TestUIBarsClampRoundAndStackSegments",
+        "TestUITableShapesAlignsHighlightsAndWritesUntilError",
+        "TestUIAgeUsesRelativeUnitsAndDates",
+        "TestUITerminalWritersWithoutTerminalReturnZeroSize"
+      ],
+      "test_count": 9,
+      "language": "go",
+      "framework": "go-test",
+      "harness": "codex",
+      "generated_at": "2026-08-13T13:45:44.091155Z",
+      "katana_version": "v0.1.1-dirty"
     },
     "behaviors/internal/update.md": {
       "source": "behaviors/internal/update.md",
       "source_hash": "d21c8e94501c88a31e2341dbb825f4c0772d75bceef74d6b9d98d7d319fe2181",
       "output": "tests/internal/update_test.go",
-      "output_hash": "428f3754497f1adbe7e8ba6b82a2cbaf7b1f52cf63896ab89d302644e39a440e",
+      "output_hash": "e450ff996e84e10a26f93c538b2a1d62d0dd09ffd683f9b828a284cff55103ff",
       "tests": [
         "TestComparingVersionsReportsWhetherTheFirstIsOlderEqualOrNewer",
         "TestALeadingVIsIgnoredWhenComparingVersions",
@@ -686,11 +841,13 @@
         "TestTheStagedFileIsMadeExecutableBeforeItIsPutInPlace",
         "TestTheStagedFileIsRenamedOverTheDestinationInOneStep",
         "TestOnWindowsAPreviousOldFileIsRemovedBeforeTheSwap",
+        "TestOnWindowsAFailedSwapRestoresTheMovedAsideBinary",
         "TestOnWindowsTheDisplacedOldFileIsDeletedAfterASuccessfulSwap",
         "TestAFailureToPutTheNewBinaryInPlaceNamesTheDestination",
         "TestOnSuccessThePathThatWasWrittenIsReturned",
         "TestUpdateInstallHelperProcess",
         "TestWithNoDestinationTheRunningExecutableIsReplaced",
+        "TestOnWindowsFailureToDeleteTheDisplacedBinaryDoesNotFailTheUpdate",
         "TestASymlinkedRunningExecutableIsResolvedBeforeItIsReplaced",
         "TestWithATokenTheAssetIsFetchedThroughTheApiUrl",
         "TestWithNoTokenThePublicDownloadUrlIsUsed",
@@ -731,18 +888,18 @@
         "TestTheCacheFileIsReadableByEveryoneAndWritableByItsOwner",
         "TestACacheThatCannotBeWrittenIsNotAnError"
       ],
-      "test_count": 100,
+      "test_count": 102,
       "language": "go",
       "framework": "go-test",
-      "harness": "claude",
-      "generated_at": "2026-08-11T13:59:31.306817Z",
-      "katana_version": "38481ba-dirty"
+      "harness": "codex",
+      "generated_at": "2026-08-12T23:13:58.353709Z",
+      "katana_version": "v0.1.1-dirty"
     },
     "behaviors/katana.md": {
       "source": "behaviors/katana.md",
       "source_hash": "b0880070dbf6fe5e163ab4479b3e3012490601330cd3896613d94b4d93ca403f",
       "output": "tests/katana_test.go",
-      "output_hash": "f051b83f54ece7edc779fe780c6d112b8b86b875e532a50c209f54daa8867235",
+      "output_hash": "dfba0b800ac37ab7736ce34ccc270055b3e78eedaec89379ccbe4dc078e4a01c",
       "tests": [
         "TestTheProgramNameIsNotPassedToTheCommand",
         "TestEverythingTypedAfterTheProgramNameReachesTheCommand",
@@ -758,9 +915,9 @@
       "test_count": 10,
       "language": "go",
       "framework": "go-test",
-      "harness": "claude",
-      "generated_at": "2026-08-10T20:05:41.796506Z",
-      "katana_version": "8362d8f-dirty"
+      "harness": "codex",
+      "generated_at": "2026-08-12T23:09:59.663239Z",
+      "katana_version": "v0.1.1-dirty"
     }
   }
 }

@@ -152,15 +152,17 @@ Flags:
 		fmt.Printf("discovering %d unit(s)\n", len(todo))
 	}
 
-	prog := newProgress(os.Stdout, os.Stderr, len(todo), workers == 1)
+	bar := newOperationBar(os.Stdout, "discover", len(todo))
+	prog := newProgress(bar.writer(os.Stdout), bar.writer(os.Stderr), len(todo), workers == 1)
 
 	var written []string
 	var skipped, failures int
 	runPool(ctx, workers, todo,
 		func(ctx context.Context, u discover.Unit) discovery {
-			return discoverOne(ctx, cfg, runners, prog, u, lang, *force, *verbose)
+			return discoverOne(ctx, cfg, runners, prog, bar, u, lang, *force, *verbose)
 		},
 		func(res discovery) {
+			bar.finish()
 			switch {
 			case res.err != nil:
 				failures++
@@ -170,6 +172,7 @@ Flags:
 				written = append(written, res.unit.Output)
 			}
 		})
+	bar.stop()
 
 	if ctx.Err() != nil {
 		fmt.Println("  interrupted; stopping")
@@ -202,7 +205,7 @@ type discovery struct {
 }
 
 // discoverOne describes a single unit and reports it as one block.
-func discoverOne(ctx context.Context, cfg *config.Config, runners *runnerCache, prog *progress, u discover.Unit, language string, force, verbose bool) discovery {
+func discoverOne(ctx context.Context, cfg *config.Config, runners *runnerCache, prog *progress, bar *operationBar, u discover.Unit, language string, force, verbose bool) discovery {
 	status := "new"
 	if force {
 		if _, err := os.Stat(path.Join(cfg.Root, u.Output)); err == nil {
@@ -211,7 +214,7 @@ func discoverOne(ctx context.Context, cfg *config.Config, runners *runnerCache, 
 	}
 	t := task{source: u.Name, output: u.Output, status: status}
 	lg := prog.begin(t)
-	res := runUnit(ctx, cfg, runners, lg, u, language, verbose)
+	res := runUnit(ctx, cfg, runners, lg, bar, u, language, verbose)
 
 	switch {
 	case res.err != nil:
@@ -234,7 +237,7 @@ func discoverOne(ctx context.Context, cfg *config.Config, runners *runnerCache, 
 }
 
 // runUnit does the work for one unit, writing any narration to lg.
-func runUnit(ctx context.Context, cfg *config.Config, runners *runnerCache, lg genLog, u discover.Unit, language string, verbose bool) discovery {
+func runUnit(ctx context.Context, cfg *config.Config, runners *runnerCache, lg genLog, bar *operationBar, u discover.Unit, language string, verbose bool) discovery {
 	res := discovery{unit: u}
 
 	runner, err := runners.get(cfg.Harness.Name)
@@ -258,7 +261,9 @@ func runUnit(ctx context.Context, cfg *config.Config, runners *runnerCache, lg g
 	}
 
 	start := time.Now()
+	stopWatch := watchStatements(path.Join(cfg.Root, u.Output), func() { bar.addCases(1) })
 	out, err := d.Discover(ctx, discover.Request{Unit: u, Language: language})
+	stopWatch()
 	res.elapsed = time.Since(start)
 	if err != nil {
 		res.err = err

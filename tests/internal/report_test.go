@@ -5,7 +5,8 @@
 //
 // Every assertion goes through the report package's exported API: Verbose,
 // Recorder, Frameworks, Parse, the Report methods (Collect, OK, Result, Total,
-// Passed, Failed, Skipped, PassRate, StaleBehaviors, Suites) and WriteHTML.
+// Passed, Failed, Skipped, PassRate, Blocked, StaleBehaviors, Suites) and
+// WriteHTML.
 //
 // Two things the specification describes are only observable through the written
 // page, so those tests render a report and read the HTML back: how a timing is
@@ -670,6 +671,40 @@ func TestAGoPackageThatFailedToBuildGetsAFailedCaseOfItsOwn(t *testing.T) {
 	}
 	if got.Suite != "github.com/x/broken" {
 		t.Errorf("suite = %q, want the package that failed", got.Suite)
+	}
+}
+
+func TestAGoBuildFailureCaseIsMarkedAsBlocked(t *testing.T) {
+	out := "# github.com/x/broken\n" +
+		"./broken_test.go:9:2: undefined: Missing\n" +
+		"FAIL\tgithub.com/x/broken [build failed]\n"
+
+	if got := parsedCase(t, "go-test", out); !got.Blocked {
+		t.Errorf("case = %+v, want the package that never ran marked blocked", got)
+	}
+}
+
+func TestAGoTestFailureThatRanIsNotMarkedAsBlocked(t *testing.T) {
+	got := parsedCase(t, "go-test", "--- FAIL: TestBroke (0.01s)\n")
+
+	if got.Blocked {
+		t.Errorf("case = %+v, want a test that ran and failed to remain an ordinary failure", got)
+	}
+}
+
+func TestNoNonGoParserMarksACaseAsBlocked(t *testing.T) {
+	for _, c := range []struct{ framework, out string }{
+		{"pytest", "tests/test_a.py::test_a FAILED\n"},
+		{"jest", "✕ fails\n"},
+		{"cargo", "test fails ... FAILED\n"},
+		{"xunit", "Failed Shop.Tests.Fails\n"},
+		{"xctest", "Test Case 'ShopTests.testFails' failed (0.004 seconds)\n"},
+	} {
+		t.Run(c.framework, func(t *testing.T) {
+			if got := parsedCase(t, c.framework, c.out); got.Blocked {
+				t.Errorf("case = %+v, want %s failures to remain ordinary cases", got, c.framework)
+			}
+		})
 	}
 }
 
@@ -1540,6 +1575,27 @@ func TestThePassRateIsZeroWithNoExecutedCases(t *testing.T) {
 				t.Errorf("PassRate() = %v, want 0", got)
 			}
 		})
+	}
+}
+
+func TestTheReportListsBlockedCasesInRunnerOrder(t *testing.T) {
+	first := aCase("pkg/first", "build failed", report.StatusFail, 0)
+	first.Blocked = true
+	second := aCase("pkg/second", "setup failed", report.StatusFail, 0)
+	second.Blocked = true
+	r := reportWith(
+		first,
+		aCase("pkg/ran", "TestBroke", report.StatusFail, time.Second),
+		second,
+	)
+
+	got := r.Blocked()
+
+	if len(got) != 2 {
+		t.Fatalf("Blocked() = %+v, want the two suites that never ran", got)
+	}
+	if names := recoveredNames(got); names[0] != "build failed" || names[1] != "setup failed" {
+		t.Errorf("blocked cases = %v, want them in runner order", names)
 	}
 }
 

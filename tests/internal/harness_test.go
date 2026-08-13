@@ -88,14 +88,14 @@ func TestTheClaudeHarnessRunsClaudeInPrintModeWithAutoPermissionsOverStdin(t *te
 	})
 }
 
-func TestTheCodexHarnessRunsCodexExecWithThePromptAsAnArgument(t *testing.T) {
+func TestTheCodexHarnessRunsCodexExecWithAWriteSandboxAndThePromptOnStdin(t *testing.T) {
 	assertBuiltinSpec(t, harness.Spec{
 		Name:      "codex",
 		Command:   "codex",
-		Args:      []string{"exec"},
-		Prompt:    harness.PromptArg,
+		Args:      []string{"exec", "--sandbox", "workspace-write"},
+		Prompt:    harness.PromptStdin,
 		ModelFlag: "--model",
-		Docs:      "Codex CLI, non-interactive exec mode",
+		Docs:      "Codex CLI, non-interactive exec mode, workspace-write sandbox",
 	})
 }
 
@@ -255,9 +255,9 @@ func TestASuppliedPromptDeliveryModeReplacesTheBuiltInOne(t *testing.T) {
 }
 
 func TestAnEmptyPromptDeliveryModeLeavesTheBuiltInModeInPlace(t *testing.T) {
-	// codex delivers as an argument by default.
-	if got := resolveSpec(t, "codex", harness.Spec{Prompt: ""}); got.Prompt != harness.PromptArg {
-		t.Errorf("Prompt = %q, want the built-in %q", got.Prompt, harness.PromptArg)
+	// codex delivers over stdin by default.
+	if got := resolveSpec(t, "codex", harness.Spec{Prompt: ""}); got.Prompt != harness.PromptStdin {
+		t.Errorf("Prompt = %q, want the built-in %q", got.Prompt, harness.PromptStdin)
 	}
 }
 
@@ -280,7 +280,7 @@ func TestTheResolvedSpecificationIsReadableForDiagnostics(t *testing.T) {
 		Args:      []string{"exec", "--full-auto"},
 		Prompt:    harness.PromptStdin,
 		ModelFlag: "-m",
-		Docs:      "Codex CLI, non-interactive exec mode",
+		Docs:      "Codex CLI, non-interactive exec mode, workspace-write sandbox",
 	}
 
 	got := resolveSpec(t, "codex", harness.Spec{
@@ -851,14 +851,23 @@ func TestNoHintIsProducedWhenNoDenialMarkerAppears(t *testing.T) {
 	}
 }
 
-func TestTheHintForAnyHarnessOtherThanClaudePointsAtHarnessArgs(t *testing.T) {
+func TestTheGenericHintPointsAtHarnessArgs(t *testing.T) {
 	want := "hint: the harness looks like it was denied file-write permission; " +
 		"grant it write access to the output path, e.g. via harness.args in katana.yaml"
 
-	for _, name := range []string{"codex", "opencode", "pi", "hermes", "my-agent"} {
+	for _, name := range []string{"opencode", "pi", "hermes", "my-agent"} {
 		if got := harness.PermissionHint(name, "write access denied", ""); got != want {
 			t.Errorf("harness %q: hint = %q, want %q", name, got, want)
 		}
+	}
+}
+
+func TestTheHintForTheCodexHarnessPointsAtTheSandboxArguments(t *testing.T) {
+	want := "hint: the harness looks like it was denied file-write permission; " +
+		`run it with a writable sandbox, e.g. harness.args: ["exec", "--sandbox", "workspace-write"] in katana.yaml`
+
+	if got := harness.PermissionHint("codex", "write access denied", ""); got != want {
+		t.Errorf("hint = %q, want %q", got, want)
 	}
 }
 

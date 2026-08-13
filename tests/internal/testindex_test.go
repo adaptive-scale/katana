@@ -577,9 +577,9 @@ func TestKotlinUsesTheSameMarkerAnnotationsAsJava(t *testing.T) {
 }
 
 func TestKotlinKeepsABacktickedNameIntact(t *testing.T) {
-	body := "@Test\nfun `applies a discount to the total`() {\n}\n"
+	body := "@Test\nfun `applies a 20% discount - today!`() {\n}\n"
 
-	assertOnly(t, "kotlin", body, "applies a discount to the total")
+	assertOnly(t, "kotlin", body, "applies a 20% discount - today!")
 }
 
 func TestKotlinListsAPlainFunctionNameWhenThereIsNoBacktickedOne(t *testing.T) {
@@ -674,7 +674,7 @@ func TestPHPAttributeMarksAMethodWhateverItsName(t *testing.T) {
 	assertOnly(t, "php", body, "it_applies_a_discount")
 }
 
-func TestPHPDocblockTagMarksAMethodWhateverItsName(t *testing.T) {
+func TestPHPDocblockTagAfterALeadingStarMarksAMethodWhateverItsName(t *testing.T) {
 	body := "/**\n" +
 		" * Checks the discount.\n" +
 		" *\n" +
@@ -686,7 +686,17 @@ func TestPHPDocblockTagMarksAMethodWhateverItsName(t *testing.T) {
 }
 
 func TestPHPIgnoresAnAttributeThatIsNotExactlyTest(t *testing.T) {
-	assertNothing(t, "php", "#[Group('slow')]\npublic function itIsNotMarked() {}\n")
+	for _, attribute := range []string{"#[Group('slow')]", "#[TestCase]", "#[test]", "#[Test()]"} {
+		t.Run(attribute, func(t *testing.T) {
+			assertNothing(t, "php", attribute+"\npublic function itIsNotMarked() {}\n")
+		})
+	}
+}
+
+func TestPHPMarkedMethodTakesTheIdentifierAfterFunction(t *testing.T) {
+	body := "#[Test]\npublic function appliesDiscountTo(int $subtotal, string $code): void {}\n"
+
+	assertOnly(t, "php", body, "appliesDiscountTo")
 }
 
 func TestPHPListsAMethodMatchedByBothItsPrefixAndAMarkerOnce(t *testing.T) {
@@ -713,7 +723,11 @@ func TestSwiftMarkerListsAFunctionThatDropsTheNamingConvention(t *testing.T) {
 func TestSwiftMarkerIsRecognisedWithArguments(t *testing.T) {
 	body := "@Test(\"applies a discount\")\nfunc checkoutFlow() async throws {\n}\n"
 
-	// The name taken is the identifier after `func`, not the display string the
-	// macro carries.
+	assertOnly(t, "swift", body, "checkoutFlow")
+}
+
+func TestSwiftMarkedFunctionTakesTheIdentifierAfterFunc(t *testing.T) {
+	body := "@Test\nfunc checkoutFlow(for cart: Cart) async throws {\n}\n"
+
 	assertOnly(t, "swift", body, "checkoutFlow")
 }

@@ -131,16 +131,36 @@ Flags:
 		}
 		req.Only = target
 	}
+	expected := mappedTests(t)
+	if req.Only != nil {
+		expected = len(req.Only.Tests)
+	}
+	bar := newOperationBar(os.Stdout, "run", expected)
+	req.Stdout = bar.writer(os.Stdout)
+	req.Stderr = bar.writer(os.Stderr)
+	req.OnCases = func(cases []report.Case) { bar.setCases(len(cases)) }
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	// The command is only settled once katana has adjusted it, so it is printed
-	// from the result rather than from the configuration.
-	res, err := suite.Run(ctx, cfg, req)
+	// Run each tracked test separately. Apart from making the output easier to
+	// attribute, recording after every invocation means an interrupted run still
+	// leaves the cases that already completed in results.json.
+	var res *suite.Result
+	individual := req.Only == nil && *cases && mappedTests(t) > 0
+	if individual {
+		res, err = runCasesIndividually(ctx, cfg, t, req, bar)
+	} else {
+		res, err = suite.Run(ctx, cfg, req)
+	}
 	if err != nil {
+		bar.stop()
 		return err
 	}
+	if res.Parsed {
+		bar.setCases(len(res.Cases))
+	}
+	bar.stop()
 	for _, note := range res.Notes {
 		fmt.Fprintf(os.Stderr, "%s %s\n", errp.Dim("note:"), note)
 	}
@@ -162,8 +182,10 @@ Flags:
 
 	// Record the outcome for `katana status`. A run that could not be recorded
 	// is still a run that happened, so this never outranks the suite's result.
-	if _, err := res.Record(cfg.Root, t); err != nil {
-		fmt.Fprintf(os.Stderr, "katana: recording test results: %v\n", err)
+	if !individual {
+		if _, err := res.Record(cfg.Root, t); err != nil {
+			fmt.Fprintf(os.Stderr, "katana: recording test results: %v\n", err)
+		}
 	}
 
 	printRunOutcome(out, res)
@@ -188,6 +210,64 @@ Flags:
 		os.Exit(res.ExitCode)
 	}
 	return nil
+}
+
+func runCasesIndividually(ctx context.Context, cfg *config.Config, tr *tracker.Tracker, req suite.Request, bar *operationBar) (*suite.Result, error) {
+	var targets []*suite.Target
+	seen := map[string]bool{}
+	for source, entry := range tr.Entries {
+		for _, name := range entry.Tests {
+			if seen[name] {
+				continue
+			}
+			seen[name] = true
+			targets = append(targets, &suite.Target{Source: source, Output: entry.Output, Tests: []string{name}})
+		}
+	}
+	if len(targets) == 0 {
+		return suite.Run(ctx, cfg, req)
+	}
+
+	var all *suite.Result
+	for _, target := range targets {
+		oneReq := req
+		oneReq.Only = target
+		one, err := suite.Run(ctx, cfg, oneReq)
+		if err != nil {
+			return nil, err
+		}
+		if all == nil {
+			all = one
+			all.Cases = nil
+			all.Output = ""
+			all.ExitCode = 0
+			all.Duration = 0
+			all.Scope = ""
+			all.Narrowed = false
+		}
+		all.Cases = append(all.Cases, one.Cases...)
+		all.Output += one.Output
+		all.Duration += one.Duration
+		if one.ExitCode != 0 {
+			all.ExitCode = one.ExitCode
+		}
+		all.Parsed = all.Parsed || one.Parsed
+		bar.setCases(len(all.Cases))
+		if _, err := one.Record(cfg.Root, tr); err != nil {
+			fmt.Fprintf(os.Stderr, "katana: recording test results: %v\n", err)
+		}
+	}
+	return all, nil
+}
+
+func mappedTests(t *tracker.Tracker) int {
+	seen := map[string]bool{}
+	for _, entry := range t.Entries {
+		for _, name := range entry.Tests {
+			seen[name] = true
+		}
+	}
+	return len(seen)
 }
 
 // printRunOutcome states the result in one line, so a suite whose own output has

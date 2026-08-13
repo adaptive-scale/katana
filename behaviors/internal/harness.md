@@ -8,7 +8,7 @@ katana turns a behavior specification into tests by shelling out to an existing 
 - The list of built-in harness names is returned in alphabetical order: claude, codex, hermes, opencode, pi.
 - The descriptive listing used by the `katana harnesses` command returns the full built-in specs sorted by name.
 - "claude" runs the executable `claude` with the arguments `-p --permission-mode auto`, delivers the prompt on standard input, uses `--model` for model overrides, and is described as "Claude Code CLI, non-interactive print mode, auto permissions".
-- "codex" runs the executable `codex` with the argument `exec`, delivers the prompt as a final positional argument, uses `--model`, and is described as "Codex CLI, non-interactive exec mode".
+- "codex" runs the executable `codex` with the arguments `exec --sandbox workspace-write`, delivers the prompt on standard input, uses `--model`, and is described as "Codex CLI, non-interactive exec mode, workspace-write sandbox".
 - "opencode" runs the executable `opencode` with the argument `run`, delivers the prompt as a final positional argument, uses `--model`, and is described as "opencode CLI, single-shot run mode".
 - "pi" runs the executable `pi` with the argument `-p`, delivers the prompt on standard input, uses `--model`, and is described as "pi CLI, non-interactive prompt mode".
 - "hermes" runs the executable `hermes` with the argument `-p`, delivers the prompt on standard input, uses `--model`, and is described as "hermes CLI, non-interactive prompt mode".
@@ -84,5 +84,6 @@ katana turns a behavior specification into tests by shelling out to an existing 
 
 - A hint is produced when the harness's combined standard output and standard error contains, ignoring case, any of "denied", "not allowed", "no write access", "read-only", "grant write" or "without permission".
 - No hint is produced when none of those markers appears — in particular, the bare word "permission" does not trigger a hint, because harnesses echo back the permission flag katana puts on the command line.
-- For any harness other than "claude", the hint is `hint: the harness looks like it was denied file-write permission; grant it write access to the output path, e.g. via harness.args in katana.yaml`.
+- For any harness other than "claude" and "codex", the hint is `hint: the harness looks like it was denied file-write permission; grant it write access to the output path, e.g. via harness.args in katana.yaml`.
 - For the "claude" harness, the hint is `hint: the harness looks like it was denied file-write permission; run it with write access, e.g. harness.args: ["-p", "--permission-mode", "auto"] in katana.yaml`.
+- For the "codex" harness, the hint is `hint: the harness looks like it was denied file-write permission; run it with a writable sandbox, e.g. harness.args: ["exec", "--sandbox", "workspace-write"] in katana.yaml`.

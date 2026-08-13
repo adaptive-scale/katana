@@ -344,17 +344,15 @@ func TestAnEmptyTestIndexLeavesTheHashesThatDecideStalenessUntouched(t *testing.
 }
 
 func TestTheStoredCountIsTheLengthOfTheTestIndex(t *testing.T) {
-	tr := loadTracker(t, t.TempDir())
-
 	e := checkoutEntry()
 	e.Tests = []string{"TestOne", "TestTwo", "TestThree"}
 	// A count supplied by the caller is replaced with the true length.
 	e.TestCount = 99
-	tr.Record(e)
+	root := recorded(t, e)
 
-	got, ok := tr.Get(e.Source)
+	got, ok := loadTracker(t, root).Get(e.Source)
 	if !ok {
-		t.Fatal("the entry was not recorded")
+		t.Fatal("the entry did not survive the round trip")
 	}
 	if got.TestCount != 3 {
 		t.Errorf("TestCount = %d, want 3, the length of the index", got.TestCount)

@@ -1,9 +1,12 @@
 package suite
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"testing"
@@ -12,9 +15,25 @@ import (
 	"github.com/adaptive-scale/katana/internal/config"
 	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/plan"
+	"github.com/adaptive-scale/katana/internal/report"
 	"github.com/adaptive-scale/katana/internal/results"
 	"github.com/adaptive-scale/katana/internal/tracker"
 )
+
+func TestCaseObserverReportsCasesAsTheyComplete(t *testing.T) {
+	var dst bytes.Buffer
+	var counts []int
+	o := &caseObserver{framework: "go", onCases: func(cases []report.Case) {
+		counts = append(counts, len(cases))
+	}}
+	w := o.tee(&dst)
+	fmt.Fprintln(w, "--- PASS: TestOne (0.00s)")
+	fmt.Fprintln(w, "--- PASS: TestTwo (0.00s)")
+
+	if !reflect.DeepEqual(counts, []int{1, 2}) {
+		t.Fatalf("incremental counts = %v, want [1 2]", counts)
+	}
+}
 
 // TestRunRecordsWhatHappened is the contract every caller depends on: the suite
 // runs, its output is read case by case, and the record left behind is what

@@ -583,7 +583,7 @@ katana harnesses
 ```
 NAME      INSTALLED                  INVOCATION                        PROMPT VIA  DESCRIPTION
 claude    /Users/you/.local/bin/...  claude -p --permission-mode auto  stdin       Claude Code CLI, non-interactive print mode, auto permissions
-codex     no                         codex exec                        arg         Codex CLI, non-interactive exec mode
+codex     no                         codex exec --sandbox workspace-write stdin   Codex CLI, non-interactive exec mode, workspace-write sandbox
 hermes    no                         hermes -p                         stdin       hermes CLI, non-interactive prompt mode
 opencode  /Users/you/.opencode/...   opencode run                      arg         opencode CLI, single-shot run mode
 pi        no                         pi -p                             stdin       pi CLI, non-interactive prompt mode
@@ -603,8 +603,8 @@ project — a changed flag is a config edit, not a katana release:
 harness:
   name: codex
   command: codex
-  args: ["exec", "--full-auto"]
-  prompt: arg
+  args: ["exec", "--sandbox", "workspace-write"]
+  prompt: stdin
 ```
 
 Setting `harness.command` also lets you point katana at an agent CLI it has

@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/adaptive-scale/katana/internal/config"
@@ -51,6 +52,9 @@ type Request struct {
 	// UI leaves it nil: its own terminal is in raw mode and is not the test
 	// runner's to read.
 	Stdin io.Reader
+	// OnCases is called whenever another completed case can be recovered from
+	// the runner's streaming output.
+	OnCases func([]report.Case)
 }
 
 // Result is what a run produced.
@@ -153,8 +157,13 @@ func Run(ctx context.Context, cfg *config.Config, req Request) (*Result, error) 
 	// The suite output is copied as it streams, so the terminal is unchanged and
 	// katana still has the runner's own words to recover per-case results from.
 	rec := &report.Recorder{}
-	cmd.Stdout = rec.Tee(orDiscard(req.Stdout))
-	cmd.Stderr = rec.Tee(orDiscard(req.Stderr))
+	stdout, stderr := rec.Tee(filterNoTests(orDiscard(req.Stdout))), rec.Tee(filterNoTests(orDiscard(req.Stderr)))
+	if req.OnCases != nil {
+		observer := &caseObserver{framework: cfg.Defaults.Framework, onCases: req.OnCases}
+		stdout, stderr = observer.tee(stdout), observer.tee(stderr)
+	}
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
 
 	res.StartedAt = time.Now()
 	runErr := cmd.Run()
@@ -172,6 +181,77 @@ func Run(ctx context.Context, cfg *config.Config, req Request) (*Result, error) 
 	res.Cases = report.Parse(cfg.Defaults.Framework, res.Output)
 	res.Parsed = len(res.Cases) > 0
 	return res, nil
+}
+
+// noTestsFilter hides the noisy three-line block emitted by `go test -v` when
+// an individually selected test is not present in a package. The recorder
+// still receives the unfiltered output, so reports and parsing retain it.
+func filterNoTests(w io.Writer) io.Writer { return &noTestsFilter{w: w} }
+
+type noTestsFilter struct {
+	w       io.Writer
+	pending string
+}
+
+func (f *noTestsFilter) Write(p []byte) (int, error) {
+	s := f.pending + string(p)
+	lines := strings.SplitAfter(s, "\n")
+	f.pending = ""
+	if !strings.HasSuffix(s, "\n") {
+		f.pending = lines[len(lines)-1]
+		lines = lines[:len(lines)-1]
+	}
+	for i, line := range lines {
+		trim := strings.TrimSpace(line)
+		if strings.Contains(trim, "testing: warning: no tests to run") || strings.HasSuffix(trim, "[no tests to run]") {
+			if f.pending == "PASS" || (i > 0 && strings.TrimSpace(lines[i-1]) == "PASS") {
+				continue
+			}
+			continue
+		}
+		// A standalone PASS is the package-level companion to the no-tests
+		// warning in verbose Go output. Katana prints its own final verdict.
+		if trim == "PASS" {
+			continue
+		}
+		if _, err := io.WriteString(f.w, line); err != nil {
+			return 0, err
+		}
+	}
+	return len(p), nil
+}
+
+type caseObserver struct {
+	mu        sync.Mutex
+	framework string
+	onCases   func([]report.Case)
+	buf       strings.Builder
+	count     int
+}
+
+func (o *caseObserver) tee(w io.Writer) io.Writer { return &observedWriter{o: o, w: w} }
+
+type observedWriter struct {
+	o *caseObserver
+	w io.Writer
+}
+
+func (w *observedWriter) Write(p []byte) (int, error) {
+	n, err := w.w.Write(p)
+	w.o.observe(p[:n])
+	return n, err
+}
+
+func (o *caseObserver) observe(p []byte) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	o.buf.Write(p)
+	cases := report.Parse(o.framework, o.buf.String())
+	if len(cases) <= o.count {
+		return
+	}
+	o.count = len(cases)
+	o.onCases(append([]report.Case(nil), cases...))
 }
 
 // Record writes the run to the results file `katana status` reads and appends it

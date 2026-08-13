@@ -770,6 +770,54 @@ func TestThePromptHasNoExistingTestsSectionWhenThereAreNone(t *testing.T) {
 	}
 }
 
+func TestTheGenerationPromptListsTakenNamesAndForbidsRedeclaringThem(t *testing.T) {
+	req := request(outputPath)
+	req.Reserved = []string{"TestTheCartStartsEmpty", "TestTheCartTotalIncludesTax"}
+
+	p := generator.BuildPrompt(req)
+
+	for _, name := range req.Reserved {
+		if !strings.Contains(p, "- "+name) {
+			t.Errorf("the taken name %q was not listed:\n%s", name, p)
+		}
+	}
+	for _, want := range []string{
+		"Do not declare any of them in this file",
+		"In languages where a directory is one namespace",
+		"a redeclared name stops the whole package compiling",
+		"every test in every file beside it silently stops running",
+	} {
+		if !strings.Contains(p, want) {
+			t.Errorf("prompt is missing %q:\n%s", want, p)
+		}
+	}
+}
+
+func TestTheGenerationPromptPreservesOverlappingBehaviorsWithPartSpecificNames(t *testing.T) {
+	req := request(outputPath)
+	req.Reserved = []string{"TestCheckoutRejectsAnExpiredCode"}
+
+	p := generator.BuildPrompt(req)
+
+	for _, want := range []string{
+		"Two specifications often describe the same rule about different parts of the product",
+		"Where that happens, still write the test",
+		"name it for the part of the product this specification is about, not for the rule alone",
+	} {
+		if !strings.Contains(p, want) {
+			t.Errorf("prompt is missing %q:\n%s", want, p)
+		}
+	}
+}
+
+func TestTheGenerationPromptOmitsTakenNamesWhenNoneAreGiven(t *testing.T) {
+	p := generator.BuildPrompt(request(outputPath))
+
+	if strings.Contains(p, "Test names already taken") {
+		t.Errorf("prompt has a taken-names section despite receiving no names:\n%s", p)
+	}
+}
+
 func TestThePromptIncludesTheSpecificationAndThePathItCameFrom(t *testing.T) {
 	p := generator.BuildPrompt(request(outputPath))
 
@@ -792,6 +840,16 @@ func TestThePromptRequiresOneTestPerBehaviorNamedAfterIt(t *testing.T) {
 		if !strings.Contains(p, want) {
 			t.Errorf("prompt is missing %q:\n%s", want, p)
 		}
+	}
+}
+
+func TestTheGenerationPromptRequiresPackageWideTestNameUniqueness(t *testing.T) {
+	// No reserved names are needed for this rule: every generation must still
+	// protect against collisions with files already sharing the target package.
+	p := generator.BuildPrompt(request(outputPath))
+
+	if want := "Every test name must be unique across the files that share this one's package or directory, not merely within this file"; !strings.Contains(p, want) {
+		t.Errorf("prompt is missing %q:\n%s", want, p)
 	}
 }
 

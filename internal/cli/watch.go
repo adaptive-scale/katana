@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -32,17 +33,62 @@ type testWatcher struct {
 	language string
 	before   string
 
-	mu   sync.Mutex
-	w    io.Writer
-	seen map[string]bool
+	mu       sync.Mutex
+	w        io.Writer
+	seen     map[string]bool
+	onChange func(int)
 
 	done    chan struct{}
 	stopped chan struct{}
 }
 
+// watchStatements counts behavior statements as a discovery harness writes
+// them. The returned stop function performs a final sweep before returning.
+func watchStatements(path string, onNew func()) func() {
+	before, _ := os.ReadFile(path)
+	done := make(chan struct{})
+	stopped := make(chan struct{})
+	seen := map[string]bool{}
+	sweep := func() {
+		body, err := os.ReadFile(path)
+		if err != nil || string(body) == string(before) {
+			return
+		}
+		for i, line := range strings.Split(string(body), "\n") {
+			t := strings.TrimSpace(line)
+			if !strings.HasPrefix(t, "- ") && !strings.HasPrefix(t, "* ") {
+				continue
+			}
+			key := fmt.Sprintf("%d:%s", i, t)
+			if !seen[key] {
+				seen[key] = true
+				onNew()
+			}
+		}
+	}
+	go func() {
+		defer close(stopped)
+		tick := time.NewTicker(testPollInterval)
+		defer tick.Stop()
+		for {
+			select {
+			case <-done:
+				return
+			case <-tick.C:
+				sweep()
+			}
+		}
+	}()
+	return func() {
+		close(done)
+		<-stopped
+		sweep()
+	}
+}
+
 // watchTests reports test cases to w as they appear in the file at path. The
 // watcher must be stopped before anything else writes to w.
-func watchTests(w io.Writer, path, language string) *testWatcher {
+func watchTests(w io.Writer, path, language string, onChange ...func(int)) *testWatcher {
 	before, _ := os.ReadFile(path)
 	t := &testWatcher{
 		path:     path,
@@ -52,6 +98,9 @@ func watchTests(w io.Writer, path, language string) *testWatcher {
 		seen:     map[string]bool{},
 		done:     make(chan struct{}),
 		stopped:  make(chan struct{}),
+	}
+	if len(onChange) > 0 {
+		t.onChange = onChange[0]
 	}
 	go t.loop()
 	return t
@@ -102,6 +151,9 @@ func (t *testWatcher) sweep() {
 		}
 		t.seen[name] = true
 		fmt.Fprintf(t.w, "  test     %s\n", name)
+		if t.onChange != nil {
+			t.onChange(len(t.seen))
+		}
 	}
 }
 

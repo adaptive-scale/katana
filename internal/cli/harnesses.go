@@ -54,8 +54,8 @@ the upstream tool. If a harness changes its flags, override them per project:
   harness:
     name: codex
     command: codex
-    args: ["exec", "--full-auto"]
-    prompt: arg
+    args: ["exec", "--sandbox", "workspace-write"]
+    prompt: stdin
 `)
 	return nil
 }
