@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/adaptive-scale/katana/internal/coverage"
 	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/report"
 	"github.com/adaptive-scale/katana/internal/results"
@@ -332,5 +333,35 @@ func TestStatusTotalsCountRunsTheHistoryHasDropped(t *testing.T) {
 	}
 	if want := fmt.Sprintf("%d run(s), ", history.Max); !strings.Contains(out, want) {
 		t.Errorf("the history line should still report the window of %d runs:\n%s", history.Max, out)
+	}
+}
+
+func TestStatusShowsCoverageStatisticsAndTrend(t *testing.T) {
+	root := fakeProject(t, 1)
+	h := &coverage.History{Version: coverage.HistoryVersion}
+	now := time.Now()
+	h.Add(coverage.Run{
+		RanAt: now.Add(-time.Hour), Format: coverage.FormatGo,
+		Files: []coverage.File{{Path: "a.go", Statements: 10, Covered: 5}},
+	})
+	h.Add(coverage.Run{
+		RanAt: now, Format: coverage.FormatGo,
+		Files: []coverage.File{{Path: "a.go", Statements: 10, Covered: 8}},
+	})
+	if err := h.SaveHistory(root); err != nil {
+		t.Fatal(err)
+	}
+
+	out := captureStdout(t, func() {
+		if err := runStatus([]string{"--dir", root, "--color", "never"}); err != nil {
+			t.Fatalf("status: %v", err)
+		}
+	})
+	for _, want := range []string{
+		"coverage", "latest 80.0%", "2 run(s)", "avg 65.0%", "min 50.0%", "max 80.0%", "+30.0 points",
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("status output is missing %q:\n%s", want, out)
+		}
 	}
 }

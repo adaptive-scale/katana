@@ -1,578 +1,24 @@
 {
   "version": 1,
   "totals": {
-    "runs": 52,
-    "passed": 37,
-    "failed": 15,
-    "pass": 9116,
-    "fail": 47,
-    "skip": 37,
-    "millis": 176072,
+    "runs": 2742,
+    "passed": 2180,
+    "failed": 562,
+    "pass": 14188,
+    "fail": 602,
+    "skip": 64,
+    "millis": 2880981,
     "first_ran_at": "2026-08-11T14:05:16.005183Z",
-    "last_ran_at": "2026-08-13T13:41:23.435803Z"
+    "last_ran_at": "2026-08-13T16:53:10.941995Z"
   },
   "runs": [
     {
-      "ran_at": "2026-08-11T14:05:52.345392Z",
-      "command": "go test ./... -v",
-      "exit_code": 1,
-      "millis": 156,
-      "per_case": true,
-      "pass": 262,
-      "fail": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 100
-        },
-        {
-          "source": "behaviors/katana.md",
-          "pass": 10
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 46
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 57
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 135
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 74
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 123
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-11T14:09:31.312744Z",
-      "command": "go test ./... -v",
-      "exit_code": 1,
-      "millis": 174,
-      "per_case": true,
-      "pass": 262,
-      "fail": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 100
-        },
-        {
-          "source": "behaviors/katana.md",
-          "pass": 10
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 123
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 46
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 57
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 135
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 74
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-11T14:20:22.324702Z",
-      "command": "go test ./... -v",
-      "exit_code": 1,
-      "millis": 26493,
-      "per_case": true,
-      "pass": 1591,
-      "fail": 11,
-      "skip": 7,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/fence.md",
-          "pass": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "pass": 45,
-          "fail": 1
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "pass": 55,
-          "fail": 1,
-          "skip": 1
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "pass": 74
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 44
-        },
-        {
-          "source": "behaviors/katana.md",
-          "pass": 10
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "pass": 135
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "pass": 97,
-          "skip": 3
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 123
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-11T14:22:51.977298Z",
-      "command": "go test ./... -v",
-      "exit_code": 1,
-      "millis": 18049,
-      "per_case": true,
-      "pass": 1593,
-      "fail": 10,
-      "skip": 7,
-      "behaviors": [
-        {
-          "source": "behaviors/katana.md",
-          "pass": 10
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "pass": 45,
-          "fail": 1
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "pass": 135
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "pass": 74
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "pass": 97,
-          "skip": 3
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 123
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "pass": 34
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "pass": 55,
-          "fail": 1,
-          "skip": 1
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-11T14:23:55.655789Z",
-      "command": "go test ./... -v",
-      "exit_code": 1,
-      "millis": 17770,
-      "per_case": true,
-      "pass": 1592,
-      "fail": 11,
-      "skip": 7,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/testindex.md",
-          "pass": 74
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 123
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "pass": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "pass": 45,
-          "fail": 1
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "pass": 97,
-          "skip": 3
-        },
-        {
-          "source": "behaviors/katana.md",
-          "pass": 10
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "pass": 55,
-          "fail": 1,
-          "skip": 1
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "pass": 135
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-11T14:36:31.904877Z",
-      "command": "go test ./... -v",
-      "exit_code": 1,
-      "millis": 27328,
-      "per_case": true,
-      "pass": 1592,
-      "fail": 11,
-      "skip": 7,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/testindex.md",
-          "pass": 74
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "pass": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "pass": 45,
-          "fail": 1
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "pass": 135
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "pass": 97,
-          "skip": 3
-        },
-        {
-          "source": "behaviors/katana.md",
-          "pass": 10
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 123
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "pass": 55,
-          "fail": 1,
-          "skip": 1
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-12T23:02:58.153029Z",
-      "command": "go test ./... -v -run '^(TestABacktickLineShorterThanTheOpeningFenceIsKeptAsContent|TestABlockClosesAtALineOfBackticksAsLongAsTheOpening|TestABlockOpenedOnTheVeryLastLineIsDropped|TestABlockOpensAtALineBeginningWithThreeOrMoreBackticks|TestAClosingFenceIsRecognisedIgnoringSurroundingWhitespace|TestALineWithTextAfterItsBackticksIsKeptAsContent|TestALongerClosingFenceStillClosesTheBlock|TestASingleLineBlockHasNoTrailingNewline|TestAnEmptyBlockIsReportedAsABlockWithEmptyContent|TestAnOpeningFenceIsRecognisedIgnoringSurroundingWhitespace|TestAnUnclosedBlockCarriesEveryLineToTheEndOfTheText|TestBlocksReturnsEveryFencedBlockInTheOrderTheyAppear|TestContentLinesKeepTheirOriginalLeadingAndTrailingWhitespace|TestEmptyTextReturnsNoBlocks|TestInfoTextOnTheOpeningLineIsDiscarded|TestLargestComparesTheNumberOfCharactersNotLines|TestLargestKeepsTheFirstOfTwoEqualLengthBlocks|TestLargestOfASingleEmptyBlockIsThatEmptyContent|TestLargestOfTextWithNoFencedBlockIsEmpty|TestLargestTakesTheLongestBlockAsTheFile|TestScanningContinuesAfterABlockCloses|TestTextOutsideAFencedBlockIsNotReturned|TestTextWithNoFencedBlockReturnsNoBlocks|TestTheClosingFenceLineIsNotPartOfTheContent|TestTheOpeningFenceLineIsNotPartOfTheContent|TestWrapDropsTrailingNewlinesFromTheContent|TestWrapKeepsLeadingNewlines|TestWrapLengthensForABacktickRunInTheMiddleOfALine|TestWrapLengthensTheFenceUntilItIsAbsentFromTheContent|TestWrapOfEmptyContentIsAFenceAroundOneEmptyLine|TestWrapPutsTheFenceLinesOnTheirOwnLines|TestWrapUsesThreeBackticksWhenTheContentHasNoRunOfThree|TestWrappedContentContainingAFenceComesBackWhole|TestWrappedTextEndsWithTheClosingFenceAndNoNewline)$'",
+      "ran_at": "2026-08-13T16:53:04.539843Z",
+      "command": "go test ./... -v -run '^(TestACommentLineNeverUsesUpAMarkersReachInPHP)$'",
       "exit_code": 0,
-      "millis": 4460,
+      "millis": 128,
       "per_case": true,
-      "scope": "behaviors/internal/fence.md",
-      "pass": 44,
-      "behaviors": [
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "pass": 34
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 135
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 74
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 123
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 46
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 57
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 100
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-12T23:14:26.173443Z",
-      "command": "go test ./... -v",
-      "exit_code": 0,
-      "millis": 21115,
-      "per_case": true,
-      "pass": 1627,
-      "skip": 9,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 125
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "pass": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "pass": 76
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 44
-        },
-        {
-          "source": "behaviors/katana.md",
-          "pass": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "pass": 4
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "pass": 34
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "pass": 57,
-          "skip": 1
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "pass": 139
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "pass": 97,
-          "skip": 5
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:34:55.004448Z",
-      "command": "go test ./... -v -run '^(TestClaudeHarnessConfigurationIsSupported)$'",
-      "exit_code": 0,
-      "per_case": true,
-      "behaviors": [
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:34:59.005817Z",
-      "command": "go test ./... -v -run '^(TestCodexHarnessConfigurationIsSupported)$'",
-      "exit_code": 0,
-      "millis": 1972,
-      "per_case": true,
-      "scope": "behaviors/example.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "pass": 1,
-          "unknown": 3
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:35:00.984089Z",
-      "command": "go test ./... -v -run '^(TestOpencodeHarnessConfigurationIsSupported)$'",
-      "exit_code": 0,
-      "millis": 2065,
-      "per_case": true,
-      "scope": "behaviors/example.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "pass": 1,
-          "unknown": 3
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:35:03.053889Z",
-      "command": "go test ./... -v -run '^(TestHermesHarnessConfigurationIsSupported)$'",
-      "exit_code": 0,
-      "millis": 2018,
-      "per_case": true,
-      "scope": "behaviors/example.md",
+      "scope": "behaviors/internal/testindex.md",
       "pass": 1,
       "behaviors": [
         {
@@ -580,394 +26,385 @@
           "unknown": 58
         },
         {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
         },
         {
           "source": "behaviors/internal/update.md",
           "unknown": 102
         },
         {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
         },
         {
           "source": "behaviors/internal/testindex.md",
-          "unknown": 76
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
         },
         {
           "source": "behaviors/katana.md",
           "unknown": 10
         },
         {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
           "source": "behaviors/example.md",
-          "pass": 1,
-          "unknown": 3
+          "unknown": 4
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:04.672353Z",
+      "command": "go test ./... -v -run '^(TestGoRustAndSwiftTreatADoubleSlashLineAsAComment)$'",
+      "exit_code": 0,
+      "millis": 128,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 4,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
         },
         {
           "source": "behaviors/internal/config.md",
           "unknown": 125
         },
         {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
           "source": "behaviors/internal/fence.md",
           "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
         }
       ]
     },
     {
-      "ran_at": "2026-08-13T13:35:05.078078Z",
-      "command": "go test ./... -v -run '^(TestFindReturnsTheConfigInTheStartingDirectory)$'",
+      "ran_at": "2026-08-13T16:53:04.805255Z",
+      "command": "go test ./... -v -run '^(TestJavaKotlinCSharpAndJavaScriptTreatSlashAndStarLinesAsComments)$'",
       "exit_code": 0,
-      "millis": 1995,
+      "millis": 127,
       "per_case": true,
-      "scope": "behaviors/internal/config.md",
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 6,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:04.936402Z",
+      "command": "go test ./... -v -run '^(TestPythonAndRubyTreatAHashLineAsAComment)$'",
+      "exit_code": 0,
+      "millis": 125,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 3,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:05.065952Z",
+      "command": "go test ./... -v -run '^(TestPHPTreatsHashSlashAndStarLinesAsComments)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
       "pass": 1,
       "behaviors": [
         {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
         },
         {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 1,
-          "unknown": 124
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:35:07.07895Z",
-      "command": "go test ./... -v -run '^(TestFindWalksUpwardsToAnAncestorDirectory)$'",
-      "exit_code": 0,
-      "millis": 1983,
-      "per_case": true,
-      "scope": "behaviors/internal/config.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 1,
-          "unknown": 124
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
         },
         {
           "source": "behaviors/internal/report.md",
           "unknown": 139
         },
         {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:35:09.068401Z",
-      "command": "go test ./... -v -run '^(TestFindReturnsTheFirstConfigFoundWalkingUpwards)$'",
-      "exit_code": 0,
-      "millis": 1990,
-      "per_case": true,
-      "scope": "behaviors/internal/config.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 1,
-          "unknown": 124
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:35:11.064782Z",
-      "command": "go test ./... -v -run '^(TestFindResolvesARelativeStartingDirectory)$'",
-      "exit_code": 0,
-      "millis": 2072,
-      "per_case": true,
-      "scope": "behaviors/internal/config.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
         },
         {
           "source": "behaviors/katana.md",
           "unknown": 10
         },
         {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 1,
-          "unknown": 124
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:35:13.141182Z",
-      "command": "go test ./... -v -run '^(TestFindReportsTheStartingDirectoryWhenNoConfigExists)$'",
-      "exit_code": -1,
-      "millis": 1478,
-      "scope": "behaviors/internal/config.md",
-      "behaviors": [
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
           "source": "behaviors/internal/generator.md",
           "unknown": 50
         },
         {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/katana.md",
+          "source": "behaviors/internal/tui.md",
           "unknown": 10
         },
         {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
           "source": "behaviors/example.md",
           "unknown": 4
         },
         {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:38:50.470283Z",
-      "command": "go test ./... -v -run '^(TestGenerationProducesTheTestFileAtTheRequestedPath)$'",
-      "exit_code": 0,
-      "per_case": true,
-      "behaviors": [
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
         {
-          "source": "behaviors/example.md",
-          "unknown": 4
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
         },
         {
           "source": "behaviors/internal/config.md",
           "unknown": 125
         },
         {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
         },
         {
           "source": "behaviors/internal/fence.md",
           "unknown": 34
         },
         {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
           "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:38:52.605601Z",
-      "command": "go test ./... -v -run '^(TestForwardSlashesInTheOutputPathBecomeDirectoriesUnderTheProjectRoot)$'",
-      "exit_code": 0,
-      "millis": 2144,
-      "per_case": true,
-      "scope": "behaviors/internal/generator.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/generator.md",
           "pass": 1,
-          "unknown": 49
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
+          "unknown": 75
         },
         {
           "source": "behaviors/internal/tracker.md",
@@ -976,213 +413,92 @@
       ]
     },
     {
-      "ran_at": "2026-08-13T13:38:54.750983Z",
-      "command": "go test ./... -v -run '^(TestExistingTestsAtTheOutputPathAreGivenToTheHarnessToUpdate)$'",
+      "ran_at": "2026-08-13T16:53:05.196784Z",
+      "command": "go test ./... -v -run '^(TestALineBeginningWithHashBracketIsNotAComment)$'",
       "exit_code": 0,
-      "millis": 2139,
+      "millis": 126,
       "per_case": true,
-      "scope": "behaviors/internal/generator.md",
-      "pass": 1,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 3,
       "behaviors": [
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
         {
           "source": "behaviors/example.md",
           "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "pass": 1,
-          "unknown": 49
         },
         {
           "source": "behaviors/internal/harness.md",
           "unknown": 58
         },
         {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
           "source": "behaviors/internal/tracker.md",
           "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
         },
         {
           "source": "behaviors/katana.md",
           "unknown": 10
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:38:56.891354Z",
-      "command": "go test ./... -v -run '^(TestWithNoFileAtTheOutputPathTheHarnessIsAskedToCreateItFresh)$'",
-      "exit_code": 0,
-      "millis": 2191,
-      "per_case": true,
-      "scope": "behaviors/internal/generator.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "pass": 1,
-          "unknown": 49
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:38:59.084189Z",
-      "command": "go test ./... -v -run '^(TestThePromptObserverSeesThePromptBeforeTheHarnessRuns)$'",
-      "exit_code": -1,
-      "millis": 177,
-      "scope": "behaviors/internal/generator.md",
-      "behaviors": [
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
         },
         {
           "source": "behaviors/internal/generator.md",
           "unknown": 50
         },
         {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/katana.md",
+          "source": "behaviors/internal/tui.md",
           "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
         }
       ]
     },
     {
-      "ran_at": "2026-08-13T13:39:03.627738Z",
-      "command": "go test ./... -v -run '^(TestTheRecordIsTrackerJsonInsideTheKatanaDirectory)$'",
+      "ran_at": "2026-08-13T16:53:05.3271Z",
+      "command": "go test ./... -v -run '^(TestGoListsTestFuzzAndExampleFunctions)$'",
       "exit_code": 0,
+      "millis": 129,
       "per_case": true,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:39:05.67587Z",
-      "command": "go test ./... -v -run '^(TestAProjectWithNoTrackerFileLoadsAsAnEmptyRecord)$'",
-      "exit_code": 0,
-      "millis": 2063,
-      "per_case": true,
-      "scope": "behaviors/internal/tracker.md",
+      "scope": "behaviors/internal/testindex.md",
       "pass": 1,
       "behaviors": [
         {
@@ -1190,51 +506,79 @@
           "unknown": 50
         },
         {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 1,
-          "unknown": 43
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/katana.md",
+          "source": "behaviors/internal/tui.md",
           "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
         },
         {
           "source": "behaviors/example.md",
           "unknown": 4
         },
         {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
           "source": "behaviors/internal/fence.md",
           "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
         }
       ]
     },
     {
-      "ran_at": "2026-08-13T13:39:07.740992Z",
-      "command": "go test ./... -v -run '^(TestTheSchemaVersionThisKatanaWritesIsOne)$'",
+      "ran_at": "2026-08-13T16:53:05.460006Z",
+      "command": "go test ./... -v -run '^(TestGoIgnoresAnIndentedFuncDeclaration)$'",
       "exit_code": 0,
-      "millis": 2036,
+      "millis": 126,
       "per_case": true,
-      "scope": "behaviors/internal/tracker.md",
+      "scope": "behaviors/internal/testindex.md",
       "pass": 1,
       "behaviors": [
         {
@@ -1242,193 +586,145 @@
           "unknown": 50
         },
         {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 1,
-          "unknown": 43
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
         },
         {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
         },
         {
           "source": "behaviors/internal/harness.md",
           "unknown": 58
         },
         {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
           "source": "behaviors/internal/report.md",
           "unknown": 139
         },
         {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
         },
         {
           "source": "behaviors/katana.md",
           "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
         }
       ]
     },
     {
-      "ran_at": "2026-08-13T13:39:09.778616Z",
-      "command": "go test ./... -v -run '^(TestRecordingTwiceForOneSourceReplacesTheEarlierRecord)$'",
+      "ran_at": "2026-08-13T16:53:05.590893Z",
+      "command": "go test ./... -v -run '^(TestGoIgnoresAFuncWithAReceiverInFrontOfItsName)$'",
       "exit_code": 0,
-      "millis": 2054,
+      "millis": 126,
       "per_case": true,
-      "scope": "behaviors/internal/tracker.md",
+      "scope": "behaviors/internal/testindex.md",
       "pass": 1,
       "behaviors": [
         {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
         },
         {
           "source": "behaviors/katana.md",
           "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
         },
         {
           "source": "behaviors/internal/generator.md",
           "unknown": 50
         },
         {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 1,
-          "unknown": 43
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:39:11.834196Z",
-      "command": "go test ./... -v -run '^(TestAnEntryHoldsEveryRecordedFactAboutAGeneration)$'",
-      "exit_code": 0,
-      "millis": 2085,
-      "per_case": true,
-      "scope": "behaviors/internal/tracker.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/katana.md",
+          "source": "behaviors/internal/tui.md",
           "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
         },
         {
           "source": "behaviors/example.md",
           "unknown": 4
         },
         {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
         },
         {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 1,
-          "unknown": 43
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:39:13.921145Z",
-      "command": "go test ./... -v -run '^(TestTheKatanaVersionIsRecordedWhenItIsSet)$'",
-      "exit_code": 0,
-      "millis": 2015,
-      "per_case": true,
-      "scope": "behaviors/internal/tracker.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
         },
         {
           "source": "behaviors/internal/update.md",
           "unknown": 102
         },
         {
-          "source": "behaviors/katana.md",
-          "unknown": 10
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
         },
         {
-          "source": "behaviors/example.md",
-          "unknown": 4
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
         },
         {
           "source": "behaviors/internal/fence.md",
           "unknown": 34
         },
         {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
         },
         {
           "source": "behaviors/internal/tracker.md",
-          "pass": 1,
-          "unknown": 43
+          "unknown": 44
         },
         {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
         },
         {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
         },
         {
           "source": "behaviors/internal/report.md",
@@ -1437,168 +733,92 @@
       ]
     },
     {
-      "ran_at": "2026-08-13T13:39:15.93818Z",
-      "command": "go test ./... -v -run '^(TestAnEmptyKatanaVersionIsLeftOutOfTheSavedFile)$'",
+      "ran_at": "2026-08-13T16:53:05.721409Z",
+      "command": "go test ./... -v -run '^(TestGoNeverListsTestMain)$'",
       "exit_code": 0,
-      "millis": 2031,
+      "millis": 126,
       "per_case": true,
-      "scope": "behaviors/internal/tracker.md",
+      "scope": "behaviors/internal/testindex.md",
       "pass": 1,
       "behaviors": [
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
         {
           "source": "behaviors/internal/fence.md",
           "unknown": 34
         },
         {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
         },
         {
           "source": "behaviors/internal/tracker.md",
-          "pass": 1,
-          "unknown": 43
+          "unknown": 44
         },
         {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
         },
         {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
         },
         {
           "source": "behaviors/internal/report.md",
           "unknown": 139
         },
         {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
         },
         {
           "source": "behaviors/katana.md",
           "unknown": 10
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:39:17.970885Z",
-      "command": "go test ./... -v -run '^(TestTheTestIndexKeepsTheOrderTheCasesAppearInTheGeneratedFile)$'",
-      "exit_code": 0,
-      "millis": 2040,
-      "per_case": true,
-      "scope": "behaviors/internal/tracker.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
         },
         {
           "source": "behaviors/internal/generator.md",
           "unknown": 50
         },
         {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 1,
-          "unknown": 43
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:39:20.012213Z",
-      "command": "go test ./... -v -run '^(TestAnEmptyTestIndexLeavesTheHashesThatDecideStalenessUntouched)$'",
-      "exit_code": 0,
-      "millis": 2078,
-      "per_case": true,
-      "scope": "behaviors/internal/tracker.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 1,
-          "unknown": 43
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/katana.md",
+          "source": "behaviors/internal/tui.md",
           "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
         },
         {
           "source": "behaviors/example.md",
           "unknown": 4
         },
         {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
         }
       ]
     },
     {
-      "ran_at": "2026-08-13T13:39:22.092044Z",
-      "command": "go test ./... -v -run '^(TestTheStoredCountIsTheLengthOfTheTestIndex)$'",
+      "ran_at": "2026-08-13T16:53:05.852355Z",
+      "command": "go test ./... -v -run '^(TestGoHasNoMarker)$'",
       "exit_code": 0,
-      "millis": 2070,
+      "millis": 127,
       "per_case": true,
-      "scope": "behaviors/internal/tracker.md",
+      "scope": "behaviors/internal/testindex.md",
       "pass": 1,
       "behaviors": [
         {
@@ -1606,138 +826,225 @@
           "unknown": 125
         },
         {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
         },
         {
           "source": "behaviors/internal/fence.md",
           "unknown": 34
         },
         {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
           "source": "behaviors/internal/generator.md",
           "unknown": 50
         },
         {
-          "source": "behaviors/internal/tracker.md",
-          "pass": 1,
-          "unknown": 43
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
         }
       ]
     },
     {
-      "ran_at": "2026-08-13T13:39:24.163427Z",
-      "command": "go test ./... -v -run '^(TestAnEmptyTestIndexLeavesBothTheIndexAndTheCountOutOfTheSavedFile)$'",
+      "ran_at": "2026-08-13T16:53:05.983521Z",
+      "command": "go test ./... -v -run '^(TestPythonListsFunctionsNamedWithATestPrefix)$'",
       "exit_code": 0,
-      "millis": 2036,
+      "millis": 125,
       "per_case": true,
-      "scope": "behaviors/internal/tracker.md",
+      "scope": "behaviors/internal/testindex.md",
       "pass": 1,
       "behaviors": [
         {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
         },
         {
           "source": "behaviors/internal/report.md",
           "unknown": 139
         },
         {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
         },
         {
           "source": "behaviors/katana.md",
           "unknown": 10
         },
         {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
           "source": "behaviors/example.md",
           "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
         },
         {
           "source": "behaviors/internal/fence.md",
           "unknown": 34
         },
         {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
         },
         {
           "source": "behaviors/internal/tracker.md",
-          "pass": 1,
-          "unknown": 43
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
         }
       ]
     },
     {
-      "ran_at": "2026-08-13T13:39:26.200744Z",
-      "command": "go test ./... -v -run '^(TestATrackerThatIsNotValidJsonIsRejected)$'",
-      "exit_code": -1,
-      "millis": 26,
-      "scope": "behaviors/internal/tracker.md",
+      "ran_at": "2026-08-13T16:53:06.113087Z",
+      "command": "go test ./... -v -run '^(TestPythonListsAnIndentedDeclaration)$'",
+      "exit_code": 0,
+      "millis": 127,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
       "behaviors": [
         {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
         },
         {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
         },
         {
           "source": "behaviors/internal/report.md",
           "unknown": 139
         },
         {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
         },
         {
           "source": "behaviors/katana.md",
           "unknown": 10
         },
         {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
           "source": "behaviors/example.md",
           "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
         },
         {
           "source": "behaviors/internal/fence.md",
           "unknown": 34
         },
         {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
         },
         {
           "source": "behaviors/internal/tracker.md",
@@ -1746,740 +1053,66 @@
       ]
     },
     {
-      "ran_at": "2026-08-13T13:40:55.641157Z",
-      "command": "go test ./... -v -run '^(TestClaudeHarnessConfigurationIsSupported)$'",
+      "ran_at": "2026-08-13T16:53:06.244198Z",
+      "command": "go test ./... -v -run '^(TestPythonListsAnAsyncDeclarationTheSameWay)$'",
       "exit_code": 0,
+      "millis": 126,
       "per_case": true,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:40:57.273856Z",
-      "command": "go test ./... -v -run '^(TestCodexHarnessConfigurationIsSupported)$'",
-      "exit_code": -1,
-      "millis": 722,
-      "per_case": true,
-      "scope": "behaviors/example.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "pass": 1,
-          "unknown": 3
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:00.886898Z",
-      "command": "go test ./... -v -run '^(TestBlocksReturnsEveryFencedBlockInTheOrderTheyAppear)$'",
-      "exit_code": 0,
-      "per_case": true,
-      "behaviors": [
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:04.416145Z",
-      "command": "go test ./... -v -run '^(TestABlockOpensAtALineBeginningWithThreeOrMoreBackticks)$'",
-      "exit_code": -1,
-      "millis": 1829,
-      "scope": "behaviors/internal/fence.md",
-      "behaviors": [
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:09.188385Z",
-      "command": "go test ./... -v -run '^(TestGenerationProducesTheTestFileAtTheRequestedPath)$'",
-      "exit_code": 0,
-      "per_case": true,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:10.144627Z",
-      "command": "go test ./... -v -run '^(TestForwardSlashesInTheOutputPathBecomeDirectoriesUnderTheProjectRoot)$'",
-      "exit_code": 0,
-      "millis": 957,
-      "per_case": true,
-      "scope": "behaviors/internal/generator.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/generator.md",
-          "pass": 1,
-          "unknown": 49
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:11.103932Z",
-      "command": "go test ./... -v -run '^(TestExistingTestsAtTheOutputPathAreGivenToTheHarnessToUpdate)$'",
-      "exit_code": 0,
-      "millis": 953,
-      "per_case": true,
-      "scope": "behaviors/internal/generator.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/generator.md",
-          "pass": 1,
-          "unknown": 49
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:12.059073Z",
-      "command": "go test ./... -v -run '^(TestWithNoFileAtTheOutputPathTheHarnessIsAskedToCreateItFresh)$'",
-      "exit_code": 0,
-      "millis": 943,
-      "per_case": true,
-      "scope": "behaviors/internal/generator.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "pass": 1,
-          "unknown": 49
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:13.00347Z",
-      "command": "go test ./... -v -run '^(TestThePromptObserverSeesThePromptBeforeTheHarnessRuns)$'",
-      "exit_code": -1,
-      "millis": 687,
-      "scope": "behaviors/internal/generator.md",
-      "behaviors": [
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:16.470863Z",
-      "command": "go test ./... -v -run '^(TestFindReturnsTheConfigInTheStartingDirectory)$'",
-      "exit_code": 0,
-      "per_case": true,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "unknown": 125
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:17.328944Z",
-      "command": "go test ./... -v -run '^(TestFindWalksUpwardsToAnAncestorDirectory)$'",
-      "exit_code": 0,
-      "millis": 849,
-      "per_case": true,
-      "scope": "behaviors/internal/config.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 1,
-          "unknown": 124
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:18.179547Z",
-      "command": "go test ./... -v -run '^(TestFindReturnsTheFirstConfigFoundWalkingUpwards)$'",
-      "exit_code": 0,
-      "millis": 849,
-      "per_case": true,
-      "scope": "behaviors/internal/config.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 1,
-          "unknown": 124
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:19.030673Z",
-      "command": "go test ./... -v -run '^(TestFindResolvesARelativeStartingDirectory)$'",
-      "exit_code": 0,
-      "millis": 853,
-      "per_case": true,
-      "scope": "behaviors/internal/config.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        },
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 1,
-          "unknown": 124
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:19.886057Z",
-      "command": "go test ./... -v -run '^(TestFindReportsTheStartingDirectoryWhenNoConfigExists)$'",
-      "exit_code": 0,
-      "millis": 1449,
-      "per_case": true,
-      "scope": "behaviors/internal/config.md",
-      "pass": 1,
-      "behaviors": [
-        {
-          "source": "behaviors/example.md",
-          "unknown": 4
-        },
-        {
-          "source": "behaviors/internal/harness.md",
-          "unknown": 58
-        },
-        {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
-        },
-        {
-          "source": "behaviors/internal/update.md",
-          "unknown": 102
-        },
-        {
-          "source": "behaviors/internal/config.md",
-          "pass": 1,
-          "unknown": 124
-        },
-        {
-          "source": "behaviors/internal/fence.md",
-          "unknown": 34
-        },
-        {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
-        },
-        {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
-        },
-        {
-          "source": "behaviors/katana.md",
-          "unknown": 10
-        }
-      ]
-    },
-    {
-      "ran_at": "2026-08-13T13:41:21.33685Z",
-      "command": "go test ./... -v -run '^(TestLoadSurfacesAMissingFileUnchanged)$'",
-      "exit_code": 0,
-      "millis": 2097,
-      "per_case": true,
-      "scope": "behaviors/internal/config.md",
+      "scope": "behaviors/internal/testindex.md",
       "pass": 1,
       "behaviors": [
         {
           "source": "behaviors/internal/config.md",
-          "pass": 1,
-          "unknown": 124
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
         },
         {
           "source": "behaviors/internal/fence.md",
           "unknown": 34
         },
         {
-          "source": "behaviors/internal/generator.md",
-          "unknown": 50
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
         },
         {
-          "source": "behaviors/internal/testindex.md",
-          "unknown": 76
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
         },
         {
           "source": "behaviors/katana.md",
           "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
         },
         {
           "source": "behaviors/example.md",
@@ -2490,12 +1123,8 @@
           "unknown": 58
         },
         {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
         },
         {
           "source": "behaviors/internal/update.md",
@@ -2504,15 +1133,45 @@
       ]
     },
     {
-      "ran_at": "2026-08-13T13:41:23.435803Z",
-      "command": "go test ./... -v -run '^(TestLoadSurfacesAnUnreadableFileUnchanged)$'",
-      "exit_code": -1,
-      "millis": 615,
-      "scope": "behaviors/internal/config.md",
+      "ran_at": "2026-08-13T16:53:06.374098Z",
+      "command": "go test ./... -v -run '^(TestPythonIgnoresACapitalisedTestName)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
       "behaviors": [
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
         {
           "source": "behaviors/katana.md",
           "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
         },
         {
           "source": "behaviors/example.md",
@@ -2523,12 +1182,8 @@
           "unknown": 58
         },
         {
-          "source": "behaviors/internal/report.md",
-          "unknown": 139
-        },
-        {
-          "source": "behaviors/internal/tracker.md",
-          "unknown": 44
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
         },
         {
           "source": "behaviors/internal/update.md",
@@ -2539,16 +1194,2821 @@
           "unknown": 125
         },
         {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
           "source": "behaviors/internal/fence.md",
           "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:06.504084Z",
+      "command": "go test ./... -v -run '^(TestTheFirstArgumentOfItAndTestIsTheCaseName)$'",
+      "exit_code": 0,
+      "millis": 124,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 3,
+      "behaviors": [
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
         },
         {
           "source": "behaviors/internal/generator.md",
           "unknown": 50
         },
         {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:06.632437Z",
+      "command": "go test ./... -v -run '^(TestASuffixedCallFormNamesItsCaseTheSameWay)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 13,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
           "source": "behaviors/internal/testindex.md",
-          "unknown": 76
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:06.762318Z",
+      "command": "go test ./... -v -run '^(TestACaseNameMayBeSingleDoubleOrBacktickQuoted)$'",
+      "exit_code": 0,
+      "millis": 125,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 3,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:06.892249Z",
+      "command": "go test ./... -v -run '^(TestACallPrecededByAWordCharacterDotOrDollarIsNotListed)$'",
+      "exit_code": 0,
+      "millis": 125,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 11,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:07.0211Z",
+      "command": "go test ./... -v -run '^(TestACallWithAnEmptyFirstArgumentYieldsNoName)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 3,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:07.151569Z",
+      "command": "go test ./... -v -run '^(TestJavaScriptAndTypeScriptHaveNoMarker)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 3,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:07.281891Z",
+      "command": "go test ./... -v -run '^(TestRubyListsAnItDescriptionAtTheStartOfALine)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:07.411973Z",
+      "command": "go test ./... -v -run '^(TestRubyAcceptsAnItDescriptionWithOrWithoutParentheses)$'",
+      "exit_code": 0,
+      "millis": 125,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 5,
+      "behaviors": [
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:07.541525Z",
+      "command": "go test ./... -v -run '^(TestRubyListsMethodsNamedWithATestUnderscorePrefix)$'",
+      "exit_code": 0,
+      "millis": 131,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:07.676624Z",
+      "command": "go test ./... -v -run '^(TestRubyIgnoresAMethodNamedTestWithoutAnUnderscore)$'",
+      "exit_code": 0,
+      "millis": 125,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:07.806352Z",
+      "command": "go test ./... -v -run '^(TestJavaMarkerAnnotations)$'",
+      "exit_code": 0,
+      "millis": 127,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 6,
+      "behaviors": [
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:07.937385Z",
+      "command": "go test ./... -v -run '^(TestJavaMarkerAnnotationsAreRecognisedWithArguments)$'",
+      "exit_code": 0,
+      "millis": 127,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 4,
+      "behaviors": [
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:08.069317Z",
+      "command": "go test ./... -v -run '^(TestJavaTakesTheIdentifierInFrontOfTheParameterList)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 4,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:08.199027Z",
+      "command": "go test ./... -v -run '^(TestKotlinUsesTheSameMarkerAnnotationsAsJava)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 6,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:08.328998Z",
+      "command": "go test ./... -v -run '^(TestKotlinKeepsABacktickedNameIntact)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:08.459619Z",
+      "command": "go test ./... -v -run '^(TestKotlinListsAPlainFunctionNameWhenThereIsNoBacktickedOne)$'",
+      "exit_code": 0,
+      "millis": 127,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:08.590234Z",
+      "command": "go test ./... -v -run '^(TestCSharpMarkerAttributes)$'",
+      "exit_code": 0,
+      "millis": 128,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 6,
+      "behaviors": [
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:08.722444Z",
+      "command": "go test ./... -v -run '^(TestCSharpMarkerAttributesAreRecognisedWithArguments)$'",
+      "exit_code": 0,
+      "millis": 127,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 4,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:08.853719Z",
+      "command": "go test ./... -v -run '^(TestCSharpRemovesBracketedAttributesBeforeLookingForTheDeclaration)$'",
+      "exit_code": 0,
+      "millis": 125,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:08.983491Z",
+      "command": "go test ./... -v -run '^(TestCSharpTakesTheIdentifierInFrontOfTheParameterList)$'",
+      "exit_code": 0,
+      "millis": 128,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:09.11546Z",
+      "command": "go test ./... -v -run '^(TestRustTreatsAnAttributeContainingTheWordTestAsAMarker)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 4,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:09.246538Z",
+      "command": "go test ./... -v -run '^(TestRustIgnoresAnAttributeWithoutTheWordTest)$'",
+      "exit_code": 0,
+      "millis": 129,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:09.379848Z",
+      "command": "go test ./... -v -run '^(TestRustRemovesAttributesBeforeLookingForTheDeclaration)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:09.509845Z",
+      "command": "go test ./... -v -run '^(TestRustTakesTheIdentifierAfterFn)$'",
+      "exit_code": 0,
+      "millis": 128,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:09.641705Z",
+      "command": "go test ./... -v -run '^(TestPHPListsMethodsNamedWithATestPrefix)$'",
+      "exit_code": 0,
+      "millis": 125,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:09.770841Z",
+      "command": "go test ./... -v -run '^(TestPHPAcceptsAnyCombinationOfModifiersInFrontOfAMethod)$'",
+      "exit_code": 0,
+      "millis": 128,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 11,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:09.90301Z",
+      "command": "go test ./... -v -run '^(TestPHPAttributeMarksAMethodWhateverItsName)$'",
+      "exit_code": 0,
+      "millis": 125,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:10.032793Z",
+      "command": "go test ./... -v -run '^(TestPHPDocblockTagAfterALeadingStarMarksAMethodWhateverItsName)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:10.162639Z",
+      "command": "go test ./... -v -run '^(TestPHPIgnoresAnAttributeThatIsNotExactlyTest)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 5,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:10.292928Z",
+      "command": "go test ./... -v -run '^(TestPHPMarkedMethodTakesTheIdentifierAfterFunction)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:10.423341Z",
+      "command": "go test ./... -v -run '^(TestPHPListsAMethodMatchedByBothItsPrefixAndAMarkerOnce)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:10.553154Z",
+      "command": "go test ./... -v -run '^(TestSwiftListsFunctionsNamedWithATestPrefix)$'",
+      "exit_code": 0,
+      "millis": 125,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:10.682651Z",
+      "command": "go test ./... -v -run '^(TestSwiftMarkerListsAFunctionThatDropsTheNamingConvention)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:10.813109Z",
+      "command": "go test ./... -v -run '^(TestSwiftMarkerIsRecognisedWithArguments)$'",
+      "exit_code": 0,
+      "millis": 124,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
+        },
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        }
+      ]
+    },
+    {
+      "ran_at": "2026-08-13T16:53:10.941995Z",
+      "command": "go test ./... -v -run '^(TestSwiftMarkedFunctionTakesTheIdentifierAfterFunc)$'",
+      "exit_code": 0,
+      "millis": 126,
+      "per_case": true,
+      "scope": "behaviors/internal/testindex.md",
+      "pass": 1,
+      "behaviors": [
+        {
+          "source": "behaviors/internal/fence.md",
+          "unknown": 34
+        },
+        {
+          "source": "behaviors/internal/testindex.md",
+          "pass": 1,
+          "unknown": 75
+        },
+        {
+          "source": "behaviors/internal/tracker.md",
+          "unknown": 44
+        },
+        {
+          "source": "behaviors/internal/history.md",
+          "unknown": 7
+        },
+        {
+          "source": "behaviors/internal/plan.md",
+          "unknown": 8
+        },
+        {
+          "source": "behaviors/internal/report.md",
+          "unknown": 139
+        },
+        {
+          "source": "behaviors/internal/results.md",
+          "unknown": 11
+        },
+        {
+          "source": "behaviors/katana.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/generator.md",
+          "unknown": 50
+        },
+        {
+          "source": "behaviors/internal/tui.md",
+          "unknown": 10
+        },
+        {
+          "source": "behaviors/internal/ui.md",
+          "unknown": 14
+        },
+        {
+          "source": "behaviors/example.md",
+          "unknown": 4
+        },
+        {
+          "source": "behaviors/internal/harness.md",
+          "unknown": 58
+        },
+        {
+          "source": "behaviors/internal/suite.md",
+          "unknown": 19
+        },
+        {
+          "source": "behaviors/internal/update.md",
+          "unknown": 102
+        },
+        {
+          "source": "behaviors/internal/config.md",
+          "unknown": 125
+        },
+        {
+          "source": "behaviors/internal/coverage.md",
+          "unknown": 12
         }
       ]
     }

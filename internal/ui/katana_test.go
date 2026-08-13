@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/adaptive-scale/katana/internal/coverage"
 	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/report"
 	"github.com/adaptive-scale/katana/internal/results"
@@ -124,5 +125,22 @@ func TestRunSparkColoursFailures(t *testing.T) {
 	}
 	if !strings.Contains(got, "\x1b[31m") {
 		t.Errorf("a run with a failure should be red: %q", got)
+	}
+}
+
+func TestCoverageSparkUsesCoverageHeightAndThresholdColours(t *testing.T) {
+	p := Printer{on: true}
+	got := p.CoverageSpark([]coverage.Run{
+		{Files: []coverage.File{{Statements: 100, Covered: 25}}},
+		{Files: []coverage.File{{Statements: 100, Covered: 60}}},
+		{Files: []coverage.File{{Statements: 100, Covered: 90}}},
+	})
+	if len([]rune(Strip(got))) != 3 {
+		t.Errorf("coverage spark = %q, want three columns", got)
+	}
+	for _, colour := range []string{"\x1b[31m", "\x1b[33m", "\x1b[32m"} {
+		if !strings.Contains(got, colour) {
+			t.Errorf("coverage spark is missing colour %q: %q", colour, got)
+		}
 	}
 }

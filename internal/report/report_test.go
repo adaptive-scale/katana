@@ -341,6 +341,35 @@ func TestWriteHTMLIsSelfContainedAndTimestamped(t *testing.T) {
 	}
 }
 
+func TestWriteReadinessHTMLReportsAllStages(t *testing.T) {
+	dir := t.TempDir()
+	path, err := (Readiness{
+		Project: "checkout", Version: "dev", Ready: false, Coverage: 42.5,
+		Reason:       "coverage: coverage measured no statements",
+		Improvements: []string{"discover completed successfully"},
+		StartedAt:    time.Date(2026, 8, 13, 12, 34, 56, 0, time.UTC),
+		Stages: []ReadinessStage{
+			{Name: "discover", OK: true},
+			{Name: "coverage", Error: "coverage measured no statements"},
+		},
+	}).WriteHTML(dir)
+	if err != nil {
+		t.Fatalf("writing readiness report: %v", err)
+	}
+	if !strings.HasSuffix(path, "readiness-20260813-123456.html") {
+		t.Fatalf("path = %q, want timestamped readiness report", path)
+	}
+	body, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading readiness report: %v", err)
+	}
+	for _, want := range []string{"Not release ready", "42.5%", "Why", "coverage: coverage measured no statements", "Improvements", "discover completed successfully", "discover", "coverage measured no statements"} {
+		if !strings.Contains(string(body), want) {
+			t.Errorf("readiness report does not contain %q", want)
+		}
+	}
+}
+
 func TestWriteHTMLEscapesTestOutput(t *testing.T) {
 	r := &Report{
 		StartedAt: time.Now(),

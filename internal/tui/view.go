@@ -63,7 +63,7 @@ func (m *model) renderList() []string {
 
 	// The list scrolls rather than the screen: the title and the keys stay put,
 	// and only the rows move under them.
-	body := max(m.h-11, 1)
+	body := m.listBody()
 	m.clampOffset(body)
 	visible := m.items[m.offset:min(m.offset+body, len(m.items))]
 
@@ -114,7 +114,7 @@ func (m *model) renderList() []string {
 			m.offset+1, m.offset+len(visible), len(m.items))))
 	}
 
-	out = append(out, "", m.historyLine(), m.messageLine())
+	out = append(out, "", m.historyLine(), m.coverageLine(), m.messageLine())
 	if m.w < 100 {
 		// The hints are the documentation, so they are shortened rather than
 		// cut off mid-word by a terminal that cannot hold all of them.
@@ -124,6 +124,18 @@ func (m *model) renderList() []string {
 	return append(out, m.footer(
 		"↑↓", "select", "enter", "open", "r", "run", "a", "run all",
 		"o", "output", "u", "reload", "?", "help", "q", "quit"))
+}
+
+// listBody reserves a line for the range indicator whenever the list needs to
+// scroll. Keeping that line in the layout from the first frame prevents the
+// table from gaining or losing a row at the end of the list, which otherwise
+// makes the screen appear to jump while selection moves.
+func (m *model) listBody() int {
+	body := max(m.h-12, 1)
+	if len(m.items) > body {
+		body = max(m.h-13, 1)
+	}
+	return body
 }
 
 // renderDetail is one behavior in full: where it came from, where its tests
@@ -278,7 +290,7 @@ func (m *model) renderHelp() []string {
 		{"a", "run the whole suite"},
 		{"o", "show the output of the last run"},
 		{"x", "stop a run in flight"},
-		{"u", "reload the tracker, results and history from disk"},
+		{"u", "reload the tracker, results and histories from disk"},
 		{"g / G", "first / last behavior"},
 		{"?", "this help"},
 		{"q / ctrl-c", "quit"},
@@ -369,6 +381,29 @@ func (m *model) historyLine() string {
 		note = fmt.Sprintf("%d of %d run(s), oldest shown %s", len(runs), total, ui.Age(runs[0].RanAt))
 	}
 	return fmt.Sprintf("  %s %s  %s", p.Dim("history  "), p.RunSpark(runs), p.Dim(note))
+}
+
+// coverageLine is the persisted coverage trend, kept separate from test-run
+// history because imported reports and instrumented runs are coverage facts of
+// their own.
+func (m *model) coverageLine() string {
+	p := m.p
+	stats := m.covHist.Stats()
+	if stats.Runs == 0 {
+		return p.Dim("  coverage  nothing recorded yet — run `katana coverage` to start the chart")
+	}
+	runs := m.covHist.Recent(m.w / 4)
+	if len(runs) == 0 {
+		return p.Dim(fmt.Sprintf("  coverage  %d run(s) recorded; none measured statements", stats.Runs))
+	}
+	latest := runs[len(runs)-1]
+	change := ""
+	if previous, current, ok := m.covHist.LatestTwo(); ok {
+		change = fmt.Sprintf(" · %+.1f pts", current.Percent()-previous.Percent())
+	}
+	note := fmt.Sprintf("latest %.1f%%%s · %d run(s) · avg %.1f%% · %.1f–%.1f%%",
+		latest.Percent(), change, stats.Runs, stats.Average, stats.Min, stats.Max)
+	return fmt.Sprintf("  %s %s  %s", p.Dim("coverage "), p.CoverageSpark(runs), p.Dim(note))
 }
 
 // messageLine is what just happened: the result of the last run, or what went

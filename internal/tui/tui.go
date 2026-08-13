@@ -117,9 +117,9 @@ func (m *model) handleList(k key) {
 	case keyDown:
 		m.move(1)
 	case keyPageUp:
-		m.move(-max(m.h-12, 1))
+		m.move(-m.listBody())
 	case keyPageDown:
-		m.move(max(m.h-12, 1))
+		m.move(m.listBody())
 	case keyHome:
 		m.sel = 0
 	case keyEnd:

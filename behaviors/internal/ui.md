@@ -22,6 +22,7 @@ This part renders terminal-oriented status, result, history, and table output. I
 - A known tally is shown as passed cases over total cases; it is red if any case failed, green if all total cases passed, and yellow otherwise.
 - A run sparkline emits one block per run, with height based on the run rate and color grey for no known cases, red for failures, yellow for skips without failures, and green when there are passes without skips or failures.
 - A behavior sparkline emits a block only for runs containing that behavior; its block height and color use that behavior's rate and outcome.
+- A coverage sparkline emits one block per measurable coverage observation, with height based on the total percentage and color red below 50, yellow from 50 to below 80, and green from 80 upward.
 - A zero or negative sparkline fraction uses `▁`, a fraction at least one uses `█`, and intermediate fractions use one of the eight blocks from `▁` through `█`; every positive intermediate fraction uses at least `▂`.
 - A zero timestamp is shown as `-`; a future timestamp or one at least seven days old is shown as the local date in `YYYY-MM-DD` form.
 - A timestamp less than one minute old is `just now`; timestamps within an hour, day, or seven days are shown as integer minutes, hours, or days followed by ` ago`.

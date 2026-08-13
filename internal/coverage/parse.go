@@ -172,82 +172,63 @@ func parseGoLine(line string) (block, int, int, error) {
 func parseLCOV(data []byte) (*Profile, error) {
 	p := &Profile{Format: FormatLCOV}
 	var (
-		file    string
-		hits    map[int]int
-		found   int
-		covered int
+		file string
+		// Records are accumulated per file rather than per record: a suite run
+		// in several projects, or a file imported by two of them, is reported
+		// once per run, and a line that ran in any of them ran.
+		hits    = map[string]map[int]int{}
+		found   = map[string]int{}
+		covered = map[string]int{}
 		order   []string
-		byFile  = map[string]*File{}
 	)
-
-	flush := func() {
-		if file == "" {
-			return
-		}
-		f, ok := byFile[file]
-		if !ok {
-			f = &File{Path: file}
-			byFile[file] = f
-			order = append(order, file)
-		}
-		if len(hits) > 0 {
-			// Records for one file are merged rather than appended: a line that
-			// ran in any of them ran.
-			ran := 0
-			for _, n := range hits {
-				if n > 0 {
-					ran++
-				}
-			}
-			if len(hits) > f.Statements {
-				f.Statements = len(hits)
-			}
-			if ran > f.Covered {
-				f.Covered = ran
-			}
-		} else if found > 0 {
-			if found > f.Statements {
-				f.Statements = found
-			}
-			if covered > f.Covered {
-				f.Covered = covered
-			}
-		}
-		file, hits, found, covered = "", nil, 0, 0
-	}
 
 	for _, line := range strings.Split(string(data), "\n") {
 		line = strings.TrimSpace(line)
 		switch {
 		case line == "end_of_record":
-			flush()
-		case strings.HasPrefix(line, "SF:"):
 			// A record without its terminator still counts; the next SF ends it.
-			flush()
+			file = ""
+		case strings.HasPrefix(line, "SF:"):
 			file = strings.TrimSpace(strings.TrimPrefix(line, "SF:"))
-		case strings.HasPrefix(line, "DA:"):
-			lineNo, count, ok := parseLCOVData(strings.TrimPrefix(line, "DA:"))
-			if !ok {
+			if file == "" {
 				continue
 			}
-			if hits == nil {
-				hits = map[int]int{}
+			if _, seen := hits[file]; !seen {
+				hits[file] = map[int]int{}
+				order = append(order, file)
 			}
-			hits[lineNo] += count
+		case file == "":
+			// Anything outside a record belongs to no file.
+		case strings.HasPrefix(line, "DA:"):
+			if lineNo, count, ok := parseLCOVData(strings.TrimPrefix(line, "DA:")); ok {
+				hits[file][lineNo] += count
+			}
 		case strings.HasPrefix(line, "LF:"):
-			if n, err := strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(line, "LF:"))); err == nil {
-				found = n
+			if n, err := strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(line, "LF:"))); err == nil && n > found[file] {
+				found[file] = n
 			}
 		case strings.HasPrefix(line, "LH:"):
-			if n, err := strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(line, "LH:"))); err == nil {
-				covered = n
+			if n, err := strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(line, "LH:"))); err == nil && n > covered[file] {
+				covered[file] = n
 			}
 		}
 	}
-	flush()
 
 	for _, name := range order {
-		p.Files = append(p.Files, *byFile[name])
+		f := File{Path: name}
+		if lines := hits[name]; len(lines) > 0 {
+			f.Statements = len(lines)
+			for _, n := range lines {
+				if n > 0 {
+					f.Covered++
+				}
+			}
+		} else {
+			// A report that summarises without naming its lines still says how
+			// many there were and how many ran.
+			f.Statements, f.Covered = found[name], covered[name]
+		}
+		p.Files = append(p.Files, f)
 	}
 	p.Files = Merge(p.Files)
 	return p, nil

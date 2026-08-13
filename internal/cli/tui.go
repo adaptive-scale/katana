@@ -30,6 +30,9 @@ many of them passed in the last run, and a column per recent run showing how it
 has been doing. Enter opens a behavior: its test cases with how each one last
 fared, and a bar per run of the ones before.
 
+The list also shows the coverage trend recorded by `+"`katana coverage`"+`: latest,
+change, average, minimum and maximum, without running the suite again.
+
 r runs the selected behavior's tests and a runs the whole suite, streaming the
 runner's output as it comes. A run is recorded exactly as `+"`katana run`"+` records
 one, and the list updates from it the moment it finishes — so what is on screen

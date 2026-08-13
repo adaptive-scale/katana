@@ -2,6 +2,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -11,6 +12,20 @@ import (
 	"github.com/adaptive-scale/katana/internal/harness"
 	"github.com/adaptive-scale/katana/internal/update"
 )
+
+type exitError struct{ code int }
+
+func (e exitError) Error() string { return fmt.Sprintf("command exited with status %d", e.code) }
+
+// ExitCode preserves a runner's exit status for the process entry point while
+// allowing compound commands such as `katana auto` to continue to later steps.
+func ExitCode(err error) int {
+	var ee exitError
+	if errors.As(err, &ee) && ee.code > 0 {
+		return ee.code
+	}
+	return 1
+}
 
 // Version is the katana version, overridable at build time with
 // -ldflags "-X github.com/adaptive-scale/katana/internal/cli.Version=v1.2.3".
@@ -43,6 +58,10 @@ func Run(args []string) error {
 		return runGenerate(args[1:])
 	case "run", "test":
 		return runTest(args[1:])
+	case "coverage", "cover":
+		return runCoverage(args[1:])
+	case "auto":
+		return runAuto(args[1:])
 	case "status":
 		return runStatus(args[1:])
 	case "tui", "ui":
@@ -74,6 +93,8 @@ Commands:
   discover    Write behavior files for the code this project already has
   generate    Generate tests for behaviors that changed since the last run
   run         Run the generated test suite
+  coverage    Run the suite with coverage on and report what it executed
+  auto        Discover, generate, test, measure coverage and report readiness
   status      Show what the tracker holds and which behaviors are out of date
   tui         Open the full-screen view: behaviors, results and runs on demand
   harnesses   List the supported coding-agent harnesses

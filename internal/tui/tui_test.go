@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/adaptive-scale/katana/internal/config"
+	"github.com/adaptive-scale/katana/internal/coverage"
 	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/report"
 	"github.com/adaptive-scale/katana/internal/results"
@@ -30,6 +31,7 @@ func TestListShowsEveryBehavior(t *testing.T) {
 		// One of checkout's two cases failed in the recorded run.
 		"1/2",
 		"2 behavior(s)",
+		"coverage", "latest 75.0%",
 	} {
 		if !strings.Contains(frame, want) {
 			t.Errorf("the list is missing %q:\n%s", want, frame)
@@ -335,6 +337,14 @@ test:
 		Pass: 2, Fail: 1,
 		Behaviors: []history.Behavior{{Source: "behaviors/checkout.md", Pass: 1, Fail: 1}},
 	}); err != nil {
+		t.Fatal(err)
+	}
+	cov := &coverage.History{Version: coverage.HistoryVersion}
+	cov.Add(coverage.Run{
+		RanAt: ran, Format: coverage.FormatGo,
+		Files: []coverage.File{{Path: "cart.go", Statements: 20, Covered: 15}},
+	})
+	if err := cov.SaveHistory(root); err != nil {
 		t.Fatal(err)
 	}
 	return cfg

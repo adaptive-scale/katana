@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-13T13:45:44.091157Z",
+  "updated_at": "2026-08-13T15:48:51.086207Z",
   "entries": {
     "behaviors/example.md": {
       "source": "behaviors/example.md",
@@ -158,6 +158,32 @@
       "harness": "codex",
       "generated_at": "2026-08-12T23:09:12.49866Z",
       "katana_version": "v0.1.1-dirty"
+    },
+    "behaviors/internal/coverage.md": {
+      "source": "behaviors/internal/coverage.md",
+      "source_hash": "83730001c10e1f98411b4b01b39e60f09a5a6b1dade156eb245796deeb11531e",
+      "output": "tests/internal/coverage_test.go",
+      "output_hash": "b52bf132a4bfaad99b94ed0799e1c737ba5d6a167f5987f859d894c6bb350bfc",
+      "tests": [
+        "TestCoverageDetectsReportsByContentsRegardlessOfFilename",
+        "TestCoverageUnknownReportExplainsAllSupportedFormats",
+        "TestCoverageMalformedXMLNamesTheCoberturaParser",
+        "TestCoverageGoProfileKeepsColonsInFilenamesAndReportsBadLineNumbers",
+        "TestCoverageLCOVIgnoresOutsideRecordsAndTreatsUnreadableCountsAsMissed",
+        "TestCoverageMergeKeepsLargestCountsCapsCoveredAndSortsPaths",
+        "TestCoverageLocalizeRewritesInsideAndOutsideAbsolutePathsAndUnresolvedTails",
+        "TestCoverageInstrumentationUnknownRunnerReturnsNoCommandArgumentsOrProfile",
+        "TestCoverageInstrumentationUsesFrameworkOverCommandAndQuotesMochaDestination",
+        "TestCoverageFindUsesTheFirstReportAndRejectsDirectories",
+        "TestCoverageHistoryStatisticsRecentAndChangesIgnoreUnmeasuredFiles",
+        "TestCoverageHistoryAddNormalizesUTCAndMergesDuplicateFiles"
+      ],
+      "test_count": 12,
+      "language": "go",
+      "framework": "go-test",
+      "harness": "codex",
+      "generated_at": "2026-08-13T15:48:51.086205Z",
+      "katana_version": "v0.1.1-1-g0c7866c-dirty"
     },
     "behaviors/internal/fence.md": {
       "source": "behaviors/internal/fence.md",
@@ -566,27 +592,36 @@
     },
     "behaviors/internal/suite.md": {
       "source": "behaviors/internal/suite.md",
-      "source_hash": "3cc658e6dc70e35a48ce89dc8dc464dc7620dff63c4db5069ecfc98fbed54504",
+      "source_hash": "16051318970e67614f20c8d0ba884b599234bfe49621830ca1ef26342b6f217d",
       "output": "tests/internal/suite_test.go",
-      "output_hash": "1901dc5215b24dff4988e460a68d0b802b24a5e163e1869d829bf04c494c4118",
+      "output_hash": "412270f83aadad7d49445497f3d08bd812bc311e912846ef47b0cd49dfce0404",
       "tests": [
         "TestSuiteRejectsAnEmptyTestCommand",
         "TestSuiteRunsFromConfiguredDirectoryAndCapturesAndStreamsBothOutputs",
         "TestSuiteUsesStdinAndQuotesExtraArguments",
+        "TestSuiteRunCommandReplacesConfiguredCommandAndTrimsIt",
+        "TestSuiteMissingOutputWritersStillCaptureWithoutStreaming",
+        "TestSuiteSuppressesVerboseGoNoTestsLinesOnlyFromStream",
+        "TestSuiteNoCaseCallbackIsNeverInvoked",
         "TestSuiteNonzeroExitIsAResultAndZeroIsOK",
         "TestSuitePerCaseAddsVerboseOnlyForSupportedFramework",
         "TestSuiteTargetNarrowsOrExplainsWhyItCannot",
         "TestSuiteParsesCasesCountsAndObservesIncrementally",
         "TestSuiteBlockedReturnsDistinctSuitesInFirstSeenOrder",
         "TestSuiteTargetForUsesTrackerEntryIncludingEmptyTests",
-        "TestSuiteRecordWritesRunHistoryFromReportedCases"
+        "TestSuiteRecordWritesRunHistoryFromReportedCases",
+        "TestSuiteRecordPreservesUnreportedResultsAndHistoryTotalsOnlyReportedCases",
+        "TestSuiteRecordContinuesWhenPreviousResultsAreUnreadable",
+        "TestSuiteRecordReturnsSavedResultsWhenHistoryCannotBeRecorded",
+        "TestSuiteRunRecordsStartDurationCommandAndCapturedOutput",
+        "TestSuiteTargetForReturnsNoTargetForUnknownSource"
       ],
-      "test_count": 10,
+      "test_count": 19,
       "language": "go",
       "framework": "go-test",
       "harness": "codex",
-      "generated_at": "2026-08-13T13:44:09.022674Z",
-      "katana_version": "v0.1.1-dirty"
+      "generated_at": "2026-08-13T15:48:50.838795Z",
+      "katana_version": "v0.1.1-1-g0c7866c-dirty"
     },
     "behaviors/internal/testindex.md": {
       "source": "behaviors/internal/testindex.md",
@@ -738,46 +773,55 @@
     },
     "behaviors/internal/tui.md": {
       "source": "behaviors/internal/tui.md",
-      "source_hash": "05525bc53f6bbfe474f0c035c90df66c9c966916b9e4b030c709b33dca35cbc9",
+      "source_hash": "5b8ff3849bc180a3d4299ec058f8b57e9bdd5a6d2eb9f31b6bfd70bc0f562812",
       "output": "tests/internal/tui_test.go",
-      "output_hash": "1d7294477bdd18d58a7bfddbbb3c5e2f0fc52ae026aa6c39ac562176402314bb",
+      "output_hash": "c9e6366feafb0b84a68ec1a2a8926c23b20b8f1b0907b0deda29ebad53d6c446",
       "tests": [
         "TestTUISnapshotRendersConfiguredBehaviorsAndTerminatesLines",
         "TestTUISnapshotEmptyProjectExplainsHowToConfigureBehaviors",
         "TestTUISnapshotReturnsInitialTrackerLoadErrorWithoutWritingAFrame",
         "TestTUISnapshotReturnsInitialPlanErrorWithoutWritingAFrame",
         "TestTUISnapshotReturnsWriterErrorWhileWritingTheFrame",
-        "TestTUISnapshotFitsTheSuppliedWidthAndHeight"
+        "TestTUISnapshotFitsTheSuppliedWidthAndHeight",
+        "TestTUIInteractiveModeRejectsNonTerminalOutput",
+        "TestTUISnapshotKeepsTheBehaviorListWhenResultsCannotBeRead",
+        "TestTUISnapshotKeepsTheBehaviorListWhenHistoryCannotBeRead",
+        "TestTUISnapshotKeepsTheBehaviorListWhenCoverageHistoryCannotBeRead"
       ],
-      "test_count": 6,
+      "test_count": 10,
       "language": "go",
       "framework": "go-test",
       "harness": "codex",
-      "generated_at": "2026-08-13T13:45:05.84896Z",
-      "katana_version": "v0.1.1-dirty"
+      "generated_at": "2026-08-13T15:48:29.455847Z",
+      "katana_version": "v0.1.1-1-g0c7866c-dirty"
     },
     "behaviors/internal/ui.md": {
       "source": "behaviors/internal/ui.md",
-      "source_hash": "719dd6afa8f3b17c2e5f84604f6be4b264e77f5f0486424c178e863202eeddf9",
+      "source_hash": "89b87a9149f1bf9bd85b370e0bf19b4f2895fca49581bbb503844c1d2a7e7e1a",
       "output": "tests/internal/ui_test.go",
-      "output_hash": "43888c99c6236ef67e0dc55a93e075dfa81055f5835b13bedcf32dd0f58a699a",
+      "output_hash": "11e1c4067256940f7d37a6792adb8b12126becd41e1f56d39f4f65bfc4244012",
       "tests": [
         "TestUIColorModesTrimCaseAndRejectUnknownValues",
         "TestUIColorEnvironmentAndPrinterBoundaries",
         "TestUIColorTextUtilitiesHandleAnsiRunesPaddingAndTruncation",
+        "TestUIColorPaintJoinsStylesAndLeavesEmptyOrUnstyledTextAlone",
+        "TestUIColorAutomaticForceAndTerminalBoundaries",
         "TestUIStatusMarksTalliesAndSparklines",
+        "TestUIUnknownStatusIsGreyAndKnownDisplayColorsFollowTheirOutcomes",
         "TestUIHistorySparklinesUseOutcomeColorsAndBehaviorScope",
+        "TestUICoverageSparklineUsesMeasuredRatesAndThresholdColors",
         "TestUIBarsClampRoundAndStackSegments",
         "TestUITableShapesAlignsHighlightsAndWritesUntilError",
+        "TestUITableUsesAllColumnsPadsRowsAndHonorsSelectionAndAlignment",
         "TestUIAgeUsesRelativeUnitsAndDates",
         "TestUITerminalWritersWithoutTerminalReturnZeroSize"
       ],
-      "test_count": 9,
+      "test_count": 14,
       "language": "go",
       "framework": "go-test",
       "harness": "codex",
-      "generated_at": "2026-08-13T13:45:44.091155Z",
-      "katana_version": "v0.1.1-dirty"
+      "generated_at": "2026-08-13T15:48:46.771428Z",
+      "katana_version": "v0.1.1-1-g0c7866c-dirty"
     },
     "behaviors/internal/update.md": {
       "source": "behaviors/internal/update.md",

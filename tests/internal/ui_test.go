@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/adaptive-scale/katana/internal/coverage"
 	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/report"
 	"github.com/adaptive-scale/katana/internal/results"
@@ -97,6 +98,44 @@ func TestUIColorTextUtilitiesHandleAnsiRunesPaddingAndTruncation(t *testing.T) {
 	}
 }
 
+func TestUIColorPaintJoinsStylesAndLeavesEmptyOrUnstyledTextAlone(t *testing.T) {
+	ui.SetMode(ui.Always)
+	defer ui.SetMode(ui.Auto)
+	p := ui.For(&bytes.Buffer{})
+	if got := p.Paint("x", ui.Bold, ui.Red); got != "\x1b[1;31mx\x1b[0m" {
+		t.Fatalf("paint=%q", got)
+	}
+	if p.Paint("", ui.Red) != "" || p.Paint("x") != "x" || ui.Plain().Paint("x", ui.Red) != "x" {
+		t.Fatal("paint boundaries")
+	}
+}
+
+func TestUIColorAutomaticForceAndTerminalBoundaries(t *testing.T) {
+	oldNo, oldForce, oldTerm := os.Getenv("NO_COLOR"), os.Getenv("CLICOLOR_FORCE"), os.Getenv("TERM")
+	defer func() {
+		os.Setenv("NO_COLOR", oldNo)
+		os.Setenv("CLICOLOR_FORCE", oldForce)
+		os.Setenv("TERM", oldTerm)
+		ui.SetMode(ui.Auto)
+	}()
+	ui.SetMode(ui.Auto)
+	var b bytes.Buffer
+	os.Setenv("NO_COLOR", "")
+	os.Setenv("CLICOLOR_FORCE", "yes")
+	if !ui.For(&b).Enabled() {
+		t.Fatal("nonzero force should enable color")
+	}
+	os.Setenv("CLICOLOR_FORCE", "0")
+	os.Setenv("TERM", "xterm")
+	if ui.For(&b).Enabled() {
+		t.Fatal("a pipe is not a terminal")
+	}
+	os.Setenv("NO_COLOR", "1")
+	if ui.For(&b).Enabled() {
+		t.Fatal("NO_COLOR should disable color")
+	}
+}
+
 func TestUIStatusMarksTalliesAndSparklines(t *testing.T) {
 	p := ui.Plain()
 	for _, tc := range []struct {
@@ -118,6 +157,21 @@ func TestUIStatusMarksTalliesAndSparklines(t *testing.T) {
 	}
 }
 
+func TestUIUnknownStatusIsGreyAndKnownDisplayColorsFollowTheirOutcomes(t *testing.T) {
+	if ui.StatusStyle(tracker.Status(99)) != ui.Grey {
+		t.Fatal("unknown status")
+	}
+	ui.SetMode(ui.Always)
+	defer ui.SetMode(ui.Auto)
+	p := ui.For(&bytes.Buffer{})
+	if !strings.Contains(p.CaseMark(report.StatusFail, true), "\x1b[31m") || !strings.Contains(p.CaseMark(report.StatusSkip, true), "\x1b[33m") || !strings.Contains(p.CaseMark(report.StatusPass, true), "\x1b[32m") || !strings.Contains(p.CaseMark("", false), "\x1b[90m") {
+		t.Fatal("case mark colors")
+	}
+	if !strings.Contains(p.PassedText(results.Tally{Pass: 1, Unknown: 1}), "\x1b[33m") || !strings.Contains(p.PassedText(results.Tally{Pass: 1, Fail: 1}), "\x1b[31m") || !strings.Contains(p.PassedText(results.Tally{Pass: 2}), "\x1b[32m") {
+		t.Fatal("tally colors")
+	}
+}
+
 func TestUIHistorySparklinesUseOutcomeColorsAndBehaviorScope(t *testing.T) {
 	p := ui.Plain()
 	runs := []history.Run{{Pass: 2}, {Pass: 1, Fail: 1}, {Skip: 1}, {}}
@@ -132,6 +186,20 @@ func TestUIHistorySparklinesUseOutcomeColorsAndBehaviorScope(t *testing.T) {
 	got := ui.For(&bytes.Buffer{}).RunSpark([]history.Run{{Pass: 1, Fail: 1}, {Skip: 1}, {Pass: 1}})
 	if !strings.Contains(got, "\x1b[31m") || !strings.Contains(got, "\x1b[33m") || !strings.Contains(got, "\x1b[32m") {
 		t.Errorf("outcome colors=%q", got)
+	}
+}
+
+func TestUICoverageSparklineUsesMeasuredRatesAndThresholdColors(t *testing.T) {
+	p := ui.Plain()
+	runs := []coverage.Run{{Files: []coverage.File{{Statements: 10, Covered: 4}}}, {Files: []coverage.File{{Statements: 10, Covered: 5}}}, {Files: []coverage.File{{Statements: 10, Covered: 8}}}}
+	if got := p.CoverageSpark(runs); got != "▄▅▇" {
+		t.Fatalf("coverage spark=%q", got)
+	}
+	ui.SetMode(ui.Always)
+	defer ui.SetMode(ui.Auto)
+	got := ui.For(&bytes.Buffer{}).CoverageSpark(runs)
+	if !strings.Contains(got, "\x1b[31m") || !strings.Contains(got, "\x1b[33m") || !strings.Contains(got, "\x1b[32m") {
+		t.Fatalf("coverage colors=%q", got)
 	}
 }
 
@@ -168,6 +236,23 @@ func TestUITableShapesAlignsHighlightsAndWritesUntilError(t *testing.T) {
 	}
 	if err := ui.NewTable("x").Row("y").Render(errWriter{}, ui.Plain()); !errors.Is(err, errStop) {
 		t.Fatal("writer error not returned")
+	}
+}
+
+func TestUITableUsesAllColumnsPadsRowsAndHonorsSelectionAndAlignment(t *testing.T) {
+	table := ui.NewTable("A").Row("x", "long").Row("y", "z").RightAlign(1).Highlight(1)
+	lines := table.Lines(ui.Plain(), 0)
+	if len(lines) != 5 || !strings.Contains(lines[1], "A") || !strings.Contains(lines[2], "long") || !strings.Contains(lines[3], " y ") {
+		t.Fatalf("table columns/rows=%q", lines)
+	}
+	if strings.Contains(lines[3], "\x1b[") {
+		t.Fatal("plain selected table unexpectedly colored")
+	}
+	if ui.Width(lines[2]) != ui.Width(lines[3]) {
+		t.Fatal("table rows have different widths")
+	}
+	if got := ui.NewTable().Row("abcdefghi").MaxWidth(12).Lines(ui.Plain(), 12); !strings.Contains(strings.Join(got, "\n"), "…") {
+		t.Fatal("max width should truncate cells")
 	}
 }
 

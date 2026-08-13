@@ -1,10 +1,12 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -207,7 +209,7 @@ Flags:
 
 	if res.ExitCode != 0 {
 		// Propagate the suite's own exit code so CI sees the real result.
-		os.Exit(res.ExitCode)
+		return exitError{code: res.ExitCode}
 	}
 	return nil
 }
@@ -230,8 +232,14 @@ func runCasesIndividually(ctx context.Context, cfg *config.Config, tr *tracker.T
 
 	var all *suite.Result
 	for _, target := range targets {
+		bar.beginBatch(target.Tests[0])
 		oneReq := req
 		oneReq.Only = target
+		// Each invocation gets a fresh capture stream. This prevents output from
+		// the previous test batch being reused as the active batch's stdout.
+		var batchOut, batchErr bytes.Buffer
+		oneReq.Stdout = io.MultiWriter(&batchOut, bar.writer(os.Stdout))
+		oneReq.Stderr = io.MultiWriter(&batchErr, bar.writer(os.Stderr))
 		one, err := suite.Run(ctx, cfg, oneReq)
 		if err != nil {
 			return nil, err

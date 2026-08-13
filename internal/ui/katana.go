@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/adaptive-scale/katana/internal/coverage"
 	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/report"
 	"github.com/adaptive-scale/katana/internal/results"
@@ -102,6 +103,24 @@ func (p Printer) BehaviorSpark(source string, runs []history.Run) string {
 		}
 		rate, known := b.Rate()
 		out += p.Paint(Cell(rate), outcomeStyle(b.Pass, b.Fail, b.Skip, known))
+	}
+	return out
+}
+
+// CoverageSpark draws total statement coverage for each observation. Its shape
+// is the percentage trend and its colour uses the same conventional thresholds
+// as the coverage table.
+func (p Printer) CoverageSpark(runs []coverage.Run) string {
+	out := ""
+	for _, r := range runs {
+		pct := r.Percent()
+		style := Red
+		if pct >= 80 {
+			style = Green
+		} else if pct >= 50 {
+			style = Yellow
+		}
+		out += p.Paint(Cell(pct/100), style)
 	}
 	return out
 }

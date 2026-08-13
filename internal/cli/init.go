@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/adaptive-scale/katana/internal/config"
+	"github.com/adaptive-scale/katana/internal/coverage"
 	"github.com/adaptive-scale/katana/internal/harness"
 	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/results"
@@ -76,13 +77,13 @@ func runInit(args []string) error {
 
 	// The tracker is shared state that belongs in version control — it is what
 	// lets a teammate's checkout know which tests are already current. What is
-	// ignored is the scratch files and the recorded test results: a run's
-	// outcome is one machine's, not the project's. Missing lines are appended
+	// ignored is the scratch files and recorded test and coverage results: a
+	// run's outcome is one machine's, not the project's. Missing lines are appended
 	// rather than only written for a new project, so `katana init` in a project
 	// set up by an older katana still ends up ignoring the right files.
 	gitignore := filepath.Join(katanaDir, ".gitignore")
 	if err := ensureIgnored(gitignore, ".tracker-*.json", ".results-*.json", ".history-*.json",
-		results.FileName, history.FileName); err != nil {
+		".coverage-history-*.json", results.FileName, history.FileName, coverage.HistoryFileName); err != nil {
 		return err
 	}
 

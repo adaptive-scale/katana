@@ -38,6 +38,12 @@ type Target struct {
 
 // Request is one execution of the test command.
 type Request struct {
+	// Command replaces the configured test command for this run. It is empty
+	// for an ordinary run, and set where katana has to run the suite under
+	// something else — `katana coverage` wraps a runner that cannot measure
+	// itself — so that such a run still goes through the one place that knows
+	// the project's working directory, shell and output handling.
+	Command string
 	// Only narrows the run to a single behavior. Nil runs the whole suite.
 	Only *Target
 	// Extra arguments are appended to the configured command, as `katana run --`
@@ -119,6 +125,9 @@ func (r *Result) Counts() (pass, fail, skip int) {
 // fails is a result, not an error.
 func Run(ctx context.Context, cfg *config.Config, req Request) (*Result, error) {
 	command := strings.TrimSpace(cfg.Test.Command)
+	if req.Command != "" {
+		command = strings.TrimSpace(req.Command)
+	}
 	if command == "" {
 		return nil, errors.New("no test.command set in katana.yaml")
 	}

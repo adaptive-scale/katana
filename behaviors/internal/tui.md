@@ -8,10 +8,11 @@ The terminal UI presents a project's configured behaviors, their generated test 
 - If the terminal size cannot be read, interactive mode uses a width of 80 and a height of 24.
 - If putting the input terminal into raw mode fails, interactive mode returns an error beginning with `putting the terminal in raw mode: ` followed by the underlying error.
 - Interactive mode uses the terminal's alternate screen and hides the cursor while it is active, then shows the cursor, leaves the alternate screen, and restores the prior terminal mode when it ends.
-- The interface reloads the tracker, planned behaviors, results, and history when it starts and after each successfully completed run.
+- The interface reloads the tracker, planned behaviors, results, test history, and coverage history when it starts and after each successfully completed run.
 - A tracker-loading or plan-building error prevents the normal data from loading and is shown in the behavior list.
 - An unreadable results file leaves the behavior list available, replaces the results with empty results, and reports `katana: ` followed by the read error.
 - An unreadable history file leaves the behavior list available, replaces the history with empty history, and reports `katana: ` followed by the read error.
+- An unreadable coverage-history file leaves the behavior list available, replaces coverage history with empty history, and reports `katana: ` followed by the read error.
 - Snapshot mode returns a loading error instead of writing a frame when the initial tracker or plan load fails.
 - Snapshot mode writes each rendered line without trailing spaces, followed by a newline, and returns a writer error if writing fails.
 
@@ -66,12 +67,14 @@ The terminal UI presents a project's configured behaviors, their generated test 
 - Behavior history is shown newest first, up to 12 runs; an empty history displays `nothing recorded yet — the chart fills in as \`katana run\` is used`.
 - Whole-suite history displays `nothing recorded yet — run the suite to start the chart` when no runs are recorded.
 - The history chart displays as many recent runs as fit the terminal width and states whether the display contains all recorded runs or only a subset.
+- The coverage line displays nothing recorded until coverage history exists; otherwise it shows a sparkline of measurable observations, latest percentage and change, total observation count, average, minimum and maximum.
+- A coverage history containing only empty observations reports their count without plotting them as zero coverage.
 - A terminal narrower than 72 columns omits recent history, narrower than 90 omits generated age, and narrower than 108 omits the test-output column.
 - On terminals narrower than 100 columns, the project counts use compact wording; on wider terminals they identify stale behaviors as `out of date` and current projects as `all up to date`.
 - The frame is truncated to the terminal width and height; when content is too tall, the final key-hint line is preserved.
 - A list longer than its available body shows a `showing <first>–<last> of <total>` indicator, and the title and footer remain fixed while rows scroll.
 - An empty project displays `no behaviors configured — write one under behaviors/ and run \`katana generate\`` and only the quit hint.
-- Reloading with `u` rereads tracker, results, and history and reports `reloaded`.
+- Reloading with `u` rereads tracker, results, test history, and coverage history and reports `reloaded`.
 - `o` opens the output view when a run has been started from this interface; otherwise it reports `nothing has been run from here yet`.
 
 ## Leaving the interface

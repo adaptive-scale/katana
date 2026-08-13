@@ -28,6 +28,7 @@ type operationBar struct {
 	visibleWidth int
 	lineOpen     bool
 	printedLine  string
+	batch        string
 }
 
 func newOperationBar(w io.Writer, verb string, total int) *operationBar {
@@ -105,6 +106,22 @@ func (b *operationBar) setCases(n int) {
 		b.total = b.done
 	}
 	b.renderLocked()
+}
+
+// beginBatch announces the test currently being run. The batch line is kept
+// separate from the progress line so callers can replace it for the next
+// invocation without changing the meaning of the overall bar.
+func (b *operationBar) beginBatch(name string) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.batch = name
+	if !b.interactive {
+		fmt.Fprintf(b.w, "  test: %s\n", name)
+		return
+	}
+	b.eraseLocked()
+	b.drawLocked()
+	fmt.Fprintf(b.w, "\n  test: %s", name)
 }
 
 func (b *operationBar) render() {

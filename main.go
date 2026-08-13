@@ -18,6 +18,6 @@ func main() {
 		if !errors.Is(err, flag.ErrHelp) {
 			fmt.Fprintf(os.Stderr, "katana: %v\n", err)
 		}
-		os.Exit(1)
+		os.Exit(cli.ExitCode(err))
 	}
 }

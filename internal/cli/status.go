@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/adaptive-scale/katana/internal/config"
+	"github.com/adaptive-scale/katana/internal/coverage"
 	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/plan"
 	"github.com/adaptive-scale/katana/internal/results"
@@ -42,6 +43,10 @@ as neither passed nor failed. The RECENT column is one column per run from
 entirely and red for one that did not. The history keeps the last few dozen runs;
 the totals line counts every run this project has recorded, including the ones
 that have since dropped out of it.
+
+Coverage history comes from `+"`.katana/coverage-history.json`"+`. Its chart shows
+the recent measurable percentages, followed by the latest, average, minimum,
+maximum and newest change without running coverage again.
 
 Tracker entries whose behavior is no longer configured are listed separately;
 `+"`katana generate`"+` prunes them.
@@ -91,10 +96,16 @@ Flags:
 		fmt.Fprintf(os.Stderr, "katana: %v\n", err)
 		hist = &history.History{}
 	}
+	covHist, err := coverage.LoadHistory(cfg.Root)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "katana: %v\n", err)
+		covHist = &coverage.History{}
+	}
 
 	printTrackerSummary(p, cfg, t)
 	printRunSummary(p, res)
 	printHistorySummary(p, hist)
+	printCoverageHistory(p, covHist)
 
 	if len(items) == 0 {
 		fmt.Println("\nno behaviors matched")

@@ -25,11 +25,11 @@ type File struct {
 	// Path is the file, project-relative once Localize has been applied. Before
 	// that it is whatever the report said, which for a Go profile is an import
 	// path and for LCOV is usually absolute.
-	Path string
+	Path string `json:"path"`
 	// Statements is how many statements the runner counted.
-	Statements int
+	Statements int `json:"statements"`
 	// Covered is how many of them ran at least once.
-	Covered int
+	Covered int `json:"covered"`
 }
 
 // Missed is the statements that never ran.

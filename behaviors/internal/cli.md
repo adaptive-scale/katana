@@ -5,9 +5,11 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 ## Dispatching a command
 
 - Invoking katana with no arguments at all prints the usage text to standard output and succeeds.
-- `init`, `discover`, `generate`, `run`, `status`, `harnesses`, `update` and `version` are the recognised commands.
+- `init`, `discover`, `generate`, `run`, `coverage`, `auto`, `status`, `harnesses`, `update` and `version` are the recognised commands.
+- `auto` prints whether the platform is release ready; when it is not, it explains each failed readiness check, summarizes the stages that completed successfully, includes the same reason and improvements in the HTML readiness report, and returns `platform is not release ready: <reason>`.
 - `gen` is accepted as an alias for `generate`.
 - `test` is accepted as an alias for `run`.
+- `cover` is accepted as an alias for `coverage`.
 - `upgrade` and `self-update` are accepted as aliases for `update`.
 - `--version` and `-v` are accepted as aliases for `version`.
 - `help`, `--help` and `-h` all print the usage text to standard output and succeed.
@@ -122,6 +124,8 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 - Every recorded run is counted, and status reports the totals: how many runs there have been, how many of them passed and failed, how long they spent in the runner, and how many case outcomes they reported between them.
 - The totals count runs the history has already dropped, so they keep climbing after the chart's own count has stopped at the runs it still keeps.
 - A history recorded before totals were kept is counted from the runs still on file rather than from zero.
+- When coverage history exists, status shows its percentage sparkline, latest value, total observation count, average, minimum and maximum, followed by the overall percentage change and improved/regressed file counts between the newest two measurable observations.
+- The worst file regression is named when the newest two coverage observations have one.
 - When anything is out of date, status advises running generate.
 - `--strict` makes an out-of-date behavior a failure, exiting with `<n> behavior(s) out of date`.
 
@@ -150,6 +154,31 @@ This is katana's command line: the entry point a developer or a CI job invokes t
 - If the report cannot be written and the suite passed, run fails with `writing test report: <error>`.
 - If the report cannot be written and the suite failed, the error is printed as a `katana:` line and the suite's own exit code is still what katana exits with.
 - Each behavior recorded in the report carries its source, generated output, status, its language/framework/harness, and whether it was stale.
+
+## Reporting coverage
+
+- `coverage` runs the project's test command with coverage turned on and reports how much of the project's code the suite executed.
+- Arguments after `--` are appended to the instrumented command exactly as run appends them.
+- A configuration with no test command fails with `no test.command set in katana.yaml`.
+- The raw report is written to a temporary directory that is removed once it has been read, so no coverage artifact appears at the project root; the compact coverage-history observation is still retained.
+- `--save` copies the report to that path, resolved against the project root unless it is absolute, and prints where it was kept; for a Go profile it also prints the `go tool cover -html=` line that opens it.
+- A report that cannot be copied is reported as a `katana:` line and does not fail the command.
+- `--profile` reads a report that already exists instead of running anything, in any of the formats katana understands.
+- A runner katana has no coverage arguments for fails with `katana does not know how to turn coverage on for <framework or test command>`, followed by how to point katana at a report of the project's own, which formats are understood, and where a report already in the project was found.
+- A run that produces no report fails with `the test run wrote no coverage report`, saying so with the suite's exit code when it failed, naming the tool coverage there depends on, and pointing at `--profile`.
+- Before running, katana notes on standard error which extra tool the runner's coverage depends on, where there is one.
+- The table has a row per package by default, or per file with `--by file`, showing statements, covered, missed, and a bar with the percentage beside it.
+- `--sort coverage` orders the rows least-covered first, and `--limit` shows only the first rows, noting how many of how many were shown.
+- Percentages are coloured green at 80 or above, yellow at 50 or above, and red below that; a fully covered row's zero missed statements are not coloured.
+- Under the table katana prints the total percentage, the statements counted, how many were covered and missed, how many files were measured, and which format the report came from.
+- A report that measured no statements at all is called out as such rather than reported as zero coverage, with the advice to check that the tests ran and that `--coverpkg` names the packages they exercise.
+- Every successfully read coverage report is appended to `.katana/coverage-history.json` before threshold and suite failures are returned; `--profile` observations are marked as imports.
+- A suite which ran but left no readable report is recorded as an empty failed observation before the report error is returned.
+- After recording, coverage prints a sparkline with the latest percentage, observation count, average, minimum and maximum; with two measurable observations it also prints their total change, improved and regressed file counts, and the worst file regression.
+- Empty observations are counted but excluded from coverage percentages and charts, so a missing or empty report is not presented as zero percent coverage.
+- A coverage-history read or write failure is printed as `katana: recording coverage history: <error>` and does not outrank a usable coverage report or the suite result.
+- `--min` fails the command with `coverage is <total>%, below the <min>% required by --min` when the total is under it, and passes a total exactly at it.
+- A suite that fails is reported as a warning under the table, the coverage of that run is still printed, and coverage succeeds; `--min` remains available as the explicit coverage gate.
 
 ## Listing harnesses
 

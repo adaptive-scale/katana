@@ -108,3 +108,58 @@ func TestTUISnapshotFitsTheSuppliedWidthAndHeight(t *testing.T) {
 		t.Fatalf("snapshot has %d lines for a four-row terminal", len(lines))
 	}
 }
+
+func TestTUIInteractiveModeRejectsNonTerminalOutput(t *testing.T) {
+	cfg := tuiProject(t, "version: 1\ndefaults:\n  language: go\nbehaviors: []\n", "")
+	err := tui.Run(cfg)
+	want := "katana tui needs a terminal (stdout is not one); try `katana status`, or `katana tui --snapshot`"
+	if err == nil || err.Error() != want {
+		t.Fatalf("Run error=%v, want %q", err, want)
+	}
+}
+
+func TestTUISnapshotKeepsTheBehaviorListWhenResultsCannotBeRead(t *testing.T) {
+	cfg := tuiProject(t, "version: 1\ndefaults:\n  language: go\nbehaviors:\n  - path: behaviors/*.md\n", "# one\n\n- a\n- b\n")
+	if err := os.Mkdir(filepath.Join(cfg.Root, "results.json"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	var b strings.Builder
+	if err := tui.Snapshot(cfg, &b, 100, 24); err != nil {
+		t.Fatal(err)
+	}
+	got := b.String()
+	if !strings.Contains(got, "behaviors/one.md") || !strings.Contains(got, "katana:") {
+		t.Fatalf("snapshot lost the behavior list or read error:\n%s", got)
+	}
+}
+
+func TestTUISnapshotKeepsTheBehaviorListWhenHistoryCannotBeRead(t *testing.T) {
+	cfg := tuiProject(t, "version: 1\ndefaults:\n  language: go\nbehaviors:\n  - path: behaviors/*.md\n", "# one\n\n- a\n- b\n")
+	if err := os.Mkdir(filepath.Join(cfg.Root, "history.json"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	var b strings.Builder
+	if err := tui.Snapshot(cfg, &b, 100, 24); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(b.String(), "behaviors/one.md") || !strings.Contains(b.String(), "katana:") {
+		t.Fatalf("snapshot did not report the history read error:\n%s", b.String())
+	}
+}
+
+func TestTUISnapshotKeepsTheBehaviorListWhenCoverageHistoryCannotBeRead(t *testing.T) {
+	cfg := tuiProject(t, "version: 1\ndefaults:\n  language: go\nbehaviors:\n  - path: behaviors/*.md\n", "# one\n\n- a\n- b\n")
+	if err := os.MkdirAll(filepath.Join(cfg.Root, ".katana"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(filepath.Join(cfg.Root, ".katana", "coverage-history.json"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	var b strings.Builder
+	if err := tui.Snapshot(cfg, &b, 100, 24); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(b.String(), "behaviors/one.md") || !strings.Contains(b.String(), "katana:") {
+		t.Fatalf("snapshot did not report the coverage-history read error:\n%s", b.String())
+	}
+}

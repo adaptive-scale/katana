@@ -4,7 +4,9 @@ This part runs a project's configured test command, reports the command's outcom
 
 ## Running a test command
 
+- A run may supply a command of its own, which replaces the configured test command for that run; a run that supplies none uses the configured command.
 - If the configured test command is empty or contains only whitespace, no command is run and the error is `no test.command set in katana.yaml`.
+- A supplied command is trimmed of surrounding whitespace, and is narrowed, made verbose and extended with extra arguments exactly as a configured command is.
 - The command runs from the project's configured root, or from the root joined with the configured test directory when one is set.
 - The command runs through the platform shell, using `cmd /C` on Windows and the configured `SHELL` with `-c` elsewhere; when `SHELL` is empty, `/bin/sh` is used.
 - Extra arguments are appended to the command, with each argument enclosed in single quotes and embedded single quotes escaped so that spaces and quotes remain part of the argument.

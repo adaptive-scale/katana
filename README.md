@@ -85,8 +85,10 @@ behaviors/example.md   # a sample behavior to edit or delete
 
 `katana run` later adds `.katana/results.json`, the outcome of the last run that
 `katana status` reports pass counts from, and `.katana/history.json`, a short
-record of the runs before it that the charts are drawn from. Both are local, and
-`init` writes a `.katana/.gitignore` that leaves them out of version control.
+record of the runs before it that the charts are drawn from. `katana coverage`
+adds `.katana/coverage-history.json`, containing compact coverage totals for
+each observation. All three are local, and `init` writes a `.katana/.gitignore`
+that leaves them out of version control.
 
 Then the loop is: edit a behavior file, run `katana generate`, run `katana run`.
 Or run `katana` on its own, which opens the whole project in one screen and runs
@@ -128,6 +130,7 @@ path comes from `defaults.output_dir` and `defaults.output_template`.
 | `katana discover` | Write behavior files for the code this project already has |
 | `katana generate` | Generate tests for behaviors that changed since the last run |
 | `katana run` | Run the test command from `katana.yaml` |
+| `katana coverage` | Run the suite with coverage on and report what it executed |
 | `katana status` | Show what the tracker holds and which behaviors are out of date |
 | `katana tui` | Behaviors, their results, and runs on demand, in one screen |
 | `katana harnesses` | List the supported agent CLIs and whether they are installed |
@@ -316,6 +319,71 @@ commands and says so.
 The suite's exit code is still propagated after the report is written, so
 `--save` is safe to leave on in CI.
 
+### coverage
+
+```sh
+katana coverage                            # run the suite with coverage on
+katana coverage --by file --sort coverage  # per file, least covered first
+katana coverage --min 80                   # fail below 80% — the CI form
+katana coverage --save coverage.out        # keep the report the runner wrote
+katana coverage --profile coverage.xml     # read a report instead of running
+```
+
+```
+┌────────────────────┬───────┬─────────┬────────┬─────────────────────┐
+│ PACKAGE            │ STMTS │ COVERED │ MISSED │ COVERAGE            │
+├────────────────────┼───────┼─────────┼────────┼─────────────────────┤
+│ internal/cli       │  1380 │    1084 │    296 │ █████████░░░  78.6% │
+│ internal/config    │   286 │     270 │     16 │ ███████████░  94.4% │
+│ internal/tui       │   511 │     322 │    189 │ ████████░░░░  63.0% │
+└────────────────────┴───────┴─────────┴────────┴─────────────────────┘
+
+total  79.7% of 4371 statement(s) — 3484 covered, 887 missed
+coverage  ▆▆▇▇  latest 79.7%, 4 run(s) — avg 76.8%, min 72.1%, max 79.7%
+          +1.4 points since 3h ago; 7 file(s) improved, 2 regressed — worst internal/api.go (-2.1 points)
+```
+
+katana measures nothing itself. It asks the runner the project already uses for
+coverage and reads what that runner writes:
+
+| Runner | How coverage is turned on |
+| --- | --- |
+| `go test` | `-coverprofile`, and `-coverpkg` so tests generated into a directory of their own still measure the code they exercise |
+| pytest | `--cov`, via the pytest-cov plugin |
+| jest, vitest | `--coverage`, writing lcov |
+| mocha | run under `nyc` |
+| `node --test` | `--experimental-test-coverage`, writing lcov |
+| `cargo test` | run under `cargo-llvm-cov`; a project already on `cargo tarpaulin` keeps it |
+
+`-coverpkg=./...` is the default for Go because katana's own layout needs it:
+generated tests live in a `tests` directory, and `go test` on its own measures
+only the package a test is in, which would report a full suite as covering
+nothing. `--coverpkg=""` turns it off.
+
+Any other runner can still be reported on. Run its own coverage tool and point
+katana at the result with `--profile`: Go cover profiles, LCOV and Cobertura XML
+are all read, whichever tool wrote them.
+
+The raw report is written somewhere temporary and discarded once it has been
+read, so no coverage artifact appears at the project root. `--save` keeps it —
+that is what `go tool cover -html=coverage.out` and the coverage viewers in CI
+want. The compact local history described below is retained either way.
+
+Every report that katana reads is also recorded as compact totals in
+`.katana/coverage-history.json`: timestamp, source format, project and per-file
+statement counts, plus command, duration and exit status when katana ran the
+suite. Imported `--profile` reports are marked as imports. Raw profiles are not
+duplicated into history; they remain opt-in through `--save`.
+
+Coverage history retains every compact observation. Its chart and statistics
+exclude reports that measured no statements, while still counting those
+attempts. With two measurable observations, katana shows the overall change,
+how many comparable files improved or regressed, and the worst regression.
+`katana status` and the TUI show the same trend without rerunning coverage.
+
+A failing suite still covered whatever it covered: the table is printed, the
+failure is called out under it, and katana exits with the suite's own exit code.
+
 ### status
 
 ```sh
@@ -331,6 +399,8 @@ last run  20m ago, failed (exit 1) — 6 of 7 case(s) passed, 1 failed, 0 skippe
 history   ▇█████▆█  8 run(s), 2d ago to 20m ago
 totals    64 run(s) since 9d ago — 57 passed, 7 failed, 6m12s in the runner
           431 case outcome(s) recorded: 402 passed, 21 failed, 8 skipped
+coverage  ▆▆▇▇  latest 79.7%, 4 run(s) — avg 76.8%, min 72.1%, max 79.7%
+          +1.4 points since 3h ago; 7 file(s) improved, 2 regressed
 
 ┌──────────────────┬──────────────────────┬───────────────────────┬───────┬────────┬────────────┬───────────┬───────────────────────┐
 │ STATUS           │ BEHAVIOR             │ TESTS                 │ CASES │ PASSED │ RECENT     │ GENERATED │ STACK                 │
@@ -352,6 +422,11 @@ full height for a run in which every one of that behavior's cases passed, red
 and shorter for one where some did not. A run that said nothing about a behavior
 — a targeted run of another one — is not plotted in its row at all. The `history`
 line above the table is the same chart for the suite as a whole.
+
+The `coverage` line comes from `.katana/coverage-history.json`. It shows every
+recorded coverage observation in its totals and the recent measurable values in
+its sparkline, followed by average, minimum, maximum, and latest change. Empty
+or failed report attempts are counted but never plotted as zero percent.
 
 The `totals` line is every run this project has recorded, not only the ones still
 in the file: the history keeps the last fifty runs, so its count stops climbing
@@ -412,6 +487,7 @@ passed, and its recent runs; `enter` opens one.
  └──────────────────┴───────────────────────┴───────┴────────┴─────────────┴───────────┘
 
    history   ████████▇█  10 of 64 run(s), oldest shown 1d ago
+   coverage  ▆▆▇▇  latest 79.7% · +1.4 pts · 4 run(s) · avg 76.8% · 72.1–79.7%
 
   ↑↓ select · enter open · r run · a run all · o output · u reload · ? help · q quit
 ```
@@ -615,11 +691,16 @@ never heard of.
 ```sh
 katana status --strict          # behaviors and tests are in sync
 katana run --check --save       # the suite passes, and out/ has the report
+katana coverage --min 80        # the suite covers enough of the code
 ```
 
 `katana run` propagates the test suite's own exit code, so CI sees the real
 result — including when `--save` wrote a report first. Publish `out/` as a build
 artifact to keep a readable record of each run.
+
+`katana coverage --min` fails the build when coverage falls under the percentage
+given, and `--save` keeps the runner's own report for whatever reads coverage in
+your pipeline.
 
 ## How generation works
 

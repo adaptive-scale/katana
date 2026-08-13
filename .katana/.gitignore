@@ -1,3 +1,5 @@
 .tracker-*.json
 .results-*.json
+.coverage-history-*.json
 results.json
+coverage-history.json

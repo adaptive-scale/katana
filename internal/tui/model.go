@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/adaptive-scale/katana/internal/config"
+	"github.com/adaptive-scale/katana/internal/coverage"
 	"github.com/adaptive-scale/katana/internal/history"
 	"github.com/adaptive-scale/katana/internal/plan"
 	"github.com/adaptive-scale/katana/internal/results"
@@ -40,6 +41,7 @@ type model struct {
 	items   []plan.Item
 	res     *results.Results
 	hist    *history.History
+	covHist *coverage.History
 	loadErr error
 
 	view   view
@@ -79,7 +81,7 @@ func newModel(cfg *config.Config, p ui.Printer, w, h int) *model {
 	return m
 }
 
-// reload re-reads the tracker, the last run's results and the history. It is
+// reload re-reads the tracker, the last run's results and both histories. It is
 // called at startup and after every run, so what the UI shows is what `katana
 // status` would say if it were asked at that moment.
 func (m *model) reload() {
@@ -107,8 +109,13 @@ func (m *model) reload() {
 		m.message = "katana: " + err.Error()
 		hist = &history.History{}
 	}
+	covHist, err := coverage.LoadHistory(m.cfg.Root)
+	if err != nil {
+		m.message = "katana: " + err.Error()
+		covHist = &coverage.History{}
+	}
 
-	m.tracker, m.items, m.res, m.hist = t, items, res, hist
+	m.tracker, m.items, m.res, m.hist, m.covHist = t, items, res, hist, covHist
 	if m.sel >= len(m.items) {
 		m.sel = max(len(m.items)-1, 0)
 	}
